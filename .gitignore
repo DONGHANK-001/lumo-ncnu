@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Vercel
+.vercel
+
+# Turbo
+.turbo
+
+# Firebase / Google Cloud Keys
+*-firebase-adminsdk-*.json
+*.pem
+*.key
+lumo-ncnu-firebase-adminsdk-fbsvc-b4c049be05.json
+
+# TypeScript
+*.tsbuildinfo

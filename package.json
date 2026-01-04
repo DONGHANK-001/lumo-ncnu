@@ -1,0 +1,10 @@
+{
+  "name": "lumo-ncnu",
+  "private": true,
+  "description": "暨南大學校園運動配對平台",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install"
+  }
+}

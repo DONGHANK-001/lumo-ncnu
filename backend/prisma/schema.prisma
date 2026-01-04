@@ -1,0 +1,183 @@
+// Prisma Schema for Lumo-NCNU
+// Database: PostgreSQL (Supabase)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Enums
+// ============================================
+
+enum SportType {
+  BASKETBALL
+  RUNNING
+  BADMINTON
+  TABLE_TENNIS
+  GYM
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  ANY
+}
+
+enum PlanType {
+  FREE
+  PLUS
+}
+
+enum GroupStatus {
+  OPEN
+  FULL
+  CANCELLED
+  COMPLETED
+}
+
+enum MemberStatus {
+  JOINED
+  WAITLIST
+  LEFT
+}
+
+enum ReportTargetType {
+  USER
+  GROUP
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+// ============================================
+// Models
+// ============================================
+
+model User {
+  id          String    @id @default(uuid())
+  firebaseUid String    @unique
+  email       String    @unique
+  nickname    String?
+  school      String    @default("NCNU")
+  role        String    @default("USER") // USER | ADMIN
+  planType    PlanType  @default(FREE)
+  preferences Json?     // UserPreferences JSON
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  createdGroups   Group[]           @relation("GroupCreator")
+  groupMembers    GroupMember[]
+  reports         Report[]          @relation("Reporter")
+  subscription    PlusSubscription?
+  coachProfile    CoachProfile?
+
+  @@map("users")
+}
+
+model Group {
+  id           String      @id @default(uuid())
+  sportType    SportType
+  title        String
+  description  String?
+  time         DateTime
+  location     String
+  level        SkillLevel
+  capacity     Int
+  currentCount Int         @default(0)
+  status       GroupStatus @default(OPEN)
+
+  createdById  String
+  createdBy    User        @relation("GroupCreator", fields: [createdById], references: [id])
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relations
+  members      GroupMember[]
+
+  @@index([sportType])
+  @@index([time])
+  @@index([status])
+  @@map("groups")
+}
+
+model GroupMember {
+  id        String       @id @default(uuid())
+  groupId   String
+  group     Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    MemberStatus @default(JOINED)
+  joinedAt  DateTime     @default(now())
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+  @@map("group_members")
+}
+
+model Report {
+  id          String           @id @default(uuid())
+  reporterId  String
+  reporter    User             @relation("Reporter", fields: [reporterId], references: [id])
+  targetType  ReportTargetType
+  targetId    String
+  reason      String
+  details     String?
+
+  createdAt   DateTime         @default(now())
+
+  @@index([reporterId])
+  @@index([targetType, targetId])
+  @@map("reports")
+}
+
+// 預留：訂閱模型
+model PlusSubscription {
+  id         String             @id @default(uuid())
+  userId     String             @unique
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status     SubscriptionStatus @default(ACTIVE)
+  startAt    DateTime           @default(now())
+  endAt      DateTime?
+  provider   String?            // 預留金流串接
+  planPrice  Int                @default(20)
+
+  createdAt  DateTime           @default(now())
+
+  @@map("plus_subscriptions")
+}
+
+// 預留：教練模型
+model CoachProfile {
+  id                 String             @id @default(uuid())
+  userId             String             @unique
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sports             SportType[]
+  bio                String?
+  price              Int?
+  availability       String?
+  verificationStatus VerificationStatus @default(PENDING)
+
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@map("coach_profiles")
+}
