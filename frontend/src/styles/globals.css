@@ -1,4 +1,4 @@
-/* Global Styles - MUI handles most styling via ThemeRegistry */
+/* 全域樣式 - MUI 透過 ThemeRegistry 處理大部分樣式 */
 
 :root {
   --background-start-rgb: 20, 18, 24;
@@ -9,7 +9,7 @@ body {
   background: rgb(var(--background-start-rgb));
 }
 
-/* Scrollbar customization to match dark theme */
+/* 滾動條客製化 - 配合深色主題 */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
