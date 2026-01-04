@@ -5,6 +5,36 @@ import Link from 'next/link';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
 import { SportType, SkillLevel } from '@/types';
+import {
+    Box,
+    Container,
+    Typography,
+    Button,
+    Card,
+    CardContent,
+    CardActions,
+    Grid,
+    Chip,
+    Stack,
+    CircularProgress,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    FormControlLabel,
+    Switch,
+    Fab,
+    IconButton,
+    InputAdornment
+} from '@mui/material';
+import {
+    Add as AddIcon,
+    ArrowBack,
+    LocationOn,
+    Event,
+    People,
+    FilterList
+} from '@mui/icons-material';
 
 interface Group {
     id: string;
@@ -19,14 +49,6 @@ interface Group {
     status: string;
     createdBy: { nickname: string | null; email: string };
 }
-
-const SPORT_ICONS: Record<string, string> = {
-    BASKETBALL: '🏀',
-    RUNNING: '🏃',
-    BADMINTON: '🏸',
-    TABLE_TENNIS: '🏓',
-    GYM: '💪',
-};
 
 const SPORT_NAMES: Record<string, string> = {
     BASKETBALL: '籃球',
@@ -82,144 +104,201 @@ export default function GroupsPage() {
         });
     };
 
+    const getLevelColor = (level: string) => {
+        switch (level) {
+            case 'BEGINNER': return 'success';
+            case 'INTERMEDIATE': return 'warning';
+            case 'ADVANCED': return 'error';
+            default: return 'default';
+        }
+    };
+
     return (
-        <div className="min-h-screen pt-20 pb-10 px-4">
+        <Container maxWidth="lg" sx={{ pt: 4, pb: 10 }}>
             {/* Header */}
-            <div className="max-w-5xl mx-auto mb-8">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <Link href="/" className="text-gray-400 hover:text-white text-sm mb-2 inline-block">
-                            ← 返回首頁
-                        </Link>
-                        <h1 className="text-3xl font-bold">揪團列表</h1>
-                    </div>
-                    {user && (
-                        <Link href="/create" className="btn-primary">
-                            ✨ 發起揪團
-                        </Link>
-                    )}
-                </div>
-            </div>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                <Box>
+                    <Button
+                        startIcon={<ArrowBack />}
+                        component={Link}
+                        href="/"
+                        sx={{ mb: 1, color: 'text.secondary' }}
+                    >
+                        返回首頁
+                    </Button>
+                    <Typography variant="h4" fontWeight="bold">揪團列表</Typography>
+                </Box>
+                {user && (
+                    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                        <Button
+                            variant="contained"
+                            startIcon={<AddIcon />}
+                            component={Link}
+                            href="/create"
+                        >
+                            發起揪團
+                        </Button>
+                    </Box>
+                )}
+            </Stack>
 
             {/* Filters */}
-            <div className="max-w-5xl mx-auto mb-6">
-                <div className="glass-card p-4 flex flex-wrap gap-4">
-                    <select
-                        value={filters.sportType}
-                        onChange={(e) => setFilters({ ...filters, sportType: e.target.value })}
-                        className="input-field w-auto min-w-32"
-                    >
-                        <option value="">全部運動</option>
-                        {Object.entries(SportType).map(([key, value]) => (
-                            <option key={key} value={value}>
-                                {SPORT_ICONS[value]} {SPORT_NAMES[value]}
-                            </option>
-                        ))}
-                    </select>
+            <Card sx={{ mb: 4, bgcolor: 'background.paper', backgroundImage: 'none' }} variant="outlined">
+                <CardContent>
+                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
+                        <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                            <FilterList sx={{ mr: 1 }} />
+                            <Typography variant="body2">篩選</Typography>
+                        </Box>
 
-                    <select
-                        value={filters.level}
-                        onChange={(e) => setFilters({ ...filters, level: e.target.value })}
-                        className="input-field w-auto min-w-32"
-                    >
-                        <option value="">全部程度</option>
-                        {Object.entries(SkillLevel).map(([key, value]) => (
-                            <option key={key} value={value}>
-                                {LEVEL_NAMES[value]}
-                            </option>
-                        ))}
-                    </select>
+                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                            <InputLabel>運動類型</InputLabel>
+                            <Select
+                                value={filters.sportType}
+                                label="運動類型"
+                                onChange={(e) => setFilters({ ...filters, sportType: e.target.value })}
+                            >
+                                <MenuItem value="">全部</MenuItem>
+                                {Object.entries(SportType).map(([key, value]) => (
+                                    <MenuItem key={key} value={value}>{SPORT_NAMES[value]}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={filters.hasSlot}
-                            onChange={(e) => setFilters({ ...filters, hasSlot: e.target.checked })}
-                            className="w-4 h-4 rounded"
+                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                            <InputLabel>程度</InputLabel>
+                            <Select
+                                value={filters.level}
+                                label="程度"
+                                onChange={(e) => setFilters({ ...filters, level: e.target.value })}
+                            >
+                                <MenuItem value="">全部</MenuItem>
+                                {Object.entries(SkillLevel).map(([key, value]) => (
+                                    <MenuItem key={key} value={value}>{LEVEL_NAMES[value]}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={filters.hasSlot}
+                                    onChange={(e) => setFilters({ ...filters, hasSlot: e.target.checked })}
+                                />
+                            }
+                            label="只顯示有空位"
                         />
-                        <span className="text-sm">只顯示有空位</span>
-                    </label>
-                </div>
-            </div>
+                    </Stack>
+                </CardContent>
+            </Card>
 
             {/* Groups Grid */}
-            <div className="max-w-5xl mx-auto">
-                {loading ? (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {[1, 2, 3, 4, 5, 6].map((i) => (
-                            <div key={i} className="glass-card p-6 animate-pulse">
-                                <div className="h-6 bg-white/10 rounded mb-4 w-3/4" />
-                                <div className="h-4 bg-white/10 rounded mb-2 w-1/2" />
-                                <div className="h-4 bg-white/10 rounded w-2/3" />
-                            </div>
-                        ))}
-                    </div>
-                ) : groups.length === 0 ? (
-                    <div className="glass-card p-10 text-center">
-                        <div className="text-4xl mb-4">🏃</div>
-                        <p className="text-gray-400 mb-4">目前沒有符合條件的揪團</p>
-                        {user && (
-                            <Link href="/create" className="btn-primary">
-                                成為第一個發起揪團的人！
-                            </Link>
-                        )}
-                    </div>
-                ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {groups.map((group) => (
-                            <Link
-                                key={group.id}
-                                href={`/groups/${group.id}`}
-                                className="glass-card p-6 block group"
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                    <CircularProgress />
+                </Box>
+            ) : groups.length === 0 ? (
+                <Box sx={{ textAlign: 'center', py: 8 }}>
+                    <Typography variant="h2" sx={{ mb: 2 }}>🏃</Typography>
+                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                        目前沒有符合條件的揪團
+                    </Typography>
+                    {user && (
+                        <Button
+                            variant="contained"
+                            component={Link}
+                            href="/create"
+                            sx={{ mt: 2 }}
+                        >
+                            成為第一個發起揪團的人！
+                        </Button>
+                    )}
+                </Box>
+            ) : (
+                <Grid container spacing={3}>
+                    {groups.map((group) => (
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={group.id}>
+                            <Card
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    borderRadius: 3,
+                                    transition: 'transform 0.2s',
+                                    '&:hover': { transform: 'translateY(-4px)' }
+                                }}
                             >
-                                <div className="flex items-start justify-between mb-3">
-                                    <span className="sport-tag">
-                                        {SPORT_ICONS[group.sportType]} {SPORT_NAMES[group.sportType]}
-                                    </span>
-                                    <span
-                                        className={`level-tag ${group.level === 'BEGINNER'
-                                            ? 'level-beginner'
-                                            : group.level === 'INTERMEDIATE'
-                                                ? 'level-intermediate'
-                                                : 'level-advanced'
-                                            }`}
-                                    >
-                                        {LEVEL_NAMES[group.level]}
-                                    </span>
-                                </div>
+                                <CardContent sx={{ flexGrow: 1 }}>
+                                    <Stack direction="row" justifyContent="space-between" mb={2}>
+                                        <Chip
+                                            label={SPORT_NAMES[group.sportType]}
+                                            color="primary"
+                                            variant="filled"
+                                            size="small"
+                                        />
+                                        <Chip
+                                            label={LEVEL_NAMES[group.level]}
+                                            // @ts-ignore
+                                            color={getLevelColor(group.level)}
+                                            size="small"
+                                            variant="outlined"
+                                        />
+                                    </Stack>
 
-                                <h3 className="font-semibold text-lg mb-2 group-hover:text-primary-400 transition">
-                                    {group.title}
-                                </h3>
+                                    <Typography variant="h6" gutterBottom component={Link} href={`/groups/${group.id}`} sx={{ textDecoration: 'none', color: 'inherit', display: 'block', '&:hover': { color: 'primary.main' } }}>
+                                        {group.title}
+                                    </Typography>
 
-                                <div className="text-sm text-gray-400 space-y-1">
-                                    <div className="flex items-center gap-2">
-                                        <span>📅</span>
-                                        <span>{formatDate(group.time)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span>📍</span>
-                                        <span>{group.location}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span>👥</span>
-                                        <span>
-                                            {group.currentCount}/{group.capacity} 人
-                                            {group.currentCount >= group.capacity && (
-                                                <span className="text-red-400 ml-2">已滿</span>
-                                            )}
-                                        </span>
-                                    </div>
-                                </div>
+                                    <Stack spacing={1} sx={{ color: 'text.secondary', mt: 2 }}>
+                                        <Stack direction="row" spacing={1} alignItems="center">
+                                            <Event fontSize="small" />
+                                            <Typography variant="body2">{formatDate(group.time)}</Typography>
+                                        </Stack>
+                                        <Stack direction="row" spacing={1} alignItems="center">
+                                            <LocationOn fontSize="small" />
+                                            <Typography variant="body2">{group.location}</Typography>
+                                        </Stack>
+                                        <Stack direction="row" spacing={1} alignItems="center">
+                                            <People fontSize="small" />
+                                            <Typography variant="body2">
+                                                {group.currentCount}/{group.capacity} 人
+                                                {group.currentCount >= group.capacity && (
+                                                    <Typography component="span" variant="caption" color="error" sx={{ ml: 1, fontWeight: 'bold' }}>
+                                                        已滿
+                                                    </Typography>
+                                                )}
+                                            </Typography>
+                                        </Stack>
+                                    </Stack>
+                                </CardContent>
+                                <CardActions sx={{ px: 2, pb: 2 }}>
+                                    <Typography variant="caption" color="text.secondary">
+                                        發起人：{group.createdBy.nickname || group.createdBy.email.split('@')[0]}
+                                    </Typography>
+                                </CardActions>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            )}
 
-                                <div className="mt-4 pt-4 border-t border-white/10 text-xs text-gray-500">
-                                    發起人：{group.createdBy.nickname || group.createdBy.email.split('@')[0]}
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
+            {/* Mobile FAB */}
+            {user && (
+                <Fab
+                    color="primary"
+                    aria-label="add"
+                    component={Link}
+                    href="/create"
+                    sx={{
+                        position: 'fixed',
+                        bottom: 24,
+                        right: 24,
+                        display: { sm: 'none' }
+                    }}
+                >
+                    <AddIcon />
+                </Fab>
+            )}
+        </Container>
     );
 }

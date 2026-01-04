@@ -14,7 +14,7 @@ declare global {
     }
 }
 
-const ALLOWED_EMAIL_DOMAIN = process.env.ALLOWED_EMAIL_DOMAIN || 'ncnu.edu.tw';
+
 
 /**
  * Firebase Auth Middleware
@@ -99,7 +99,7 @@ export async function firebaseAuthMiddleware(
  */
 export async function optionalAuthMiddleware(
     req: Request,
-    res: Response,
+    _res: Response,
     next: NextFunction
 ): Promise<void> {
     const authHeader = req.headers.authorization;
@@ -121,8 +121,9 @@ export async function optionalAuthMiddleware(
         if (user) {
             req.user = user;
         }
-    } catch {
+    } catch (err) {
         // 靜默失敗，繼續請求
+        console.warn('Optional Auth Failed:', err);
     }
 
     next();

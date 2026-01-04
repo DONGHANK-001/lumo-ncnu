@@ -5,6 +5,29 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
+import {
+    Box,
+    Container,
+    Typography,
+    Button,
+    TextField,
+    Paper,
+    Stack,
+    Avatar,
+    Chip,
+    Grid,
+    Alert,
+    CircularProgress,
+    Divider,
+    IconButton
+} from '@mui/material';
+import {
+    ArrowBack,
+    Edit,
+    Save,
+    Logout,
+    Star
+} from '@mui/icons-material';
 
 const SPORT_OPTIONS = [
     { value: 'BASKETBALL', label: '🏀 籃球' },
@@ -112,197 +135,201 @@ export default function ProfilePage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen pt-20 pb-10 px-4">
-                <div className="max-w-xl mx-auto glass-card p-8 animate-pulse">
-                    <div className="h-8 bg-white/10 rounded w-1/2 mb-6" />
-                    <div className="space-y-4">
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className="h-12 bg-white/10 rounded" />
-                        ))}
-                    </div>
-                </div>
-            </div>
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                <CircularProgress />
+            </Box>
         );
     }
 
     if (!user) {
         return (
-            <div className="min-h-screen pt-20 pb-10 px-4">
-                <div className="max-w-xl mx-auto glass-card p-10 text-center">
-                    <div className="text-4xl mb-4">👤</div>
-                    <h1 className="text-2xl font-bold mb-4">個人檔案</h1>
-                    <p className="text-gray-400 mb-6">請先登入以查看個人檔案</p>
-                    <button onClick={signIn} className="btn-primary">
-                        使用學生帳號登入
-                    </button>
-                </div>
-            </div>
+            <Container maxWidth="sm" sx={{ py: 10, textAlign: 'center' }}>
+                <Typography variant="h2" mb={2}>👤</Typography>
+                <Typography variant="h5" fontWeight="bold" gutterBottom>個人檔案</Typography>
+                <Typography variant="body1" color="text.secondary" paragraph>
+                    請先登入以查看個人檔案
+                </Typography>
+                <Button variant="contained" onClick={signIn}>
+                    使用學生帳號登入
+                </Button>
+            </Container>
         );
     }
 
     return (
-        <div className="min-h-screen pt-20 pb-10 px-4">
-            <div className="max-w-xl mx-auto">
-                <Link href="/" className="text-gray-400 hover:text-white text-sm mb-4 inline-block">
-                    ← 返回首頁
-                </Link>
+        <Container maxWidth="md" sx={{ py: 4, pb: 10 }}>
+            <Button
+                startIcon={<ArrowBack />}
+                component={Link}
+                href="/"
+                sx={{ mb: 2, color: 'text.secondary' }}
+            >
+                返回首頁
+            </Button>
 
-                <h1 className="text-3xl font-bold mb-8">👤 個人檔案</h1>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+                <Typography variant="h4" fontWeight="bold">個人檔案</Typography>
+                <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<Logout />}
+                    onClick={signOut}
+                >
+                    登出
+                </Button>
+            </Stack>
 
-                {/* User Info */}
-                <div className="glass-card p-6 mb-6">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-2xl font-bold">
+            <Grid container spacing={3}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper sx={{ p: 4, textAlign: 'center', borderRadius: 4 }}>
+                        <Avatar
+                            sx={{
+                                width: 100,
+                                height: 100,
+                                mx: 'auto',
+                                mb: 2,
+                                fontSize: '2.5rem',
+                                bgcolor: 'primary.main'
+                            }}
+                        >
                             {(form.nickname || user.email)[0].toUpperCase()}
-                        </div>
-                        <div>
-                            <div className="text-lg font-semibold">{form.nickname || '未設定暱稱'}</div>
-                            <div className="text-sm text-gray-400">{user.email}</div>
+                        </Avatar>
+                        <Stack alignItems="center" spacing={1}>
                             {user.planType === 'PLUS' && (
-                                <span className="plus-badge mt-1 inline-block">PLUS 會員</span>
+                                <Chip label="PLUS 會員" size="small" color="secondary" icon={<Star />} />
                             )}
-                        </div>
-                    </div>
+                            <Typography variant="h6" fontWeight="bold">
+                                {form.nickname || '未設定暱稱'}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                {user.email}
+                            </Typography>
+                        </Stack>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-2">暱稱</label>
-                        <input
-                            type="text"
-                            maxLength={50}
-                            value={form.nickname}
-                            onChange={(e) => setForm({ ...form, nickname: e.target.value })}
-                            placeholder="輸入你的暱稱"
-                            className="input-field"
-                        />
-                    </div>
-                </div>
+                        <Divider sx={{ my: 3 }} />
 
-                {/* Preferences */}
-                <div className="glass-card p-6 mb-6 space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium mb-3">喜好運動</label>
-                        <div className="flex flex-wrap gap-2">
-                            {SPORT_OPTIONS.map((sport) => (
-                                <button
-                                    key={sport.value}
-                                    type="button"
-                                    onClick={() =>
-                                        setForm({ ...form, sports: toggleArrayItem(form.sports, sport.value) })
-                                    }
-                                    className={`px-4 py-2 rounded-xl transition-all ${form.sports.includes(sport.value)
-                                            ? 'bg-primary-500/20 border-2 border-primary-500'
-                                            : 'bg-white/5 border-2 border-transparent'
-                                        }`}
+                        {user.planType === 'FREE' && (
+                            <Box sx={{ bgcolor: 'action.hover', p: 2, borderRadius: 2 }}>
+                                <Typography variant="subtitle2" gutterBottom>升級 PLUS</Typography>
+                                <Typography variant="caption" color="text.secondary" display="block" mb={2}>
+                                    每月 $20，解鎖候補功能
+                                </Typography>
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    fullWidth
+                                    onClick={handleUpgrade}
+                                    disabled={saving}
                                 >
-                                    {sport.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                                    升級
+                                </Button>
+                            </Box>
+                        )}
+                    </Paper>
+                </Grid>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-3">程度</label>
-                        <div className="flex flex-wrap gap-2">
-                            {LEVEL_OPTIONS.map((level) => (
-                                <button
-                                    key={level.value}
-                                    type="button"
-                                    onClick={() => setForm({ ...form, skillLevel: level.value })}
-                                    className={`px-4 py-2 rounded-xl transition-all ${form.skillLevel === level.value
-                                            ? 'bg-primary-500/20 border-2 border-primary-500'
-                                            : 'bg-white/5 border-2 border-transparent'
-                                        }`}
-                                >
-                                    {level.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                <Grid size={{ xs: 12, md: 8 }}>
+                    <Stack spacing={3}>
+                        {message && (
+                            <Alert severity={message.type === 'success' ? 'success' : 'error'}>
+                                {message.text}
+                            </Alert>
+                        )}
 
-                    <div>
-                        <label className="block text-sm font-medium mb-3">可運動時段</label>
-                        <div className="flex flex-wrap gap-2">
-                            {TIME_OPTIONS.map((time) => (
-                                <button
-                                    key={time}
-                                    type="button"
-                                    onClick={() =>
-                                        setForm({ ...form, availableTimes: toggleArrayItem(form.availableTimes, time) })
-                                    }
-                                    className={`px-3 py-1.5 rounded-lg text-sm transition-all ${form.availableTimes.includes(time)
-                                            ? 'bg-primary-500/20 border border-primary-500'
-                                            : 'bg-white/5 border border-transparent'
-                                        }`}
-                                >
-                                    {time}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                        <Paper sx={{ p: 4, borderRadius: 4 }}>
+                            <Typography variant="h6" gutterBottom mb={3}>基本資料</Typography>
+                            <TextField
+                                label="暱稱"
+                                fullWidth
+                                value={form.nickname}
+                                onChange={(e) => setForm({ ...form, nickname: e.target.value })}
+                                placeholder="輸入你的暱稱"
+                                inputProps={{ maxLength: 50 }}
+                            />
+                        </Paper>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-3">常去地點</label>
-                        <div className="flex flex-wrap gap-2">
-                            {LOCATION_OPTIONS.map((loc) => (
-                                <button
-                                    key={loc}
-                                    type="button"
-                                    onClick={() =>
-                                        setForm({ ...form, usualLocations: toggleArrayItem(form.usualLocations, loc) })
-                                    }
-                                    className={`px-3 py-1.5 rounded-lg text-sm transition-all ${form.usualLocations.includes(loc)
-                                            ? 'bg-primary-500/20 border border-primary-500'
-                                            : 'bg-white/5 border border-transparent'
-                                        }`}
-                                >
-                                    {loc}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                        <Paper sx={{ p: 4, borderRadius: 4 }}>
+                            <Typography variant="h6" gutterBottom mb={3}>偏好設定</Typography>
 
-                {/* Plan Status */}
-                {user.planType === 'FREE' && (
-                    <div className="glass-card p-6 mb-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <div className="font-semibold">升級 PLUS</div>
-                                <div className="text-sm text-gray-400">每月 $20，解鎖候補功能</div>
-                            </div>
-                            <button onClick={handleUpgrade} disabled={saving} className="btn-primary">
-                                {saving ? '處理中...' : '升級'}
-                            </button>
-                        </div>
-                    </div>
-                )}
+                            <Stack spacing={4}>
+                                <Box>
+                                    <Typography variant="subtitle2" gutterBottom>喜好運動</Typography>
+                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                        {SPORT_OPTIONS.map((sport) => (
+                                            <Chip
+                                                key={sport.value}
+                                                label={sport.label}
+                                                clickable
+                                                onClick={() => setForm({ ...form, sports: toggleArrayItem(form.sports, sport.value) })}
+                                                color={form.sports.includes(sport.value) ? 'primary' : 'default'}
+                                                variant={form.sports.includes(sport.value) ? 'filled' : 'outlined'}
+                                            />
+                                        ))}
+                                    </Stack>
+                                </Box>
 
-                {/* Message */}
-                {message && (
-                    <div
-                        className={`p-4 mb-6 rounded-xl ${message.type === 'success'
-                                ? 'bg-green-500/10 border border-green-500/30 text-green-300'
-                                : 'bg-red-500/10 border border-red-500/30 text-red-300'
-                            }`}
-                    >
-                        {message.text}
-                    </div>
-                )}
+                                <Box>
+                                    <Typography variant="subtitle2" gutterBottom>程度</Typography>
+                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                        {LEVEL_OPTIONS.map((level) => (
+                                            <Chip
+                                                key={level.value}
+                                                label={level.label}
+                                                clickable
+                                                onClick={() => setForm({ ...form, skillLevel: level.value })}
+                                                color={form.skillLevel === level.value ? 'primary' : 'default'}
+                                                variant={form.skillLevel === level.value ? 'filled' : 'outlined'}
+                                            />
+                                        ))}
+                                    </Stack>
+                                </Box>
 
-                {/* Actions */}
-                <div className="flex gap-4">
-                    <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="btn-primary flex-1 py-3 disabled:opacity-50"
-                    >
-                        {saving ? '儲存中...' : '💾 儲存變更'}
-                    </button>
-                    <button onClick={signOut} className="btn-secondary px-6 py-3">
-                        登出
-                    </button>
-                </div>
-            </div>
-        </div>
+                                <Box>
+                                    <Typography variant="subtitle2" gutterBottom>可運動時段</Typography>
+                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                        {TIME_OPTIONS.map((time) => (
+                                            <Chip
+                                                key={time}
+                                                label={time}
+                                                clickable
+                                                onClick={() => setForm({ ...form, availableTimes: toggleArrayItem(form.availableTimes, time) })}
+                                                color={form.availableTimes.includes(time) ? 'primary' : 'default'}
+                                                variant={form.availableTimes.includes(time) ? 'filled' : 'outlined'}
+                                            />
+                                        ))}
+                                    </Stack>
+                                </Box>
+
+                                <Box>
+                                    <Typography variant="subtitle2" gutterBottom>常去地點</Typography>
+                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                        {LOCATION_OPTIONS.map((loc) => (
+                                            <Chip
+                                                key={loc}
+                                                label={loc}
+                                                clickable
+                                                onClick={() => setForm({ ...form, usualLocations: toggleArrayItem(form.usualLocations, loc) })}
+                                                color={form.usualLocations.includes(loc) ? 'primary' : 'default'}
+                                                variant={form.usualLocations.includes(loc) ? 'filled' : 'outlined'}
+                                            />
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            </Stack>
+                        </Paper>
+
+                        <Button
+                            variant="contained"
+                            size="large"
+                            onClick={handleSave}
+                            disabled={saving}
+                            startIcon={<Save />}
+                        >
+                            {saving ? '儲存中...' : '儲存變更'}
+                        </Button>
+                    </Stack>
+                </Grid>
+            </Grid>
+        </Container>
     );
 }

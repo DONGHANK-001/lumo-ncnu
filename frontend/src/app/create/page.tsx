@@ -5,14 +5,42 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
-import { SportType, SkillLevel } from '@lumo/shared';
+import { SportType, SkillLevel } from '@/types';
+import {
+    Box,
+    Container,
+    Typography,
+    Button,
+    TextField,
+    MenuItem,
+    Paper,
+    Grid,
+    Stack,
+    Card,
+    CardContent,
+    InputAdornment,
+    Alert,
+    CircularProgress,
+    ToggleButton,
+    ToggleButtonGroup
+} from '@mui/material';
+import {
+    ArrowBack,
+    Schedule,
+    Place,
+    Group,
+    SportsBasketball,
+    DirectionsRun,
+    SportsTennis,
+    FitnessCenter
+} from '@mui/icons-material';
 
 const SPORT_OPTIONS = [
-    { value: 'BASKETBALL', label: '🏀 籃球' },
-    { value: 'RUNNING', label: '🏃 跑步' },
-    { value: 'BADMINTON', label: '🏸 羽球' },
-    { value: 'TABLE_TENNIS', label: '🏓 桌球' },
-    { value: 'GYM', label: '💪 健身' },
+    { value: 'BASKETBALL', label: '籃球', icon: <SportsBasketball /> },
+    { value: 'RUNNING', label: '跑步', icon: <DirectionsRun /> },
+    { value: 'BADMINTON', label: '羽球', icon: <SportsTennis /> },
+    { value: 'TABLE_TENNIS', label: '桌球', icon: <SportsTennis /> },
+    { value: 'GYM', label: '健身', icon: <FitnessCenter /> },
 ];
 
 const LEVEL_OPTIONS = [
@@ -50,9 +78,12 @@ export default function CreateGroupPage() {
         setError(null);
 
         const token = await getToken();
+        // Ensure time is in ISO format
+        const isoTime = form.time ? new Date(form.time).toISOString() : '';
+
         const response = await api.createGroup(token!, {
             ...form,
-            time: new Date(form.time).toISOString(),
+            time: isoTime,
         });
 
         if (response.success && response.data) {
@@ -65,168 +96,213 @@ export default function CreateGroupPage() {
 
     if (!user) {
         return (
-            <div className="min-h-screen pt-20 pb-10 px-4">
-                <div className="max-w-xl mx-auto glass-card p-10 text-center">
-                    <div className="text-4xl mb-4">🔐</div>
-                    <h1 className="text-2xl font-bold mb-4">請先登入</h1>
-                    <p className="text-gray-400 mb-6">需要登入才能發起揪團</p>
-                    <button onClick={signIn} className="btn-primary">
-                        使用學生帳號登入
-                    </button>
-                </div>
-            </div>
+            <Container maxWidth="sm" sx={{ py: 15, textAlign: 'center' }}>
+                <Typography variant="h2" mb={2}>🔐</Typography>
+                <Typography variant="h5" fontWeight="bold" gutterBottom>請先登入</Typography>
+                <Typography variant="body1" color="text.secondary" paragraph>
+                    需要登入才能發起揪團
+                </Typography>
+                <Button variant="contained" size="large" onClick={signIn}>
+                    使用學生帳號登入
+                </Button>
+            </Container>
         );
     }
 
     return (
-        <div className="min-h-screen pt-20 pb-10 px-4">
-            <div className="max-w-xl mx-auto">
-                <Link href="/groups" className="text-gray-400 hover:text-white text-sm mb-4 inline-block">
-                    ← 返回列表
-                </Link>
+        <Container maxWidth="md" sx={{ py: 4, pb: 10 }}>
+            <Link href="/groups" style={{ textDecoration: 'none' }}>
+                <Button
+                    startIcon={<ArrowBack />}
+                    sx={{ mb: 2, color: 'text.secondary' }}
+                >
+                    返回列表
+                </Button>
+            </Link>
 
-                <h1 className="text-3xl font-bold mb-8">✨ 發起揪團</h1>
+            <Typography variant="h4" fontWeight="bold" mb={4}>✨ 發起揪團</Typography>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Sport Type */}
-                    <div className="glass-card p-6">
-                        <label className="block text-sm font-medium mb-3">運動類型</label>
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                            {SPORT_OPTIONS.map((sport) => (
-                                <button
-                                    key={sport.value}
-                                    type="button"
-                                    onClick={() => setForm({ ...form, sportType: sport.value })}
-                                    className={`p-3 rounded-xl text-center transition-all ${form.sportType === sport.value
-                                            ? 'bg-primary-500/20 border-2 border-primary-500'
-                                            : 'bg-white/5 border-2 border-transparent hover:bg-white/10'
-                                        }`}
+            <Grid container spacing={4}>
+                <Grid size={{ xs: 12, md: 8 }}>
+                    <form onSubmit={handleSubmit}>
+                        <Stack spacing={4}>
+                            {/* Sport Type */}
+                            <Paper sx={{ p: 4, borderRadius: 4 }}>
+                                <Typography variant="h6" gutterBottom mb={2}>運動類型</Typography>
+                                <ToggleButtonGroup
+                                    value={form.sportType}
+                                    exclusive
+                                    onChange={(_, newVal) => newVal && setForm({ ...form, sportType: newVal })}
+                                    aria-label="sport type"
+                                    fullWidth
+                                    sx={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        gap: 1,
+                                        '& .MuiToggleButton-root': {
+                                            border: '1px solid rgba(255, 255, 255, 0.12) !important',
+                                            borderRadius: '12px !important',
+                                            flex: '1 0 30%',
+                                            py: 2
+                                        },
+                                        '& .Mui-selected': {
+                                            bgcolor: 'primary.main !important',
+                                            color: 'primary.contrastText !important'
+                                        }
+                                    }}
                                 >
-                                    {sport.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                                    {SPORT_OPTIONS.map((sport) => (
+                                        <ToggleButton key={sport.value} value={sport.value}>
+                                            <Stack alignItems="center" spacing={1}>
+                                                {sport.icon}
+                                                <Typography variant="caption">{sport.label}</Typography>
+                                            </Stack>
+                                        </ToggleButton>
+                                    ))}
+                                </ToggleButtonGroup>
+                            </Paper>
 
-                    {/* Title & Description */}
-                    <div className="glass-card p-6 space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">揪團標題 *</label>
-                            <input
-                                type="text"
-                                required
-                                maxLength={100}
-                                value={form.title}
-                                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                                placeholder="例如：週五晚上來打球！"
-                                className="input-field"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-2">說明（選填）</label>
-                            <textarea
-                                maxLength={500}
-                                value={form.description}
-                                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                                placeholder="提供更多資訊，例如：新手友善、歡迎女生參加..."
-                                className="input-field min-h-24 resize-none"
-                            />
-                        </div>
-                    </div>
+                            {/* Details */}
+                            <Paper sx={{ p: 4, borderRadius: 4 }}>
+                                <Stack spacing={3}>
+                                    <TextField
+                                        label="揪團標題"
+                                        required
+                                        fullWidth
+                                        value={form.title}
+                                        onChange={(e) => setForm({ ...form, title: e.target.value })}
+                                        placeholder="例如：週五晚上來打球！"
+                                        variant="outlined"
+                                    />
+                                    <TextField
+                                        label="說明 (選填)"
+                                        multiline
+                                        rows={4}
+                                        fullWidth
+                                        value={form.description}
+                                        onChange={(e) => setForm({ ...form, description: e.target.value })}
+                                        placeholder="提供更多資訊，例如：新手友善、歡迎女生參加..."
+                                    />
+                                </Stack>
+                            </Paper>
 
-                    {/* Time & Location */}
-                    <div className="glass-card p-6 space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">時間 *</label>
-                            <input
-                                type="datetime-local"
-                                required
-                                value={form.time}
-                                onChange={(e) => setForm({ ...form, time: e.target.value })}
-                                className="input-field"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-2">地點 *</label>
-                            <input
-                                type="text"
-                                required
-                                maxLength={100}
-                                value={form.location}
-                                onChange={(e) => setForm({ ...form, location: e.target.value })}
-                                placeholder="例如：暨大體育館、操場、健身房"
-                                className="input-field"
-                            />
-                        </div>
-                    </div>
+                            {/* Time & Location */}
+                            <Paper sx={{ p: 4, borderRadius: 4 }}>
+                                <Stack spacing={3}>
+                                    <TextField
+                                        label="時間"
+                                        type="datetime-local"
+                                        required
+                                        fullWidth
+                                        InputLabelProps={{ shrink: true }}
+                                        value={form.time}
+                                        onChange={(e) => setForm({ ...form, time: e.target.value })}
+                                    />
+                                    <TextField
+                                        label="地點"
+                                        required
+                                        fullWidth
+                                        value={form.location}
+                                        onChange={(e) => setForm({ ...form, location: e.target.value })}
+                                        placeholder="例如：暨大體育館、操場"
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <Place color="action" />
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    />
+                                </Stack>
+                            </Paper>
 
-                    {/* Level & Capacity */}
-                    <div className="glass-card p-6 space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">程度要求</label>
-                            <select
-                                value={form.level}
-                                onChange={(e) => setForm({ ...form, level: e.target.value })}
-                                className="input-field"
+                            {/* Requirements */}
+                            <Paper sx={{ p: 4, borderRadius: 4 }}>
+                                <Stack spacing={3}>
+                                    <TextField
+                                        select
+                                        label="程度要求"
+                                        fullWidth
+                                        value={form.level}
+                                        onChange={(e) => setForm({ ...form, level: e.target.value })}
+                                    >
+                                        {LEVEL_OPTIONS.map((option) => (
+                                            <MenuItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
+
+                                    <TextField
+                                        label="人數上限 (含自己)"
+                                        type="number"
+                                        fullWidth
+                                        InputProps={{ inputProps: { min: 2, max: 50 } }}
+                                        value={form.capacity}
+                                        onChange={(e) => setForm({ ...form, capacity: parseInt(e.target.value) || 4 })}
+                                    />
+                                </Stack>
+                            </Paper>
+
+                            {error && (
+                                <Alert severity="error">{error}</Alert>
+                            )}
+
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                size="large"
+                                fullWidth
+                                disabled={loading}
+                                sx={{ py: 2, fontSize: '1.1rem' }}
                             >
-                                {LEVEL_OPTIONS.map((level) => (
-                                    <option key={level.value} value={level.value}>
-                                        {level.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-2">人數上限（含自己）</label>
-                            <input
-                                type="number"
-                                min={2}
-                                max={50}
-                                value={form.capacity}
-                                onChange={(e) => setForm({ ...form, capacity: parseInt(e.target.value) || 4 })}
-                                className="input-field"
-                            />
-                        </div>
-                    </div>
+                                {loading ? <CircularProgress size={24} /> : '🚀 發起揪團'}
+                            </Button>
+                        </Stack>
+                    </form>
+                </Grid>
 
-                    {/* Preview Card */}
-                    <div className="glass-card p-6">
-                        <h3 className="text-sm font-medium mb-3 text-gray-400">預覽卡片</h3>
-                        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="sport-tag text-sm">
-                                    {SPORT_OPTIONS.find((s) => s.value === form.sportType)?.label}
-                                </span>
-                                <span className="text-xs text-gray-400">
-                                    {LEVEL_OPTIONS.find((l) => l.value === form.level)?.label}
-                                </span>
-                            </div>
-                            <h4 className="font-semibold mb-2">{form.title || '（輸入標題）'}</h4>
-                            <div className="text-sm text-gray-400 space-y-1">
-                                <div>📅 {form.time ? new Date(form.time).toLocaleString('zh-TW') : '（選擇時間）'}</div>
-                                <div>📍 {form.location || '（輸入地點）'}</div>
-                                <div>👥 1/{form.capacity} 人</div>
-                            </div>
-                        </div>
-                    </div>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Box sx={{ position: 'sticky', top: 100 }}>
+                        <Typography variant="overline" color="text.secondary" sx={{ ml: 1 }}>
+                            預覽卡片
+                        </Typography>
+                        <Card sx={{ borderRadius: 4 }}>
+                            <CardContent>
+                                <Stack direction="row" justifyContent="space-between" mb={2}>
+                                    <Typography variant="caption" sx={{ bgcolor: 'action.hover', px: 1, py: 0.5, borderRadius: 1 }}>
+                                        {SPORT_OPTIONS.find(s => s.value === form.sportType)?.label}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        {LEVEL_OPTIONS.find(l => l.value === form.level)?.label}
+                                    </Typography>
+                                </Stack>
 
-                    {/* Error */}
-                    {error && (
-                        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300">
-                            {error}
-                        </div>
-                    )}
+                                <Typography variant="h6" fontWeight="bold" gutterBottom>
+                                    {form.title || '（輸入標題）'}
+                                </Typography>
 
-                    {/* Submit */}
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="btn-primary w-full py-4 text-lg disabled:opacity-50"
-                    >
-                        {loading ? '建立中...' : '🚀 發起揪團'}
-                    </button>
-                </form>
-            </div>
-        </div>
+                                <Stack spacing={1} sx={{ mt: 2, color: 'text.secondary' }}>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <Schedule fontSize="small" />
+                                        <Typography variant="body2">
+                                            {form.time ? new Date(form.time).toLocaleString('zh-TW', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '（選擇時間）'}
+                                        </Typography>
+                                    </Stack>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <Place fontSize="small" />
+                                        <Typography variant="body2">{form.location || '（輸入地點）'}</Typography>
+                                    </Stack>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <Group fontSize="small" />
+                                        <Typography variant="body2">1/{form.capacity} 人</Typography>
+                                    </Stack>
+                                </Stack>
+                            </CardContent>
+                        </Card>
+                    </Box>
+                </Grid>
+            </Grid>
+        </Container>
     );
 }

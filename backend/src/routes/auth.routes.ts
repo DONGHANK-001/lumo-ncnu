@@ -7,13 +7,12 @@ import { updateProfileSchema } from '../types/schemas.js';
 const router = Router();
 
 // 所有路由都需要認證
-router.use(firebaseAuthMiddleware);
 
 /**
  * GET /me
  * 取得當前使用者資料
  */
-router.get('/me', async (req: Request, res: Response) => {
+router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) => {
     const user = req.user!;
 
     res.json({
@@ -37,6 +36,7 @@ router.get('/me', async (req: Request, res: Response) => {
  */
 router.post(
     '/profile',
+    firebaseAuthMiddleware,
     validateBody(updateProfileSchema),
     async (req: Request, res: Response) => {
         const user = req.user!;
@@ -67,7 +67,7 @@ router.post(
  * POST /plan/upgrade
  * 模擬升級為 PLUS（第一版不串金流）
  */
-router.post('/plan/upgrade', async (req: Request, res: Response) => {
+router.post('/plan/upgrade', firebaseAuthMiddleware, async (req: Request, res: Response) => {
     const user = req.user!;
 
     // 如果已經是 PLUS，直接回傳

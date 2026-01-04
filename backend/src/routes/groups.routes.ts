@@ -2,7 +2,6 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../lib/prisma.js';
 import {
     firebaseAuthMiddleware,
-    optionalAuthMiddleware,
     requirePlusPlan,
 } from '../middleware/firebase-auth.js';
 import { validateBody, validateQuery } from '../middleware/validation.js';
@@ -18,10 +17,9 @@ const router = Router();
  */
 router.get(
     '/',
-    optionalAuthMiddleware,
     validateQuery(listGroupsQuerySchema),
     async (req: Request, res: Response) => {
-        const { sportType, level, dateFrom, dateTo, hasSlot, page, pageSize } = req.query as {
+        const { sportType, level, dateFrom, dateTo, hasSlot, page, pageSize } = req.query as unknown as {
             sportType?: string;
             level?: string;
             dateFrom?: string;
@@ -32,12 +30,18 @@ router.get(
         };
 
         const where: Prisma.GroupWhereInput = {
-            status: 'OPEN',
+            status: { in: ['OPEN', 'FULL'] },
             ...(sportType && { sportType: sportType as Prisma.EnumSportTypeFilter }),
             ...(level && { level: level as Prisma.EnumSkillLevelFilter }),
             ...(dateFrom && { time: { gte: new Date(dateFrom) } }),
-            ...(dateTo && { time: { ...((where.time as object) || {}), lte: new Date(dateTo) } }),
         };
+
+        if (dateTo) {
+            where.time = {
+                ...(where.time as object),
+                lte: new Date(dateTo),
+            };
+        }
 
         // hasSlot: 只顯示還有空位的揪團
         if (hasSlot) {
@@ -87,6 +91,8 @@ router.post(
         const user = req.user!;
         const { sportType, title, description, time, location, level, capacity } = req.body;
 
+        const initialStatus = capacity === 1 ? 'FULL' : 'OPEN';
+
         const group = await prisma.group.create({
             data: {
                 sportType,
@@ -97,6 +103,7 @@ router.post(
                 level,
                 capacity,
                 currentCount: 1, // 建立者自動加入
+                status: initialStatus,
                 createdById: user.id,
                 members: {
                     create: {
@@ -121,7 +128,7 @@ router.post(
  * GET /groups/:id
  * 取得揪團詳情
  */
-router.get('/:id', optionalAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const group = await prisma.group.findUnique({

@@ -5,6 +5,30 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
+import {
+    Box,
+    Container,
+    Typography,
+    Button,
+    Card,
+    CardContent,
+    Stack,
+    Chip,
+    LinearProgress,
+    Avatar,
+    Grid,
+    CircularProgress,
+    Alert,
+    Paper,
+    Divider
+} from '@mui/material';
+import {
+    CalendarToday,
+    LocationOn,
+    Group as GroupIcon,
+    ArrowBack,
+    Security
+} from '@mui/icons-material';
 
 interface GroupDetail {
     id: string;
@@ -24,14 +48,6 @@ interface GroupDetail {
         joinedAt: string;
     }>;
 }
-
-const SPORT_ICONS: Record<string, string> = {
-    BASKETBALL: '🏀',
-    RUNNING: '🏃',
-    BADMINTON: '🏸',
-    TABLE_TENNIS: '🏓',
-    GYM: '💪',
-};
 
 const SPORT_NAMES: Record<string, string> = {
     BASKETBALL: '籃球',
@@ -150,6 +166,15 @@ export default function GroupDetailPage() {
         });
     };
 
+    const getLevelColor = (level: string) => {
+        switch (level) {
+            case 'BEGINNER': return 'success';
+            case 'INTERMEDIATE': return 'warning';
+            case 'ADVANCED': return 'error';
+            default: return 'default';
+        }
+    };
+
     // 計算使用者狀態
     const userMember = group?.members.find((m) => m.user.id === user?.id);
     const isJoined = userMember?.status === 'JOINED';
@@ -161,221 +186,229 @@ export default function GroupDetailPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen pt-20 pb-10 px-4">
-                <div className="max-w-3xl mx-auto glass-card p-8 animate-pulse">
-                    <div className="h-8 bg-white/10 rounded w-3/4 mb-4" />
-                    <div className="h-4 bg-white/10 rounded w-1/2 mb-8" />
-                    <div className="space-y-4">
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className="h-4 bg-white/10 rounded w-full" />
-                        ))}
-                    </div>
-                </div>
-            </div>
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                <CircularProgress />
+            </Box>
         );
     }
 
     if (!group) {
         return (
-            <div className="min-h-screen pt-20 pb-10 px-4">
-                <div className="max-w-3xl mx-auto glass-card p-10 text-center">
-                    <div className="text-4xl mb-4">😕</div>
-                    <p className="text-gray-400 mb-4">{error || '找不到此揪團'}</p>
-                    <Link href="/groups" className="btn-primary">
-                        返回列表
-                    </Link>
-                </div>
-            </div>
+            <Container maxWidth="sm" sx={{ py: 10, textAlign: 'center' }}>
+                <Typography variant="h2" mb={2}>😕</Typography>
+                <Typography variant="h6" color="text.secondary" paragraph>
+                    {error || '找不到此揪團'}
+                </Typography>
+                <Button variant="contained" component={Link} href="/groups">
+                    返回列表
+                </Button>
+            </Container>
         );
     }
 
     return (
-        <div className="min-h-screen pt-20 pb-10 px-4">
-            <div className="max-w-3xl mx-auto">
-                <Link href="/groups" className="text-gray-400 hover:text-white text-sm mb-4 inline-block">
-                    ← 返回列表
-                </Link>
+        <Container maxWidth="md" sx={{ py: 4, pb: 10 }}>
+            <Link href="/groups" style={{ textDecoration: 'none' }}>
+                <Button
+                    startIcon={<ArrowBack />}
+                    sx={{ mb: 2, color: 'text.secondary' }}
+                >
+                    返回列表
+                </Button>
+            </Link>
 
-                <div className="glass-card p-8 mb-6">
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-6">
-                        <span className="sport-tag text-lg">
-                            {SPORT_ICONS[group.sportType]} {SPORT_NAMES[group.sportType]}
-                        </span>
-                        <span
-                            className={`level-tag ${group.level === 'BEGINNER'
-                                    ? 'level-beginner'
-                                    : group.level === 'INTERMEDIATE'
-                                        ? 'level-intermediate'
-                                        : 'level-advanced'
-                                }`}
+            <Paper sx={{ p: 4, mb: 4, borderRadius: 4 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={3}>
+                    <Chip
+                        label={SPORT_NAMES[group.sportType]}
+                        color="primary"
+                        variant="filled"
+                    />
+                    <Chip
+                        label={LEVEL_NAMES[group.level]}
+                        // @ts-ignore
+                        color={getLevelColor(group.level)}
+                        variant="outlined"
+                    />
+                </Stack>
+
+                <Typography variant="h4" fontWeight="bold" gutterBottom>
+                    {group.title}
+                </Typography>
+
+                {group.description && (
+                    <Typography variant="body1" color="text.secondary" paragraph sx={{ mb: 4 }}>
+                        {group.description}
+                    </Typography>
+                )}
+
+                <Grid container spacing={2} sx={{ mb: 4 }}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                        <Paper variant="outlined" sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Avatar sx={{ bgcolor: 'action.hover', color: 'primary.main' }}>
+                                <CalendarToday />
+                            </Avatar>
+                            <Box>
+                                <Typography variant="caption" color="text.secondary">時間</Typography>
+                                <Typography variant="body1" fontWeight="medium">{formatDate(group.time)}</Typography>
+                            </Box>
+                        </Paper>
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                        <Paper variant="outlined" sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Avatar sx={{ bgcolor: 'action.hover', color: 'primary.main' }}>
+                                <LocationOn />
+                            </Avatar>
+                            <Box>
+                                <Typography variant="caption" color="text.secondary">地點</Typography>
+                                <Typography variant="body1" fontWeight="medium">{group.location}</Typography>
+                            </Box>
+                        </Paper>
+                    </Grid>
+                </Grid>
+
+                <Box sx={{ mb: 4 }}>
+                    <Stack direction="row" justifyContent="space-between" mb={1}>
+                        <Typography variant="body2" color="text.secondary">參與人數</Typography>
+                        <Typography variant="body2" fontWeight="medium">
+                            {group.currentCount}/{group.capacity} 人
+                        </Typography>
+                    </Stack>
+                    <LinearProgress
+                        variant="determinate"
+                        value={(group.currentCount / group.capacity) * 100}
+                        sx={{ height: 8, borderRadius: 4 }}
+                    />
+                </Box>
+
+                {error && (
+                    <Alert severity="error" sx={{ mb: 4 }}>{error}</Alert>
+                )}
+
+                <Stack direction="row" flexWrap="wrap" gap={2}>
+                    {!user && (
+                        <Button variant="contained" component={Link} href="/">
+                            登入後加入揪團
+                        </Button>
+                    )}
+
+                    {user && !isJoined && !isWaitlist && !isFull && (
+                        <Button
+                            variant="contained"
+                            onClick={handleJoin}
+                            disabled={actionLoading}
                         >
-                            {LEVEL_NAMES[group.level]}
-                        </span>
-                    </div>
-
-                    <h1 className="text-2xl font-bold mb-4">{group.title}</h1>
-
-                    {group.description && (
-                        <p className="text-gray-300 mb-6">{group.description}</p>
+                            {actionLoading ? '處理中...' : '加入揪團'}
+                        </Button>
                     )}
 
-                    {/* Info */}
-                    <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5">
-                            <span className="text-2xl">📅</span>
-                            <div>
-                                <div className="text-sm text-gray-400">時間</div>
-                                <div className="font-medium">{formatDate(group.time)}</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5">
-                            <span className="text-2xl">📍</span>
-                            <div>
-                                <div className="text-sm text-gray-400">地點</div>
-                                <div className="font-medium">{group.location}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Capacity */}
-                    <div className="mb-6">
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm text-gray-400">參與人數</span>
-                            <span className="font-medium">
-                                {group.currentCount}/{group.capacity} 人
-                            </span>
-                        </div>
-                        <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all"
-                                style={{ width: `${(group.currentCount / group.capacity) * 100}%` }}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Error */}
-                    {error && (
-                        <div className="p-4 mb-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300">
-                            {error}
-                        </div>
+                    {user && !isJoined && !isWaitlist && isFull && (
+                        <Button
+                            variant="outlined"
+                            onClick={handleWaitlist}
+                            disabled={actionLoading}
+                        >
+                            {user.planType === 'PLUS' ? (
+                                actionLoading ? '處理中...' : '加入候補'
+                            ) : (
+                                '🔓 升級 PLUS 可候補'
+                            )}
+                        </Button>
                     )}
 
-                    {/* Actions */}
-                    <div className="flex flex-wrap gap-3">
-                        {!user && (
-                            <Link href="/" className="btn-primary">
-                                登入後加入揪團
-                            </Link>
-                        )}
+                    {user && isJoined && !isCreator && (
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={handleLeave}
+                            disabled={actionLoading}
+                        >
+                            {actionLoading ? '處理中...' : '退出揪團'}
+                        </Button>
+                    )}
 
-                        {user && !isJoined && !isWaitlist && !isFull && (
-                            <button
-                                onClick={handleJoin}
-                                disabled={actionLoading}
-                                className="btn-primary disabled:opacity-50"
-                            >
-                                {actionLoading ? '處理中...' : '加入揪團'}
-                            </button>
-                        )}
+                    {user && isWaitlist && (
+                        <Chip label="您在候補名單中" color="warning" variant="outlined" />
+                    )}
 
-                        {user && !isJoined && !isWaitlist && isFull && (
-                            <button
-                                onClick={handleWaitlist}
-                                disabled={actionLoading}
-                                className="btn-secondary disabled:opacity-50"
-                            >
-                                {user.planType === 'PLUS' ? (
-                                    actionLoading ? '處理中...' : '加入候補'
-                                ) : (
-                                    '🔓 升級 PLUS 可候補'
-                                )}
-                            </button>
-                        )}
+                    {isCreator && (
+                        <Chip label="您是揪團發起人" color="primary" variant="outlined" />
+                    )}
 
-                        {user && isJoined && !isCreator && (
-                            <button
-                                onClick={handleLeave}
-                                disabled={actionLoading}
-                                className="btn-secondary disabled:opacity-50"
-                            >
-                                {actionLoading ? '處理中...' : '退出揪團'}
-                            </button>
-                        )}
+                    <Button startIcon={<Security />} component={Link} href="/safety" color="inherit">
+                        安全提醒
+                    </Button>
+                </Stack>
+            </Paper>
 
-                        {user && isWaitlist && (
-                            <div className="px-4 py-2 rounded-xl bg-yellow-500/10 border border-yellow-500/30 text-yellow-300">
-                                您在候補名單中
-                            </div>
-                        )}
+            <Card sx={{ borderRadius: 4 }}>
+                <CardContent sx={{ p: 4 }}>
+                    <Stack direction="row" alignItems="center" gap={1} mb={3}>
+                        <GroupIcon color="action" />
+                        <Typography variant="h6">
+                            參與成員 ({joinedMembers.length})
+                        </Typography>
+                    </Stack>
 
-                        {isCreator && (
-                            <div className="px-4 py-2 rounded-xl bg-primary-500/10 border border-primary-500/30 text-primary-300">
-                                您是揪團發起人
-                            </div>
-                        )}
-
-                        <Link href="/safety" className="btn-secondary">
-                            🛡️ 安全提醒
-                        </Link>
-                    </div>
-                </div>
-
-                {/* Members */}
-                <div className="glass-card p-6">
-                    <h2 className="text-lg font-semibold mb-4">
-                        參與成員 ({joinedMembers.length})
-                    </h2>
-                    <div className="space-y-3">
+                    <Stack spacing={2}>
                         {joinedMembers.map((member, index) => (
-                            <div
+                            <Stack
                                 key={member.user.id}
-                                className="flex items-center justify-between p-3 rounded-xl bg-white/5"
+                                direction="row"
+                                alignItems="center"
+                                justifyContent="space-between"
+                                sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2 }}
                             >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center font-bold">
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                    <Avatar sx={{ bgcolor: 'secondary.main' }}>
                                         {(member.user.nickname || member.user.email)[0].toUpperCase()}
-                                    </div>
-                                    <div>
-                                        <div className="font-medium">
+                                    </Avatar>
+                                    <Box>
+                                        <Typography variant="body1" fontWeight="medium">
                                             {member.user.nickname || member.user.email.split('@')[0]}
                                             {member.user.id === group.createdBy.id && (
-                                                <span className="ml-2 text-xs text-primary-400">發起人</span>
+                                                <Typography component="span" variant="caption" color="primary" sx={{ ml: 1, fontWeight: 'bold' }}>
+                                                    發起人
+                                                </Typography>
                                             )}
-                                        </div>
-                                        <div className="text-xs text-gray-500">
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
                                             {index === 0 ? '第一位' : `第 ${index + 1} 位`}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                        </Typography>
+                                    </Box>
+                                </Stack>
+                            </Stack>
                         ))}
-                    </div>
+                    </Stack>
 
                     {waitlistMembers.length > 0 && (
                         <>
-                            <h3 className="text-md font-semibold mt-6 mb-3 text-gray-400">
+                            <Divider sx={{ my: 4 }} />
+                            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
                                 候補名單 ({waitlistMembers.length})
-                            </h3>
-                            <div className="space-y-2">
+                            </Typography>
+                            <Stack spacing={1}>
                                 {waitlistMembers.map((member, index) => (
-                                    <div
+                                    <Stack
                                         key={member.user.id}
-                                        className="flex items-center gap-3 p-2 rounded-lg bg-white/3"
+                                        direction="row"
+                                        alignItems="center"
+                                        spacing={2}
+                                        sx={{ p: 1 }}
                                     >
-                                        <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center text-sm">
+                                        <Avatar sx={{ width: 32, height: 32, fontSize: '0.875rem' }}>
                                             {index + 1}
-                                        </div>
-                                        <span className="text-gray-400">
+                                        </Avatar>
+                                        <Typography color="text.secondary">
                                             {member.user.nickname || member.user.email.split('@')[0]}
-                                        </span>
-                                    </div>
+                                        </Typography>
+                                    </Stack>
                                 ))}
-                            </div>
+                            </Stack>
                         </>
                     )}
-                </div>
-            </div>
-        </div>
+                </CardContent>
+            </Card>
+        </Container>
     );
 }

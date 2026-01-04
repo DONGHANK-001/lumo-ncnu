@@ -18,6 +18,15 @@ const PORT = process.env.PORT || 4000;
 // Helmet for security headers
 app.use(helmet());
 
+// Simple Request Logger
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    res.on('finish', () => {
+        console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} -> ${res.statusCode}`);
+    });
+    next();
+});
+
 // CORS
 const corsOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'];
 app.use(
