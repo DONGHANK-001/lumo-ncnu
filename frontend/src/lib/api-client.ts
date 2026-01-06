@@ -45,6 +45,13 @@ class ApiClient {
 
                 clearTimeout(timeoutId);
 
+                // 處理伺服器錯誤 (502, 503, 504) -> 重試
+                if ([502, 503, 504].includes(response.status) && attempt < maxRetries) {
+                    console.log(`Server error ${response.status}, retrying (attempt ${attempt + 1})...`);
+                    await new Promise(r => setTimeout(r, 2000)); // 等 2 秒後重試
+                    continue;
+                }
+
                 const data = await response.json();
 
                 if (!response.ok) {
@@ -59,15 +66,11 @@ class ApiClient {
                 lastError = error as Error;
                 console.error(`API request error (attempt ${attempt + 1}):`, error);
 
-                // 如果是 abort (timeout)，retry
-                if ((error as Error).name === 'AbortError' && attempt < maxRetries) {
-                    console.log('Request timeout, retrying...');
-                    continue;
-                }
-
-                // 其他錯誤也 retry（可能是冷啟動）
+                // 如果是 abort (timeout) 或其他網路錯誤，retry
                 if (attempt < maxRetries) {
-                    await new Promise(r => setTimeout(r, 1000)); // 等 1 秒後重試
+                    const delay = (error as Error).name === 'AbortError' ? 1000 : 2000;
+                    console.log(`Retryable network error, waiting ${delay}ms...`);
+                    await new Promise(r => setTimeout(r, delay));
                     continue;
                 }
             }

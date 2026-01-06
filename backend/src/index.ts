@@ -29,7 +29,11 @@ app.use((req, res, next) => {
 });
 
 // CORS
-const corsOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'];
+const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean);
+
 app.use(
     cors({
         origin: corsOrigins,
@@ -94,9 +98,10 @@ app.use(errorHandler);
 
 import { startCleanupJob } from './lib/cleanup.job.js';
 
-app.listen(PORT, () => {
-    console.log(`🚀 API Server running on http://localhost:${PORT}`);
+app.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`🚀 API Server running on http://0.0.0.0:${PORT}`);
     console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🌐 Allowed Origins: ${corsOrigins.join(', ')}`);
 
     // 啟動定時清理任務
     startCleanupJob();
