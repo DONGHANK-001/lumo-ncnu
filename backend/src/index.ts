@@ -29,11 +29,7 @@ app.use((req, res, next) => {
 });
 
 // CORS
-const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
-    .split(',')
-    .map(origin => origin.trim())
-    .filter(Boolean);
-
+const corsOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'];
 app.use(
     cors({
         origin: corsOrigins,
@@ -70,7 +66,7 @@ app.get('/health', (_req, res) => {
         data: {
             status: 'ok',
             timestamp: new Date().toISOString(),
-            version: '1.0.1+fix_db_connection',
+            version: '1.0.0',
         },
     });
 });
@@ -98,10 +94,9 @@ app.use(errorHandler);
 
 import { startCleanupJob } from './lib/cleanup.job.js';
 
-app.listen(Number(PORT), '0.0.0.0', () => {
-    console.log(`🚀 API Server running on http://0.0.0.0:${PORT}`);
+app.listen(PORT, () => {
+    console.log(`🚀 API Server running on http://localhost:${PORT}`);
     console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🌐 Allowed Origins: ${corsOrigins.join(', ')}`);
 
     // 啟動定時清理任務
     startCleanupJob();

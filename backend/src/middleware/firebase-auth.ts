@@ -86,13 +86,9 @@ export async function firebaseAuthMiddleware(
         next();
     } catch (error) {
         console.error('Auth error:', error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
         res.status(401).json({
             success: false,
-            error: {
-                code: 'INVALID_TOKEN',
-                message: `Token 無效或已過期 (${errorMessage})`
-            },
+            error: { code: 'INVALID_TOKEN', message: 'Token 無效或已過期' },
         });
     }
 }
