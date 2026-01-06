@@ -13,6 +13,10 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({
     },
 });
 
+console.log(`[Prisma] Initializing...`);
+console.log(`[Prisma] Has DIRECT_URL: ${!!process.env.DIRECT_URL}`);
+console.log(`[Prisma] Using URL starts with: ${(process.env.DIRECT_URL || process.env.DATABASE_URL)?.substring(0, 15)}...`);
+
 if (process.env.NODE_ENV !== 'production') {
     globalForPrisma.prisma = prisma;
 }

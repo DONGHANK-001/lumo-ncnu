@@ -70,7 +70,7 @@ app.get('/health', (_req, res) => {
         data: {
             status: 'ok',
             timestamp: new Date().toISOString(),
-            version: '1.0.0',
+            version: '1.0.1+fix_db_connection',
         },
     });
 });
