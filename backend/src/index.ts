@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.routes.js';
 import groupsRoutes from './routes/groups.routes.js';
 import reportsRoutes from './routes/reports.routes.js';
 import aiRoutes from './routes/ai.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -78,6 +79,7 @@ app.use('/', authRoutes);           // /me, /profile, /plan/upgrade
 app.use('/groups', groupsRoutes);   // /groups, /groups/:id, etc.
 app.use('/reports', reportsRoutes); // /reports
 app.use('/ai', aiRoutes);           // /ai/status
+app.use('/admin', adminRoutes);     // /admin/*
 
 // ============================================
 // Error Handling
@@ -90,9 +92,14 @@ app.use(errorHandler);
 // Start Server
 // ============================================
 
+import { startCleanupJob } from './lib/cleanup.job.js';
+
 app.listen(PORT, () => {
     console.log(`🚀 API Server running on http://localhost:${PORT}`);
     console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+
+    // 啟動定時清理任務
+    startCleanupJob();
 });
 
 export default app;
