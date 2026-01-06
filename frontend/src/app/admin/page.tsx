@@ -36,7 +36,7 @@ import {
     CleaningServices as CleanupIcon,
     Refresh as RefreshIcon,
 } from '@mui/icons-material';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 
 interface Group {
@@ -77,7 +77,7 @@ const statusColors: Record<string, 'success' | 'warning' | 'error' | 'default'> 
 };
 
 export default function AdminPage() {
-    const { user, loading: authLoading, getIdToken } = useAuth();
+    const { user, loading: authLoading, getToken } = useAuth();
     const router = useRouter();
     const [groups, setGroups] = useState<Group[]>([]);
     const [stats, setStats] = useState<Stats | null>(null);
@@ -97,7 +97,7 @@ export default function AdminPage() {
     const fetchData = useCallback(async () => {
         try {
             setLoading(true);
-            const token = await getIdToken();
+            const token = await getToken();
             const headers = { Authorization: `Bearer ${token}` };
 
             const [groupsRes, statsRes] = await Promise.all([
@@ -120,7 +120,7 @@ export default function AdminPage() {
         } finally {
             setLoading(false);
         }
-    }, [getIdToken]);
+    }, [getToken]);
 
     useEffect(() => {
         if (!authLoading && user) {
@@ -138,7 +138,7 @@ export default function AdminPage() {
     const handleDelete = async () => {
         if (!deletingId) return;
         try {
-            const token = await getIdToken();
+            const token = await getToken();
             const res = await fetch(`${API_URL}/admin/groups/${deletingId}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
@@ -158,7 +158,7 @@ export default function AdminPage() {
     const handleEdit = async () => {
         if (!editingGroup) return;
         try {
-            const token = await getIdToken();
+            const token = await getToken();
             const res = await fetch(`${API_URL}/admin/groups/${editingGroup.id}`, {
                 method: 'PATCH',
                 headers: {
@@ -181,7 +181,7 @@ export default function AdminPage() {
 
     const handleCleanup = async () => {
         try {
-            const token = await getIdToken();
+            const token = await getToken();
             const res = await fetch(`${API_URL}/admin/groups/cleanup`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` },
