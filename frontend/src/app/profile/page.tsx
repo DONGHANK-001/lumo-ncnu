@@ -26,7 +26,8 @@ import {
     Edit,
     Save,
     Logout,
-    Star
+    Star,
+    AdminPanelSettings
 } from '@mui/icons-material';
 
 const SPORT_OPTIONS = [
@@ -222,6 +223,26 @@ export default function ProfilePage() {
                                     disabled={saving}
                                 >
                                     升級
+                                </Button>
+                            </Box>
+                        )}
+
+                        {user.role === 'ADMIN' && (
+                            <Box sx={{ mt: 2, bgcolor: 'primary.main', p: 2, borderRadius: 2, color: 'white' }}>
+                                <Typography variant="subtitle2" gutterBottom>系統管理</Typography>
+                                <Typography variant="caption" sx={{ opacity: 0.8, display: 'block', mb: 2 }}>
+                                    您擁有管理員權限，可進入後台管理揪團與網站設定。
+                                </Typography>
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    size="small"
+                                    fullWidth
+                                    component={Link}
+                                    href="/admin"
+                                    startIcon={<AdminPanelSettings />}
+                                >
+                                    進入管理後台
                                 </Button>
                             </Box>
                         )}

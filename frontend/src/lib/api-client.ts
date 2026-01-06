@@ -88,7 +88,7 @@ class ApiClient {
 
     // Auth
     getMe(token: string) {
-        return this.request<{ id: string; email: string; nickname: string | null; planType: string }>('/me', { token });
+        return this.request<{ id: string; email: string; nickname: string | null; planType: string; role: string }>('/me', { token });
     }
 
     updateProfile(token: string, data: { nickname?: string; preferences?: unknown }) {

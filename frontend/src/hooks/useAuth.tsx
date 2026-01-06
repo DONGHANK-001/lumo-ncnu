@@ -19,6 +19,7 @@ interface User {
     email: string;
     nickname: string | null;
     planType: 'FREE' | 'PLUS';
+    role: string;
     preferences: UserPreferences | null;
     firebaseUser: FirebaseUser;
 }
@@ -59,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     email: response.data.email,
                     nickname: response.data.nickname,
                     planType: response.data.planType as 'FREE' | 'PLUS',
+                    role: response.data.role || 'USER',
                     preferences: (response.data as any).preferences || null,
                     firebaseUser,
                 });
