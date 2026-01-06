@@ -7,11 +7,19 @@ import { api } from '@/lib/api-client';
 // 使用 compat 類型
 type FirebaseUser = firebase.User;
 
+interface UserPreferences {
+    sports: string[];
+    skillLevel: string;
+    availableTimes: string[];
+    usualLocations: string[];
+}
+
 interface User {
     id: string;
     email: string;
     nickname: string | null;
     planType: 'FREE' | 'PLUS';
+    preferences: UserPreferences | null;
     firebaseUser: FirebaseUser;
 }
 
@@ -51,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     email: response.data.email,
                     nickname: response.data.nickname,
                     planType: response.data.planType as 'FREE' | 'PLUS',
+                    preferences: (response.data as any).preferences || null,
                     firebaseUser,
                 });
                 setError(null);

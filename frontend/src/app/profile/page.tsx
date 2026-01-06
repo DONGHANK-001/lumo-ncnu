@@ -79,10 +79,10 @@ export default function ProfilePage() {
         if (user) {
             setForm({
                 nickname: user.nickname || '',
-                sports: (user as any).preferences?.sports || [],
-                skillLevel: (user as any).preferences?.skillLevel || 'BEGINNER',
-                availableTimes: (user as any).preferences?.availableTimes || [],
-                usualLocations: (user as any).preferences?.usualLocations || [],
+                sports: user.preferences?.sports || [],
+                skillLevel: user.preferences?.skillLevel || 'BEGINNER',
+                availableTimes: user.preferences?.availableTimes || [],
+                usualLocations: user.preferences?.usualLocations || [],
             });
         }
     }, [user]);

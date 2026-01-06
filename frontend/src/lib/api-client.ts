@@ -28,30 +28,62 @@ class ApiClient {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        try {
-            const response = await fetch(`${this.baseUrl}${endpoint}`, {
-                method,
-                headers,
-                body: body ? JSON.stringify(body) : undefined,
-            });
+        const maxRetries = 2;
+        let lastError: Error | null = null;
 
-            const data = await response.json();
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 秒 timeout
 
-            if (!response.ok) {
-                return {
-                    success: false,
-                    error: data.error || { code: 'UNKNOWN_ERROR', message: '發生未知錯誤' },
-                };
+                const response = await fetch(`${this.baseUrl}${endpoint}`, {
+                    method,
+                    headers,
+                    body: body ? JSON.stringify(body) : undefined,
+                    signal: controller.signal,
+                });
+
+                clearTimeout(timeoutId);
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    return {
+                        success: false,
+                        error: data.error || { code: 'UNKNOWN_ERROR', message: '發生未知錯誤' },
+                    };
+                }
+
+                return data;
+            } catch (error) {
+                lastError = error as Error;
+                console.error(`API request error (attempt ${attempt + 1}):`, error);
+
+                // 如果是 abort (timeout)，retry
+                if ((error as Error).name === 'AbortError' && attempt < maxRetries) {
+                    console.log('Request timeout, retrying...');
+                    continue;
+                }
+
+                // 其他錯誤也 retry（可能是冷啟動）
+                if (attempt < maxRetries) {
+                    await new Promise(r => setTimeout(r, 1000)); // 等 1 秒後重試
+                    continue;
+                }
             }
-
-            return data;
-        } catch (error) {
-            console.error('API request error:', error);
-            return {
-                success: false,
-                error: { code: 'NETWORK_ERROR', message: '網路連線失敗，請稍後再試' },
-            };
         }
+
+        // 所有重試都失敗
+        const isTimeout = lastError?.name === 'AbortError';
+        return {
+            success: false,
+            error: {
+                code: isTimeout ? 'TIMEOUT' : 'NETWORK_ERROR',
+                message: isTimeout
+                    ? '伺服器回應逾時，請稍後再試（伺服器可能正在啟動中）'
+                    : '網路連線失敗，請檢查網路後再試'
+            },
+        };
     }
 
     // Auth

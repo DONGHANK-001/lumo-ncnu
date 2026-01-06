@@ -1,0 +1,4 @@
+& "C:\Program Files\Git\cmd\git.exe" config --global user.email "aov11011@gmail.com"
+& "C:\Program Files\Git\cmd\git.exe" config --global user.name "DONGHANK-001"
+D1hNr5SfZ9Rj7Ptq
+postgresql://postgres:D1hNr5SfZ9Rj7Ptq@db.jyxtalnwopbihyytivth.supabase.co:5432/postgres

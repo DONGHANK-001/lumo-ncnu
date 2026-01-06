@@ -34,8 +34,12 @@ app.use(
         origin: corsOrigins,
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
     })
 );
+
+// 明確處理 preflight OPTIONS 請求
+app.options('*', cors());
 
 // Body parsing
 app.use(express.json({ limit: '10kb' }));
