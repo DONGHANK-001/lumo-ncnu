@@ -28,6 +28,7 @@ import {
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { useWakeupBackend } from '@/hooks/useWakeupBackend';
 import { useState, useEffect } from 'react';
 
 const SPORTS = [
@@ -42,6 +43,9 @@ export default function LandingPage() {
     const theme = useTheme();
     const { user, loading, error, signIn } = useAuth();
     const [showError, setShowError] = useState(false);
+
+    // 預先喚醒後端 (Render 冷啟動優化)
+    useWakeupBackend();
 
     // PWA Install Prompt State
     const [showInstallPrompt, setShowInstallPrompt] = useState(false);
