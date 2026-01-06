@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import {
     Box,
     Typography,
@@ -35,6 +36,7 @@ import {
     Edit as EditIcon,
     CleaningServices as CleanupIcon,
     Refresh as RefreshIcon,
+    ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
@@ -207,6 +209,15 @@ export default function AdminPage() {
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Button
+                startIcon={<ArrowBackIcon />}
+                component={Link}
+                href="/profile"
+                sx={{ mb: 2, color: 'text.secondary' }}
+            >
+                返回個人檔案
+            </Button>
+
             <Typography variant="h4" fontWeight="bold" gutterBottom>
                 🛠️ 管理員後台
             </Typography>
