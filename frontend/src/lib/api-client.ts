@@ -133,6 +133,27 @@ class ApiClient {
     getSafetyRules() {
         return this.request<{ version: string; rules: string[] }>('/reports/safety');
     }
+
+    // Admin
+    getAdminGroups(token: string) {
+        return this.request<{ items: unknown[] }>('/admin/groups', { token });
+    }
+
+    getAdminStats(token: string) {
+        return this.request<{ totalGroups: number; activeGroups: number; totalUsers: number; expiredGroups: number }>('/admin/stats', { token });
+    }
+
+    deleteGroup(token: string, id: string) {
+        return this.request(`/admin/groups/${id}`, { method: 'DELETE', token });
+    }
+
+    updateGroup(token: string, id: string, data: { title: string; status: string }) {
+        return this.request(`/admin/groups/${id}`, { method: 'PATCH', token, body: data });
+    }
+
+    cleanupGroups(token: string) {
+        return this.request<{ message: string }>('/admin/groups/cleanup', { method: 'POST', token });
+    }
 }
 
 export const api = new ApiClient(API_BASE_URL);

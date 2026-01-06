@@ -40,6 +40,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api-client';
 
 interface Group {
     id: string;
@@ -60,8 +61,6 @@ interface Stats {
     totalUsers: number;
     expiredGroups: number;
 }
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 const sportTypeLabels: Record<string, string> = {
     BASKETBALL: '🏀 籃球',
@@ -100,22 +99,19 @@ export default function AdminPage() {
         try {
             setLoading(true);
             const token = await getToken();
-            const headers = { Authorization: `Bearer ${token}` };
+            if (!token) return;
 
             const [groupsRes, statsRes] = await Promise.all([
-                fetch(`${API_URL}/admin/groups`, { headers }),
-                fetch(`${API_URL}/admin/stats`, { headers }),
+                api.getAdminGroups(token),
+                api.getAdminStats(token),
             ]);
 
-            if (!groupsRes.ok || !statsRes.ok) {
-                throw new Error('無法載入資料');
+            if (!groupsRes.success || !statsRes.success) {
+                throw new Error(groupsRes.error?.message || statsRes.error?.message || '無法載入資料');
             }
 
-            const groupsData = await groupsRes.json();
-            const statsData = await statsRes.json();
-
-            setGroups(groupsData.data.items);
-            setStats(statsData.data);
+            setGroups((groupsRes.data?.items as Group[]) || []);
+            setStats(statsRes.data || null);
             setError(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : '發生錯誤');
@@ -141,12 +137,10 @@ export default function AdminPage() {
         if (!deletingId) return;
         try {
             const token = await getToken();
-            const res = await fetch(`${API_URL}/admin/groups/${deletingId}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            if (!token) return;
+            const res = await api.deleteGroup(token, deletingId);
 
-            if (!res.ok) throw new Error('刪除失敗');
+            if (!res.success) throw new Error(res.error?.message || '刪除失敗');
 
             setSuccess('揪團已刪除');
             setDeleteDialog(false);
@@ -161,16 +155,10 @@ export default function AdminPage() {
         if (!editingGroup) return;
         try {
             const token = await getToken();
-            const res = await fetch(`${API_URL}/admin/groups/${editingGroup.id}`, {
-                method: 'PATCH',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(editForm),
-            });
+            if (!token) return;
+            const res = await api.updateGroup(token, editingGroup.id, editForm);
 
-            if (!res.ok) throw new Error('更新失敗');
+            if (!res.success) throw new Error(res.error?.message || '更新失敗');
 
             setSuccess('揪團已更新');
             setEditDialog(false);
@@ -184,15 +172,12 @@ export default function AdminPage() {
     const handleCleanup = async () => {
         try {
             const token = await getToken();
-            const res = await fetch(`${API_URL}/admin/groups/cleanup`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            if (!token) return;
+            const res = await api.cleanupGroups(token);
 
-            if (!res.ok) throw new Error('清理失敗');
+            if (!res.success) throw new Error(res.error?.message || '清理失敗');
 
-            const data = await res.json();
-            setSuccess(data.data.message);
+            setSuccess(res.data?.message || '清理成功');
             fetchData();
         } catch (err) {
             setError(err instanceof Error ? err.message : '清理失敗');
