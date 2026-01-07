@@ -13,10 +13,26 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // ============================================
+// CORS (必須放在最前面，Helmet 之前)
+// ============================================
+
+const corsOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'];
+const corsOptions = {
+    origin: corsOrigins,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+// 明確處理 preflight OPTIONS 請求 (放在最前面)
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
+
+// ============================================
 // Security Middleware
 // ============================================
 
-// Helmet for security headers
+// Helmet for security headers (放在 CORS 之後)
 app.use(helmet());
 
 // Simple Request Logger
@@ -27,20 +43,6 @@ app.use((req, res, next) => {
     });
     next();
 });
-
-// CORS
-const corsOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'];
-app.use(
-    cors({
-        origin: corsOrigins,
-        credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
-    })
-);
-
-// 明確處理 preflight OPTIONS 請求
-app.options('*', cors());
 
 // Body parsing
 app.use(express.json({ limit: '10kb' }));
