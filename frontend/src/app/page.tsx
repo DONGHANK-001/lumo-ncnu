@@ -98,9 +98,11 @@ export default function LandingPage() {
                         </Stack>
 
                         <Stack direction="row" spacing={1} alignItems="center">
-                            <IconButton onClick={toggleMode} color="inherit" size="small" sx={{ mr: 1 }}>
-                                {mode === 'dark' ? <LightMode /> : <DarkMode />}
-                            </IconButton>
+                            {mode && (
+                                <IconButton onClick={toggleMode} color="inherit" size="small" sx={{ mr: 1 }}>
+                                    {mode === 'dark' ? <LightMode /> : <DarkMode />}
+                                </IconButton>
+                            )}
                             <Button component={Link} href="/groups" color="inherit">揪團列表</Button>
                             {loading ? (
                                 <Box sx={{ width: 80, height: 36, bgcolor: 'action.hover', borderRadius: 2 }} />

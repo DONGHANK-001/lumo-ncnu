@@ -7,6 +7,7 @@ interface ThemeModeContextType {
     mode: PaletteMode;
     toggleMode: () => void;
     setMode: (mode: PaletteMode) => void;
+    mounted: boolean;
 }
 
 const ThemeModeContext = createContext<ThemeModeContextType | undefined>(undefined);
@@ -56,13 +57,9 @@ export function ThemeModeProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(STORAGE_KEY, newMode);
     };
 
-    const value = useMemo(() => ({ mode, toggleMode, setMode }), [mode]);
+    const value = useMemo(() => ({ mode, toggleMode, setMode, mounted }), [mode, mounted]);
 
-    // 避免 hydration mismatch，等待 client 端掛載
-    if (!mounted) {
-        return null;
-    }
-
+    // 不再返回 null，讓頁面正常渲染，切換按鈕會在 mounted 後顯示
     return (
         <ThemeModeContext.Provider value={value}>
             {children}

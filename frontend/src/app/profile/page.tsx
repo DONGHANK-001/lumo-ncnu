@@ -150,9 +150,19 @@ export default function ProfilePage() {
                 <Typography variant="body1" color="text.secondary" paragraph>
                     請先登入以查看個人檔案
                 </Typography>
-                <Button variant="contained" onClick={signIn}>
-                    使用學生帳號登入
-                </Button>
+                <Stack spacing={2} direction="column" alignItems="center">
+                    <Button variant="contained" onClick={signIn}>
+                        使用學生帳號登入
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        component={Link}
+                        href="/"
+                        startIcon={<ArrowBack />}
+                    >
+                        返回首頁
+                    </Button>
+                </Stack>
             </Container>
         );
     }
