@@ -1,13 +1,6 @@
 /* 全域樣式 - MUI 透過 ThemeRegistry 處理大部分樣式 */
 
-:root {
-  --background-start-rgb: 20, 18, 24;
-  --background-end-rgb: 20, 18, 24;
-}
-
-body {
-  background: rgb(var(--background-start-rgb));
-}
+/* 主題會由 MUI CssBaseline 自動設定 */
 
 /* 滾動條客製化 - 配合深色主題 */
 ::-webkit-scrollbar {

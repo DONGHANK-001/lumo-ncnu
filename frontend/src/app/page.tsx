@@ -15,7 +15,8 @@ import {
     Alert,
     Snackbar,
     Paper,
-    useTheme
+    useTheme,
+    IconButton
 } from '@mui/material';
 import {
     SportsBasketball,
@@ -24,13 +25,16 @@ import {
     FitnessCenter,
     School,
     Group,
-    Security
+    Security,
+    DarkMode,
+    LightMode
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useWakeupBackend } from '@/hooks/useWakeupBackend';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useState, useEffect } from 'react';
+import { useThemeMode } from '@/theme/ThemeModeContext';
 
 const SPORTS = [
     { icon: <SportsBasketball fontSize="large" />, name: '籃球' },
@@ -43,6 +47,7 @@ const SPORTS = [
 export default function LandingPage() {
     const theme = useTheme();
     const { user, loading, error, signIn } = useAuth();
+    const { mode, toggleMode } = useThemeMode();
     const [showError, setShowError] = useState(false);
 
     // 預先喚醒後端 (Render 冷啟動優化)
@@ -83,7 +88,7 @@ export default function LandingPage() {
     return (
         <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', color: 'text.primary' }}>
             {/* AppBar */}
-            <AppBar position="fixed" elevation={0} sx={{ backdropFilter: 'blur(10px)', bgcolor: 'rgba(20, 18, 24, 0.8)' }}>
+            <AppBar position="fixed" elevation={0} sx={{ backdropFilter: 'blur(10px)', bgcolor: mode === 'dark' ? 'rgba(20, 18, 24, 0.8)' : 'rgba(255, 251, 254, 0.9)' }}>
                 <Container maxWidth="lg">
                     <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
                         <Stack direction="row" alignItems="center" spacing={1} component={Link} href="/" sx={{ textDecoration: 'none', color: 'inherit' }}>
@@ -92,7 +97,10 @@ export default function LandingPage() {
                             </Typography>
                         </Stack>
 
-                        <Stack direction="row" spacing={2} alignItems="center">
+                        <Stack direction="row" spacing={1} alignItems="center">
+                            <IconButton onClick={toggleMode} color="inherit" size="small" sx={{ mr: 1 }}>
+                                {mode === 'dark' ? <LightMode /> : <DarkMode />}
+                            </IconButton>
                             <Button component={Link} href="/groups" color="inherit">揪團列表</Button>
                             {loading ? (
                                 <Box sx={{ width: 80, height: 36, bgcolor: 'action.hover', borderRadius: 2 }} />

@@ -1,6 +1,6 @@
 'use client';
 
-import { createTheme } from '@mui/material/styles';
+import { createTheme, Theme, PaletteMode } from '@mui/material/styles';
 import { Roboto } from 'next/font/google';
 
 const roboto = Roboto({
@@ -9,35 +9,8 @@ const roboto = Roboto({
     display: 'swap',
 });
 
-// Lumo Brand Colors (Deep Violet / Indigo)
-// M3 relies on tonal palettes. We define a primary color and let MUI handle some generation,
-// but for a strict M3 look we customize palette heavily.
-
-const theme = createTheme({
-    palette: {
-        mode: 'dark', // Default to dark mode for that premium feel
-        primary: {
-            main: '#D0BCFF', // M3 Dark Primary (Light Purple)
-            light: '#EADDFF',
-            dark: '#4F378B',
-            contrastText: '#381E72',
-        },
-        secondary: {
-            main: '#CCC2DC', // M3 Dark Secondary
-            light: '#E8DEF8',
-            dark: '#4A4458',
-            contrastText: '#332D41',
-        },
-        background: {
-            default: '#141218', // M3 Dark Background
-            paper: '#1D1B20', // M3 Dark Surface
-        },
-        error: {
-            main: '#F2B8B5',
-            contrastText: '#601410',
-        },
-        // Custom M3 Surface Containers if needed
-    },
+// 共用的基礎設定
+const baseThemeOptions = {
     typography: {
         fontFamily: roboto.style.fontFamily,
         h1: {
@@ -51,18 +24,18 @@ const theme = createTheme({
             letterSpacing: '-0.01em',
         },
         button: {
-            textTransform: 'none', // M3 buttons are sentence case usually
+            textTransform: 'none' as const,
             fontWeight: 500,
         },
     },
     shape: {
-        borderRadius: 16, // M3 uses larger border radius
+        borderRadius: 16,
     },
     components: {
         MuiButton: {
             styleOverrides: {
                 root: {
-                    borderRadius: 20, // Pill shape
+                    borderRadius: 20,
                     padding: '10px 24px',
                 },
                 contained: {
@@ -76,9 +49,7 @@ const theme = createTheme({
         MuiCard: {
             styleOverrides: {
                 root: {
-                    borderRadius: 24, // M3 Card Radius
-                    // M3 Elevated Card
-                    backgroundColor: '#1D1B20',
+                    borderRadius: 24,
                     backgroundImage: 'none',
                 },
             },
@@ -86,7 +57,7 @@ const theme = createTheme({
         MuiPaper: {
             styleOverrides: {
                 root: {
-                    backgroundImage: 'none', // Disable default overlay in dark mode to control it manually
+                    backgroundImage: 'none',
                 },
             },
         },
@@ -94,12 +65,100 @@ const theme = createTheme({
             styleOverrides: {
                 root: {
                     backgroundImage: 'none',
-                    backgroundColor: '#141218', // Match background
                     boxShadow: 'none',
-                }
-            }
-        }
+                },
+            },
+        },
     },
-});
+};
 
+// 深色模式調色盤 (M3 Dark)
+const darkPalette = {
+    mode: 'dark' as PaletteMode,
+    primary: {
+        main: '#D0BCFF',
+        light: '#EADDFF',
+        dark: '#4F378B',
+        contrastText: '#381E72',
+    },
+    secondary: {
+        main: '#CCC2DC',
+        light: '#E8DEF8',
+        dark: '#4A4458',
+        contrastText: '#332D41',
+    },
+    background: {
+        default: '#141218',
+        paper: '#1D1B20',
+    },
+    error: {
+        main: '#F2B8B5',
+        contrastText: '#601410',
+    },
+};
+
+// 淺色模式調色盤 (M3 Light)
+const lightPalette = {
+    mode: 'light' as PaletteMode,
+    primary: {
+        main: '#6750A4',
+        light: '#7F67BE',
+        dark: '#4F378B',
+        contrastText: '#FFFFFF',
+    },
+    secondary: {
+        main: '#625B71',
+        light: '#7A7289',
+        dark: '#4A4458',
+        contrastText: '#FFFFFF',
+    },
+    background: {
+        default: '#FFFBFE',
+        paper: '#FFFFFF',
+    },
+    text: {
+        primary: '#1C1B1F',
+        secondary: '#49454F',
+    },
+    error: {
+        main: '#B3261E',
+        contrastText: '#FFFFFF',
+    },
+};
+
+/**
+ * 根據模式創建主題
+ */
+export function createAppTheme(mode: PaletteMode): Theme {
+    const palette = mode === 'dark' ? darkPalette : lightPalette;
+
+    return createTheme({
+        ...baseThemeOptions,
+        palette,
+        components: {
+            ...baseThemeOptions.components,
+            MuiCard: {
+                styleOverrides: {
+                    root: {
+                        borderRadius: 24,
+                        backgroundColor: mode === 'dark' ? '#1D1B20' : '#FFFFFF',
+                        backgroundImage: 'none',
+                    },
+                },
+            },
+            MuiAppBar: {
+                styleOverrides: {
+                    root: {
+                        backgroundImage: 'none',
+                        backgroundColor: mode === 'dark' ? '#141218' : '#FFFBFE',
+                        boxShadow: 'none',
+                    },
+                },
+            },
+        },
+    });
+}
+
+// 預設深色主題 (向後兼容)
+const theme = createAppTheme('dark');
 export default theme;
