@@ -29,6 +29,7 @@ import {
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useWakeupBackend } from '@/hooks/useWakeupBackend';
+import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useState, useEffect } from 'react';
 
 const SPORTS = [
@@ -46,6 +47,9 @@ export default function LandingPage() {
 
     // 預先喚醒後端 (Render 冷啟動優化)
     useWakeupBackend();
+
+    // 註冊 Service Worker (PWA)
+    useServiceWorker();
 
     // PWA Install Prompt State
     const [showInstallPrompt, setShowInstallPrompt] = useState(false);

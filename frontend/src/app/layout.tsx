@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { AuthProvider } from '@/hooks/useAuth';
 import '@/styles/globals.css';
 import ThemeRegistry from '@/theme/ThemeRegistry';
+import ErrorBoundary from './components/ErrorBoundary';
 
 export const metadata: Metadata = {
     title: 'LUMO - 暨大揪團平台',
@@ -27,9 +28,11 @@ export default function RootLayout({
         <html lang="zh-TW">
             <body>
                 <ThemeRegistry>
-                    <AuthProvider>
-                        {children}
-                    </AuthProvider>
+                    <ErrorBoundary>
+                        <AuthProvider>
+                            {children}
+                        </AuthProvider>
+                    </ErrorBoundary>
                 </ThemeRegistry>
             </body>
         </html>

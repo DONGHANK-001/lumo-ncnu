@@ -126,12 +126,41 @@ export default function AdminPage() {
         }
     }, [authLoading, user, fetchData]);
 
-    // 檢查權限
+    // 檢查登入狀態
     useEffect(() => {
         if (!authLoading && !user) {
             router.push('/');
         }
     }, [authLoading, user, router]);
+
+    // 如果還在載入
+    if (authLoading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    // 權限檢查：非管理員顯示無權限訊息
+    if (user && user.role !== 'ADMIN') {
+        return (
+            <Container maxWidth="lg" sx={{ py: 4 }}>
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    component={Link}
+                    href="/"
+                    sx={{ mb: 2, color: 'text.secondary' }}
+                >
+                    返回首頁
+                </Button>
+                <Alert severity="error" sx={{ mt: 2 }}>
+                    <Typography variant="h6" gutterBottom>🚫 無權限存取</Typography>
+                    <Typography>此頁面僅限管理員使用。如需管理員權限，請聯繫系統管理員。</Typography>
+                </Alert>
+            </Container>
+        );
+    }
 
     const handleDelete = async () => {
         if (!deletingId) return;
@@ -184,7 +213,7 @@ export default function AdminPage() {
         }
     };
 
-    if (authLoading || loading) {
+    if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
                 <CircularProgress />

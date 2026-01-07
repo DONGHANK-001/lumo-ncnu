@@ -51,7 +51,7 @@ export async function firebaseAuthMiddleware(
             return;
         }
 
-        const allowedDomains = (process.env.ALLOWED_EMAIL_DOMAIN || 'ncnu.edu.tw').split(',').map(d => d.trim());
+        const allowedDomains = (process.env.ALLOWED_EMAIL_DOMAIN || 'mail1.ncnu.edu.tw,ncnu.edu.tw').split(',').map(d => d.trim());
         const emailDomain = email.split('@')[1];
 
         if (!allowedDomains.includes(emailDomain)) {

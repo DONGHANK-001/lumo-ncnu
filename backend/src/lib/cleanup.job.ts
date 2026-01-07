@@ -24,17 +24,17 @@ export async function cleanupExpiredGroups(): Promise<number> {
 
 /**
  * 啟動定時清理任務
- * 每小時執行一次
+ * 每 12 小時執行一次
  */
 export function startCleanupJob(): void {
-    const INTERVAL_MS = 60 * 60 * 1000; // 1 小時
+    const INTERVAL_MS = 12 * 60 * 60 * 1000; // 12 小時
 
-    console.log('[Cleanup] 定時清理任務已啟動 (每小時執行)');
+    console.log('[Cleanup] 定時清理任務已啟動 (每 12 小時執行)');
 
     // 啟動時先執行一次
     cleanupExpiredGroups().catch(console.error);
 
-    // 每小時執行
+    // 每 12 小時執行
     setInterval(() => {
         cleanupExpiredGroups().catch(console.error);
     }, INTERVAL_MS);

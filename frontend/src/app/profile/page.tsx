@@ -211,18 +211,17 @@ export default function ProfilePage() {
 
                         {user.planType === 'FREE' && (
                             <Box sx={{ bgcolor: 'action.hover', p: 2, borderRadius: 2 }}>
-                                <Typography variant="subtitle2" gutterBottom>升級 PLUS</Typography>
+                                <Typography variant="subtitle2" gutterBottom>PLUS 方案</Typography>
                                 <Typography variant="caption" color="text.secondary" display="block" mb={2}>
-                                    每月 $20，解鎖候補功能
+                                    每月 $20，解鎖候補功能（即將推出）
                                 </Typography>
                                 <Button
-                                    variant="contained"
+                                    variant="outlined"
                                     size="small"
                                     fullWidth
-                                    onClick={handleUpgrade}
-                                    disabled={saving}
+                                    disabled
                                 >
-                                    升級
+                                    敬請期待
                                 </Button>
                             </Box>
                         )}

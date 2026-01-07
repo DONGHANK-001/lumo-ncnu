@@ -4,8 +4,8 @@
     "description": "暨南大學專屬運動揪團配對平台",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#0a0a0a",
-    "theme_color": "#22c55e",
+    "background_color": "#141218",
+    "theme_color": "#D0BCFF",
     "orientation": "portrait-primary",
     "icons": [
         {

@@ -119,7 +119,7 @@ export default function PricingPage() {
                     </Card>
                 </Grid>
 
-                {/* Plus Plan */}
+                {/* Plus Plan - 即將推出 */}
                 <Grid size={{ xs: 12, md: 5 }}>
                     <Card
                         sx={{
@@ -130,12 +130,13 @@ export default function PricingPage() {
                             border: 2,
                             borderColor: 'secondary.main',
                             position: 'relative',
-                            overflow: 'visible'
+                            overflow: 'visible',
+                            opacity: 0.85,
                         }}
                     >
                         <Chip
-                            label="推薦"
-                            color="secondary"
+                            label="即將推出"
+                            color="warning"
                             sx={{ position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)' }}
                         />
                         <CardContent sx={{ flexGrow: 1, p: 4, textAlign: 'center' }}>
@@ -143,7 +144,7 @@ export default function PricingPage() {
                             <Typography variant="h3" fontWeight="bold" color="text.primary" gutterBottom>
                                 $20<Typography component="span" variant="h6" color="text.secondary">/月</Typography>
                             </Typography>
-                            <Typography variant="body2" color="text.secondary" mb={4}>解鎖所有功能</Typography>
+                            <Typography variant="body2" color="text.secondary" mb={4}>解鎖所有功能（金流串接中）</Typography>
 
                             <List>
                                 {FEATURES.map((feature) => (
@@ -162,19 +163,9 @@ export default function PricingPage() {
                             </List>
                         </CardContent>
                         <CardActions sx={{ p: 4, pt: 0 }}>
-                            {user?.planType === 'PLUS' ? (
-                                <Button variant="contained" color="secondary" fullWidth disabled startIcon={<Star />}>
-                                    已是 PLUS 會員
-                                </Button>
-                            ) : user ? (
-                                <Button variant="contained" color="secondary" fullWidth onClick={handleUpgrade}>
-                                    立即升級
-                                </Button>
-                            ) : (
-                                <Button variant="contained" color="secondary" fullWidth component={Link} href="/">
-                                    登入後升級
-                                </Button>
-                            )}
+                            <Button variant="contained" color="secondary" fullWidth disabled>
+                                敬請期待
+                            </Button>
                         </CardActions>
                     </Card>
                 </Grid>

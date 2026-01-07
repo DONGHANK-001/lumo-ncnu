@@ -43,12 +43,8 @@ router.get(
             };
         }
 
-        // hasSlot: 只顯示還有空位的揪團
-        if (hasSlot) {
-            where.currentCount = { lt: prisma.group.fields.capacity };
-        }
-
-        const [items, total] = await Promise.all([
+        // hasSlot 會在查詢後過濾，因為 Prisma 不支援直接比較兩個欄位
+        const [rawItems, rawTotal] = await Promise.all([
             prisma.group.findMany({
                 where,
                 include: {
@@ -56,11 +52,18 @@ router.get(
                     _count: { select: { members: true } },
                 },
                 orderBy: { time: 'asc' },
-                skip: (page - 1) * pageSize,
-                take: pageSize,
             }),
             prisma.group.count({ where }),
         ]);
+
+        // hasSlot: 過濾出還有空位的揪團
+        const filteredItems = hasSlot
+            ? rawItems.filter((g) => g.currentCount < g.capacity)
+            : rawItems;
+
+        // 手動分頁
+        const total = hasSlot ? filteredItems.length : rawTotal;
+        const items = filteredItems.slice((page - 1) * pageSize, page * pageSize);
 
         res.json({
             success: true,
