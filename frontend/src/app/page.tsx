@@ -88,22 +88,44 @@ export default function LandingPage() {
     return (
         <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', color: 'text.primary' }}>
             {/* AppBar */}
-            <AppBar position="fixed" elevation={0} sx={{ backdropFilter: 'blur(10px)', bgcolor: mode === 'dark' ? 'rgba(20, 18, 24, 0.8)' : 'rgba(255, 251, 254, 0.9)' }}>
+            <AppBar
+                position="fixed"
+                elevation={0}
+                sx={{
+                    backdropFilter: 'blur(10px)',
+                    bgcolor: mode === 'dark' ? 'rgba(20, 18, 24, 0.9)' : 'rgba(255, 251, 254, 0.95)',
+                    color: 'text.primary',
+                    borderBottom: mode === 'light' ? '1px solid rgba(0,0,0,0.08)' : 'none',
+                }}
+            >
                 <Container maxWidth="lg">
                     <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
                         <Stack direction="row" alignItems="center" spacing={1} component={Link} href="/" sx={{ textDecoration: 'none', color: 'inherit' }}>
-                            <Typography variant="h6" fontWeight="bold" sx={{ background: `linear-gradient(45deg, ${theme.palette.primary.light}, ${theme.palette.secondary.light})`, backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                            <Typography variant="h6" fontWeight="bold" sx={{ background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`, backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                                 LUMO NCNU
                             </Typography>
                         </Stack>
 
                         <Stack direction="row" spacing={1} alignItems="center">
                             {mode && (
-                                <IconButton onClick={toggleMode} color="inherit" size="small" sx={{ mr: 1 }}>
+                                <IconButton
+                                    onClick={toggleMode}
+                                    size="small"
+                                    sx={{
+                                        mr: 1,
+                                        color: 'text.primary',
+                                    }}
+                                >
                                     {mode === 'dark' ? <LightMode /> : <DarkMode />}
                                 </IconButton>
                             )}
-                            <Button component={Link} href="/groups" color="inherit">揪團列表</Button>
+                            <Button
+                                component={Link}
+                                href="/groups"
+                                sx={{ color: 'text.primary' }}
+                            >
+                                揪團列表
+                            </Button>
                             {loading ? (
                                 <Box sx={{ width: 80, height: 36, bgcolor: 'action.hover', borderRadius: 2 }} />
                             ) : user ? (
