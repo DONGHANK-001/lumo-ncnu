@@ -125,6 +125,15 @@ class ApiClient {
         return this.request(`/groups/${id}/waitlist`, { method: 'POST', token });
     }
 
+    // Group Comments
+    getGroupComments(id: string) {
+        return this.request<any[]>(`/groups/${id}/comments`);
+    }
+
+    postGroupComment(token: string, id: string, content: string) {
+        return this.request<any>(`/groups/${id}/comments`, { method: 'POST', token, body: { content } });
+    }
+
     // Reports
     createReport(token: string, data: unknown) {
         return this.request('/reports', { method: 'POST', token, body: data });

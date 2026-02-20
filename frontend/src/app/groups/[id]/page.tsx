@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
+import { getSocket } from '@/lib/socket';
 import { useAuth } from '@/hooks/useAuth';
 import {
     Box,
@@ -20,14 +21,18 @@ import {
     CircularProgress,
     Alert,
     Paper,
-    Divider
+    Divider,
+    TextField,
+    IconButton
 } from '@mui/material';
 import {
     CalendarToday,
     LocationOn,
     Group as GroupIcon,
     ArrowBack,
-    Security
+    Security,
+    Send as SendIcon,
+    ChatBubbleOutline
 } from '@mui/icons-material';
 
 interface GroupDetail {
@@ -47,6 +52,13 @@ interface GroupDetail {
         status: string;
         joinedAt: string;
     }>;
+}
+
+interface CommentDetail {
+    id: string;
+    content: string;
+    createdAt: string;
+    user: { id: string; nickname: string | null; email: string };
 }
 
 const SPORT_NAMES: Record<string, string> = {
@@ -75,9 +87,57 @@ export default function GroupDetailPage() {
     const [actionLoading, setActionLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const [comments, setComments] = useState<CommentDetail[]>([]);
+    const [newComment, setNewComment] = useState('');
+    const [commentLoading, setCommentLoading] = useState(false);
+
     useEffect(() => {
         fetchGroup();
+        fetchComments();
+
+        // Socket.io for Real-time Comments
+        const socket = getSocket();
+
+        const handleNewComment = (comment: CommentDetail & { groupId: string }) => {
+            if (comment.groupId === id) {
+                setComments(prev => {
+                    // 避免重複加入
+                    if (prev.some(c => c.id === comment.id)) return prev;
+                    return [...prev, comment];
+                });
+            }
+        };
+
+        socket.on('new_comment', handleNewComment);
+
+        return () => {
+            socket.off('new_comment', handleNewComment);
+        };
     }, [id]);
+
+    const fetchComments = async () => {
+        const response = await api.getGroupComments(id);
+        if (response.success && response.data) {
+            setComments(response.data);
+        }
+    };
+
+    const handleSendComment = async () => {
+        if (!user || !newComment.trim()) return;
+
+        setCommentLoading(true);
+        const token = await getToken();
+        if (token) {
+            const response = await api.postGroupComment(token, id, newComment);
+            if (response.success) {
+                setNewComment('');
+                // 由於 socket 會推播回來，這裡不需要立即加進 state 除非需要 optimistic UI
+            } else {
+                setError(response.error?.message || '留言失敗');
+            }
+        }
+        setCommentLoading(false);
+    };
 
     const fetchGroup = async () => {
         setLoading(true);
@@ -406,6 +466,91 @@ export default function GroupDetailPage() {
                                 ))}
                             </Stack>
                         </>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* 留言板 */}
+            <Card sx={{ borderRadius: 4, mt: 4 }}>
+                <CardContent sx={{ p: 4 }}>
+                    <Stack direction="row" alignItems="center" gap={1} mb={3}>
+                        <ChatBubbleOutline color="action" />
+                        <Typography variant="h6">留言板 ({comments.length})</Typography>
+                    </Stack>
+
+                    <Stack spacing={3} sx={{ mb: 4, maxHeight: 400, overflowY: 'auto', pr: 1 }}>
+                        {comments.length === 0 ? (
+                            <Typography variant="body2" color="text.secondary" textAlign="center" py={4}>
+                                目前還沒有討論，來當第一個留言的人吧！
+                            </Typography>
+                        ) : (
+                            comments.map((comment) => (
+                                <Stack key={comment.id} direction="row" spacing={2} alignItems="flex-start">
+                                    <Avatar sx={{ bgcolor: comment.user.id === group.createdBy.id ? 'primary.main' : 'secondary.main', width: 40, height: 40 }}>
+                                        {(comment.user.nickname || comment.user.email)[0].toUpperCase()}
+                                    </Avatar>
+                                    <Box sx={{
+                                        bgcolor: 'background.default',
+                                        px: 2,
+                                        py: 1.5,
+                                        borderRadius: 3,
+                                        borderTopLeftRadius: 0,
+                                        maxWidth: '85%'
+                                    }}>
+                                        <Stack direction="row" alignItems="center" spacing={1} mb={0.5}>
+                                            <Typography variant="subtitle2" fontWeight="bold">
+                                                {comment.user.nickname || comment.user.email.split('@')[0]}
+                                            </Typography>
+                                            {comment.user.id === group.createdBy.id && (
+                                                <Typography variant="caption" color="primary" sx={{ fontWeight: 'bold' }}>
+                                                    (發起人)
+                                                </Typography>
+                                            )}
+                                            <Typography variant="caption" color="text.secondary">
+                                                ・{new Date(comment.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </Typography>
+                                        </Stack>
+                                        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                            {comment.content}
+                                        </Typography>
+                                    </Box>
+                                </Stack>
+                            ))
+                        )}
+                    </Stack>
+
+                    {user ? (
+                        <Stack direction="row" spacing={2} alignItems="flex-end">
+                            <TextField
+                                fullWidth
+                                placeholder="問問大家有沒有帶球、集合地點等細節..."
+                                variant="outlined"
+                                size="small"
+                                multiline
+                                maxRows={3}
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                disabled={commentLoading}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSendComment();
+                                    }
+                                }}
+                            />
+                            <IconButton
+                                color="primary"
+                                onClick={handleSendComment}
+                                disabled={!newComment.trim() || commentLoading}
+                                sx={{ bgcolor: 'action.hover' }}
+                            >
+                                <SendIcon />
+                            </IconButton>
+                        </Stack>
+                    ) : (
+                        <Typography variant="body2" color="text.secondary" textAlign="center">
+                            請登入後參與討論
+                        </Typography>
                     )}
                 </CardContent>
             </Card>

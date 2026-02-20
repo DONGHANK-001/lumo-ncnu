@@ -360,4 +360,73 @@ router.post(
     }
 );
 
+/**
+ * GET /groups/:id/comments
+ * 取得指定揪團的留言
+ */
+router.get('/:id/comments', async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const group = await prisma.group.findUnique({ where: { id } });
+    if (!group) {
+        throw new ApiError(404, 'GROUP_NOT_FOUND', '找不到此揪團');
+    }
+
+    const comments = await prisma.groupComment.findMany({
+        where: { groupId: id },
+        include: {
+            user: { select: { id: true, nickname: true, email: true } },
+        },
+        orderBy: { createdAt: 'asc' },
+    });
+
+    res.json({
+        success: true,
+        data: comments,
+    });
+});
+
+/**
+ * POST /groups/:id/comments
+ * 新增揪團留言
+ */
+router.post(
+    '/:id/comments',
+    firebaseAuthMiddleware,
+    async (req: Request, res: Response) => {
+        const user = req.user!;
+        const { id } = req.params;
+        const { content } = req.body;
+
+        if (!content || typeof content !== 'string' || content.trim() === '') {
+            throw new ApiError(400, 'INVALID_INPUT', '留言內容無效');
+        }
+
+        const group = await prisma.group.findUnique({ where: { id } });
+        if (!group) {
+            throw new ApiError(404, 'GROUP_NOT_FOUND', '找不到此揪團');
+        }
+
+        // 可以選擇限制只有成員才能留言，目前先開放只要登入即可留言
+        const newComment = await prisma.groupComment.create({
+            data: {
+                content: content.trim(),
+                groupId: id,
+                userId: user.id,
+            },
+            include: {
+                user: { select: { id: true, nickname: true, email: true } },
+            },
+        });
+
+        // 透過 Socket.io 廣播給所有連接的使用者
+        getIO().emit('new_comment', newComment);
+
+        res.status(201).json({
+            success: true,
+            data: newComment,
+        });
+    }
+);
+
 export default router;
