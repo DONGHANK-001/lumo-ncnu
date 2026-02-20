@@ -78,6 +78,8 @@ model User {
   role        String    @default("USER") // USER | ADMIN
   planType    PlanType  @default(FREE)
   preferences Json?     // UserPreferences JSON
+  attendedCount Int     @default(0) // 出席次數
+  noShowCount   Int     @default(0) // 缺席次數
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -128,6 +130,7 @@ model GroupMember {
   userId    String
   user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   status    MemberStatus @default(JOINED)
+  isAttended Boolean?    // 出缺席狀態：true (出席), false (缺席), null (未記錄)
   joinedAt  DateTime     @default(now())
 
   @@unique([groupId, userId])

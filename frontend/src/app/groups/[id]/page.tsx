@@ -48,11 +48,12 @@ interface GroupDetail {
     capacity: number;
     currentCount: number;
     status: string;
-    createdBy: { id: string; nickname: string | null; email: string };
+    createdBy: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; };
     members: Array<{
-        user: { id: string; nickname: string | null; email: string };
+        user: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; };
         status: string;
         joinedAt: string;
+        isAttended: boolean | null;
     }>;
 }
 
@@ -93,7 +94,8 @@ export default function GroupDetailPage() {
     const [newComment, setNewComment] = useState('');
     const [commentLoading, setCommentLoading] = useState(false);
 
-    const [shareMessage, setShareMessage] = useState<string | null>(null);
+    const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
+    const [attendanceRecords, setAttendanceRecords] = useState<Record<string, boolean | null>>({});
 
     useEffect(() => {
         fetchGroup();
@@ -149,7 +151,16 @@ export default function GroupDetailPage() {
         const response = await api.getGroup(id, token || undefined);
 
         if (response.success && response.data) {
-            setGroup(response.data as GroupDetail);
+            const groupData = response.data as GroupDetail;
+            setGroup(groupData);
+
+            const initialAttendance: Record<string, boolean | null> = {};
+            groupData.members.forEach(m => {
+                if (m.status === 'JOINED') {
+                    initialAttendance[m.user.id] = m.isAttended;
+                }
+            });
+            setAttendanceRecords(initialAttendance);
         } else {
             setError(response.error?.message || '無法載入揪團');
         }
@@ -232,12 +243,32 @@ export default function GroupDetailPage() {
                 await navigator.share(shareData);
             } else {
                 await navigator.clipboard.writeText(window.location.href);
-                setShareMessage('連結已複製到剪貼簿！');
+                setSnackbarMessage('連結已複製到剪貼簿！');
             }
         } catch (err) {
             console.error('Share failed', err);
             // Ignore user cancellation errors
         }
+    };
+
+    const handleAttendanceChange = (userId: string, isAttended: boolean | null) => {
+        setAttendanceRecords(prev => ({ ...prev, [userId]: isAttended }));
+    };
+
+    const handleSaveAttendance = async () => {
+        if (!group) return;
+        setActionLoading(true);
+        const token = await getToken();
+        const records = Object.entries(attendanceRecords).map(([userId, isAttended]) => ({ userId, isAttended }));
+
+        const response = await api.updateGroupAttendance(token!, group.id, records);
+        if (response.success) {
+            setSnackbarMessage('出缺席紀錄已儲存！');
+            await fetchGroup();
+        } else {
+            setError(response.error?.message || '儲存失敗');
+        }
+        setActionLoading(false);
     };
 
     const formatDate = (dateStr: string) => {
@@ -435,11 +466,25 @@ export default function GroupDetailPage() {
 
             <Card sx={{ borderRadius: 4 }}>
                 <CardContent sx={{ p: 4 }}>
-                    <Stack direction="row" alignItems="center" gap={1} mb={3}>
-                        <GroupIcon color="action" />
-                        <Typography variant="h6">
-                            參與成員 ({joinedMembers.length})
-                        </Typography>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
+                        <Stack direction="row" alignItems="center" gap={1}>
+                            <GroupIcon color="action" />
+                            <Typography variant="h6">
+                                參與成員 ({joinedMembers.length})
+                            </Typography>
+                        </Stack>
+
+                        {isCreator && group && (new Date(group.time) < new Date() || group.status === 'COMPLETED') && (
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                onClick={handleSaveAttendance}
+                                disabled={actionLoading}
+                            >
+                                儲存紀錄
+                            </Button>
+                        )}
                     </Stack>
 
                     <Stack spacing={2}>
@@ -463,12 +508,44 @@ export default function GroupDetailPage() {
                                                     發起人
                                                 </Typography>
                                             )}
+                                            {(member.user.attendedCount + member.user.noShowCount) > 0 && (
+                                                <Chip
+                                                    size="small"
+                                                    label={`🔥 ${Math.round((member.user.attendedCount / (member.user.attendedCount + member.user.noShowCount)) * 100)}%`}
+                                                    sx={{ ml: 1, height: 20, fontSize: '0.7rem' }}
+                                                    color="success"
+                                                    variant="outlined"
+                                                />
+                                            )}
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary">
                                             {index === 0 ? '第一位' : `第 ${index + 1} 位`}
                                         </Typography>
                                     </Box>
                                 </Stack>
+
+                                {isCreator && group && (new Date(group.time) < new Date() || group.status === 'COMPLETED') && member.user.id !== user?.id && (
+                                    <Stack direction="row" spacing={1}>
+                                        <Button
+                                            size="small"
+                                            variant={attendanceRecords[member.user.id] === true ? "contained" : "outlined"}
+                                            color="success"
+                                            onClick={() => handleAttendanceChange(member.user.id, true)}
+                                            sx={{ minWidth: 48, px: 1 }}
+                                        >
+                                            出席
+                                        </Button>
+                                        <Button
+                                            size="small"
+                                            variant={attendanceRecords[member.user.id] === false ? "contained" : "outlined"}
+                                            color="error"
+                                            onClick={() => handleAttendanceChange(member.user.id, false)}
+                                            sx={{ minWidth: 48, px: 1 }}
+                                        >
+                                            缺席
+                                        </Button>
+                                    </Stack>
+                                )}
                             </Stack>
                         ))}
                     </Stack>
@@ -588,10 +665,10 @@ export default function GroupDetailPage() {
             </Card>
 
             <Snackbar
-                open={!!shareMessage}
+                open={!!snackbarMessage}
                 autoHideDuration={3000}
-                onClose={() => setShareMessage(null)}
-                message={shareMessage}
+                onClose={() => setSnackbarMessage(null)}
+                message={snackbarMessage}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             />
         </Container>

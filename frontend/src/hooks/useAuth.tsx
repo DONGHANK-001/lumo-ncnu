@@ -21,6 +21,8 @@ interface User {
     planType: 'FREE' | 'PLUS';
     role: string;
     preferences: UserPreferences | null;
+    attendedCount: number;
+    noShowCount: number;
     firebaseUser: FirebaseUser;
 }
 
@@ -62,6 +64,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     planType: response.data.planType as 'FREE' | 'PLUS',
                     role: response.data.role || 'USER',
                     preferences: (response.data as any).preferences || null,
+                    attendedCount: (response.data as any).attendedCount || 0,
+                    noShowCount: (response.data as any).noShowCount || 0,
                     firebaseUser,
                 });
                 setError(null);
