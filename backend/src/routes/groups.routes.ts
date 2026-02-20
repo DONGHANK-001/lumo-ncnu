@@ -8,6 +8,7 @@ import { validateBody, validateQuery } from '../middleware/validation.js';
 import { createGroupSchema, listGroupsQuerySchema } from '../types/schemas.js';
 import { ApiError } from '../middleware/error-handler.js';
 import { Prisma } from '@prisma/client';
+import { sendJoinGroupEmail } from '../lib/mailer.js';
 
 const router = Router();
 
@@ -167,7 +168,10 @@ router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Respo
 
     const group = await prisma.group.findUnique({
         where: { id },
-        include: { members: true },
+        include: {
+            members: true,
+            createdBy: { select: { nickname: true, email: true } },
+        },
     });
 
     if (!group) {
@@ -204,6 +208,20 @@ router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Respo
             },
         }),
     ]);
+
+    // 發送 Email 通知給發起人
+    if (group.createdBy.email !== user.email) {
+        const isFull = group.currentCount + 1 >= group.capacity;
+        sendJoinGroupEmail({
+            toEmail: group.createdBy.email,
+            organizerName: group.createdBy.nickname || '發起人',
+            joinerName: user.nickname || '新成員',
+            groupTitle: group.title,
+            sportType: group.sportType,
+            time: group.time.toISOString(),
+            isFull: isFull,
+        }).catch((err: unknown) => console.error('Email send failed:', err));
+    }
 
     res.json({
         success: true,
