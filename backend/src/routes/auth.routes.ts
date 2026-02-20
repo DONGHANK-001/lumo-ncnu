@@ -25,6 +25,8 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
             role: user.role,
             planType: user.planType,
             preferences: user.preferences,
+            attendedCount: user.attendedCount,
+            noShowCount: user.noShowCount,
             createdAt: user.createdAt,
         },
     });

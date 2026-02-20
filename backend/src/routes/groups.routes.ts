@@ -50,7 +50,7 @@ router.get(
             prisma.group.findMany({
                 where,
                 include: {
-                    createdBy: { select: { id: true, nickname: true, email: true } },
+                    createdBy: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true } },
                     _count: { select: { members: true } },
                 },
                 orderBy: { time: 'asc' },
@@ -141,10 +141,10 @@ router.get('/:id', async (req: Request, res: Response) => {
     const group = await prisma.group.findUnique({
         where: { id },
         include: {
-            createdBy: { select: { id: true, nickname: true, email: true } },
+            createdBy: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true } },
             members: {
                 include: {
-                    user: { select: { id: true, nickname: true, email: true } },
+                    user: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true } },
                 },
                 orderBy: { joinedAt: 'asc' },
             },
@@ -425,6 +425,90 @@ router.post(
         res.status(201).json({
             success: true,
             data: newComment,
+        });
+    }
+);
+
+/**
+ * PUT /groups/:id/attendance
+ * 批次更新揪團成員的出缺席狀態 (僅限發起人)
+ */
+router.put(
+    '/:id/attendance',
+    firebaseAuthMiddleware,
+    async (req: Request, res: Response) => {
+        const user = req.user!;
+        const { id } = req.params;
+        const { records } = req.body as { records: { userId: string, isAttended: boolean | null }[] };
+
+        if (!Array.isArray(records)) {
+            throw new ApiError(400, 'INVALID_INPUT', '參數錯誤');
+        }
+
+        const group = await prisma.group.findUnique({
+            where: { id },
+            include: { members: true }
+        });
+
+        if (!group) {
+            throw new ApiError(404, 'GROUP_NOT_FOUND', '找不到此揪團');
+        }
+
+        if (group.createdById !== user.id) {
+            throw new ApiError(403, 'FORBIDDEN', '只有揪團發起人可以設定出缺席紀錄');
+        }
+
+        // 檢查時間是否已過，或者狀態是 COMPLETED
+        if (new Date(group.time) >= new Date() && group.status !== 'COMPLETED') {
+            throw new ApiError(400, 'TOO_EARLY', '活動結束後才能標記出缺席');
+        }
+
+        await prisma.$transaction(async (tx) => {
+            for (const record of records) {
+                // 找到對應的 member
+                const member = group.members.find(m => m.userId === record.userId && m.status === 'JOINED');
+                if (!member) continue; // 可能是已退出或候補中
+
+                const oldStatus = member.isAttended;
+                const newStatus = record.isAttended;
+
+                // 若狀態沒變則略過
+                if (oldStatus === newStatus) continue;
+
+                // 1. 更新 Member 紀錄
+                await tx.groupMember.update({
+                    where: { id: member.id },
+                    data: { isAttended: newStatus }
+                });
+
+                // 2. 計算對應 User 的統計變化
+                let attendedDelta = 0;
+                let noShowDelta = 0;
+
+                // 移除舊狀態對分數的影響
+                if (oldStatus === true) attendedDelta -= 1;
+                else if (oldStatus === false) noShowDelta -= 1;
+
+                // 加上新狀態對分數的影響
+                if (newStatus === true) attendedDelta += 1;
+                else if (newStatus === false) noShowDelta += 1;
+
+                // 3. 更新 User 的總計數
+                if (attendedDelta !== 0 || noShowDelta !== 0) {
+                    await tx.user.update({
+                        where: { id: record.userId },
+                        data: {
+                            attendedCount: { increment: attendedDelta },
+                            noShowCount: { increment: noShowDelta }
+                        }
+                    });
+                }
+            }
+        });
+
+        res.json({
+            success: true,
+            data: { message: '出缺席紀錄儲存成功' },
         });
     }
 );

@@ -88,7 +88,7 @@ class ApiClient {
 
     // Auth
     getMe(token: string) {
-        return this.request<{ id: string; email: string; nickname: string | null; planType: string; role: string }>('/me', { token });
+        return this.request<{ id: string; email: string; nickname: string | null; planType: string; role: string; attendedCount: number; noShowCount: number; }>('/me', { token });
     }
 
     updateProfile(token: string, data: { nickname?: string; preferences?: unknown }) {
@@ -141,6 +141,11 @@ class ApiClient {
 
     getSafetyRules() {
         return this.request<{ version: string; rules: string[] }>('/reports/safety');
+    }
+
+    // Attendance
+    updateGroupAttendance(token: string, id: string, records: { userId: string, isAttended: boolean | null }[]) {
+        return this.request(`/groups/${id}/attendance`, { method: 'PUT', token, body: { records } });
     }
 
     // Admin

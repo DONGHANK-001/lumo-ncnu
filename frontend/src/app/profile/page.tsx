@@ -27,7 +27,8 @@ import {
     Save,
     Logout,
     Star,
-    AdminPanelSettings
+    AdminPanelSettings,
+    LocalFireDepartment
 } from '@mui/icons-material';
 
 const SPORT_OPTIONS = [
@@ -216,6 +217,34 @@ export default function ProfilePage() {
                                 {user.email}
                             </Typography>
                         </Stack>
+
+                        <Divider sx={{ my: 3 }} />
+
+                        {/* 信譽/出席率展示 */}
+                        <Box sx={{ bgcolor: 'action.hover', p: 2, borderRadius: 2, mb: 3 }}>
+                            <Typography variant="subtitle2" gutterBottom display="flex" alignItems="center" justifyContent="center" gap={1}>
+                                <LocalFireDepartment color="error" fontSize="small" />
+                                綜合信譽
+                            </Typography>
+                            <Stack direction="row" justifyContent="space-around" mt={2} mb={1}>
+                                <Box>
+                                    <Typography variant="h6" color="success.main" fontWeight="bold">
+                                        {user.attendedCount}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">出席</Typography>
+                                </Box>
+                                <Divider orientation="vertical" flexItem />
+                                <Box>
+                                    <Typography variant="h6" color="error.main" fontWeight="bold">
+                                        {user.noShowCount}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">缺席</Typography>
+                                </Box>
+                            </Stack>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                出席率：{(user.attendedCount + user.noShowCount) === 0 ? '無紀錄' : `${Math.round((user.attendedCount / (user.attendedCount + user.noShowCount)) * 100)}%`}
+                            </Typography>
+                        </Box>
 
                         <Divider sx={{ my: 3 }} />
 
