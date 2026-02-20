@@ -9,6 +9,7 @@ import { createGroupSchema, listGroupsQuerySchema } from '../types/schemas.js';
 import { ApiError } from '../middleware/error-handler.js';
 import { Prisma } from '@prisma/client';
 import { sendJoinGroupEmail } from '../lib/mailer.js';
+import { getIO } from '../socket.js';
 
 const router = Router();
 
@@ -121,6 +122,8 @@ router.post(
             },
         });
 
+        getIO().emit('group_created', group);
+
         res.status(201).json({
             success: true,
             data: group,
@@ -209,6 +212,12 @@ router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Respo
         }),
     ]);
 
+    getIO().emit('group_updated', {
+        id,
+        currentCount: group.currentCount + 1,
+        status: group.currentCount + 1 >= group.capacity ? 'FULL' : 'OPEN',
+    });
+
     // 發送 Email 通知給發起人
     if (group.createdBy.email !== user.email) {
         const isFull = group.currentCount + 1 >= group.capacity;
@@ -273,7 +282,12 @@ router.post('/:id/leave', firebaseAuthMiddleware, async (req: Request, res: Resp
 
     // 檢查候補名單，自動遞補
     const waitlistMember = group.members.find((m) => m.status === 'WAITLIST');
+    let newCount = group.currentCount - 1;
+    let newStatus: 'OPEN' | 'FULL' = 'OPEN';
+
     if (waitlistMember) {
+        newCount += 1;
+        newStatus = newCount >= group.capacity ? 'FULL' : 'OPEN';
         await prisma.$transaction([
             prisma.groupMember.update({
                 where: { id: waitlistMember.id },
@@ -281,10 +295,19 @@ router.post('/:id/leave', firebaseAuthMiddleware, async (req: Request, res: Resp
             }),
             prisma.group.update({
                 where: { id },
-                data: { currentCount: { increment: 1 } },
+                data: {
+                    currentCount: { increment: 1 },
+                    status: newStatus
+                },
             }),
         ]);
     }
+
+    getIO().emit('group_updated', {
+        id,
+        currentCount: newCount,
+        status: newStatus,
+    });
 
     res.json({
         success: true,

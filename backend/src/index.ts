@@ -8,9 +8,17 @@ import groupsRoutes from './routes/groups.routes.js';
 import reportsRoutes from './routes/reports.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import http from 'http';
+import { initSocket } from './socket.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+// Create HTTP server
+const server = http.createServer(app);
+
+// Initialize Socket.io
+initSocket(server);
 
 // ============================================
 // Trust Proxy (Render 等代理環境必需)
@@ -101,7 +109,7 @@ app.use(errorHandler);
 
 import { startCleanupJob } from './lib/cleanup.job.js';
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`🚀 API Server running on http://localhost:${PORT}`);
     console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
 

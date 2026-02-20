@@ -152,4 +152,78 @@ router.get('/stats', async (_req: Request, res: Response) => {
     });
 });
 
+/**
+ * GET /admin/reports
+ * 取得檢舉列表
+ */
+router.get('/reports', async (req: Request, res: Response) => {
+    const { page = 1, pageSize = 20 } = req.query;
+
+    const [items, total] = await Promise.all([
+        prisma.report.findMany({
+            include: {
+                reporter: { select: { id: true, nickname: true, email: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+            skip: (Number(page) - 1) * Number(pageSize),
+            take: Number(pageSize),
+        }),
+        prisma.report.count(),
+    ]);
+
+    // 取得被檢舉目標的詳細資訊
+    const enrichedItems = await Promise.all(
+        items.map(async (report) => {
+            let targetDetails = null;
+            if (report.targetType === 'USER') {
+                const user = await prisma.user.findUnique({
+                    where: { id: report.targetId },
+                    select: { nickname: true, email: true },
+                });
+                targetDetails = user;
+            } else if (report.targetType === 'GROUP') {
+                const group = await prisma.group.findUnique({
+                    where: { id: report.targetId },
+                    select: { title: true, sportType: true },
+                });
+                targetDetails = group;
+            }
+            return {
+                ...report,
+                targetDetails,
+            };
+        })
+    );
+
+    res.json({
+        success: true,
+        data: {
+            items: enrichedItems,
+            total,
+            page: Number(page),
+            pageSize: Number(pageSize),
+        },
+    });
+});
+
+/**
+ * DELETE /admin/reports/:id
+ * 刪除檢舉 (標記處理完成)
+ */
+router.delete('/reports/:id', async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const report = await prisma.report.findUnique({ where: { id } });
+    if (!report) {
+        throw new ApiError(404, 'REPORT_NOT_FOUND', '找不到此檢舉');
+    }
+
+    await prisma.report.delete({ where: { id } });
+
+    res.json({
+        success: true,
+        data: { message: '檢舉已刪除' },
+    });
+});
+
 export default router;

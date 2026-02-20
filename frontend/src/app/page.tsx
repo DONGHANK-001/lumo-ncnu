@@ -35,6 +35,7 @@ import { useWakeupBackend } from '@/hooks/useWakeupBackend';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useState, useEffect } from 'react';
 import { useThemeMode } from '@/theme/ThemeModeContext';
+import { getSocket } from '@/lib/socket';
 
 const SPORTS = [
     { icon: <SportsBasketball fontSize="large" />, name: '籃球' },
@@ -43,6 +44,14 @@ const SPORTS = [
     { icon: <SportsTennis fontSize="large" />, name: '桌球' }, // Placeholder
     { icon: <FitnessCenter fontSize="large" />, name: '健身' },
 ];
+
+const SPORT_NAMES: Record<string, string> = {
+    BASKETBALL: '籃球',
+    RUNNING: '跑步',
+    BADMINTON: '羽球',
+    TABLE_TENNIS: '桌球',
+    GYM: '健身',
+};
 
 export default function LandingPage() {
     const theme = useTheme();
@@ -59,6 +68,39 @@ export default function LandingPage() {
     // PWA Install Prompt State
     const [showInstallPrompt, setShowInstallPrompt] = useState(false);
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+    // Live Feed State
+    const [liveFeed, setLiveFeed] = useState<{ message: string; open: boolean }>({ message: '', open: false });
+
+    useEffect(() => {
+        const socket = getSocket();
+
+        const handleGroupCreated = (group: any) => {
+            const organizer = group.createdBy?.nickname || '有人';
+            const sportName = SPORT_NAMES[group.sportType] || group.sportType;
+            setLiveFeed({
+                message: `⚡ ${organizer} 剛發起了 ${group.capacity} 人的${sportName}局`,
+                open: true
+            });
+        };
+
+        const handleGroupUpdated = (group: any) => {
+            if (group.status === 'FULL') {
+                setLiveFeed({
+                    message: `🔥 一個揪團剛剛滿團了！`,
+                    open: true
+                });
+            }
+        };
+
+        socket.on('group_created', handleGroupCreated);
+        socket.on('group_updated', handleGroupUpdated);
+
+        return () => {
+            socket.off('group_created', handleGroupCreated);
+            socket.off('group_updated', handleGroupUpdated);
+        };
+    }, []);
 
     useEffect(() => {
         if (error) {
@@ -265,6 +307,15 @@ export default function LandingPage() {
                     {error}
                 </Alert>
             </Snackbar>
+
+            {/* Live Feed Snackbar */}
+            <Snackbar
+                open={liveFeed.open}
+                autoHideDuration={4000}
+                onClose={() => setLiveFeed(prev => ({ ...prev, open: false }))}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                message={liveFeed.message}
+            />
         </Box>
     );
 }

@@ -154,6 +154,14 @@ class ApiClient {
     cleanupGroups(token: string) {
         return this.request<{ message: string }>('/admin/groups/cleanup', { method: 'POST', token });
     }
+
+    getAdminReports(token: string) {
+        return this.request<{ items: unknown[] }>('/admin/reports', { token });
+    }
+
+    deleteReport(token: string, id: string) {
+        return this.request(`/admin/reports/${id}`, { method: 'DELETE', token });
+    }
 }
 
 export const api = new ApiClient(API_BASE_URL);

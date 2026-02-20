@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
+import { getSocket } from '@/lib/socket';
 import { SportType, SkillLevel } from '@/types';
 import {
     Box,
@@ -78,6 +79,37 @@ export default function GroupsPage() {
     useEffect(() => {
         fetchGroups();
     }, [filters]);
+
+    useEffect(() => {
+        const socket = getSocket();
+
+        const handleGroupUpdated = (updatedGroup: { id: string; currentCount: number; status: string }) => {
+            setGroups((prev) =>
+                prev.map((g) =>
+                    g.id === updatedGroup.id
+                        ? { ...g, currentCount: updatedGroup.currentCount, status: updatedGroup.status }
+                        : g
+                )
+            );
+        };
+
+        const handleGroupCreated = (newGroup: Group) => {
+            // 有新揪團時，直接加到列表最前面 (若需精細過濾可再判斷 sportType 等)
+            setGroups((prev) => {
+                // 避免重複
+                if (prev.find(g => g.id === newGroup.id)) return prev;
+                return [newGroup, ...prev];
+            });
+        };
+
+        socket.on('group_updated', handleGroupUpdated);
+        socket.on('group_created', handleGroupCreated);
+
+        return () => {
+            socket.off('group_updated', handleGroupUpdated);
+            socket.off('group_created', handleGroupCreated);
+        };
+    }, []);
 
     const fetchGroups = async () => {
         setLoading(true);

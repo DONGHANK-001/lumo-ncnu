@@ -30,6 +30,8 @@ import {
     Card,
     CardContent,
     Stack,
+    Tabs,
+    Tab,
 } from '@mui/material';
 import {
     Delete as DeleteIcon,
@@ -62,6 +64,22 @@ interface Stats {
     expiredGroups: number;
 }
 
+interface Report {
+    id: string;
+    targetId: string;
+    targetType: string;
+    reason: string;
+    details: string;
+    reporterId: string;
+    createdAt: string;
+    reporter: {
+        id: string;
+        nickname: string;
+        email: string;
+    };
+    targetDetails: any;
+}
+
 const sportTypeLabels: Record<string, string> = {
     BASKETBALL: '🏀 籃球',
     RUNNING: '🏃 跑步',
@@ -81,10 +99,13 @@ export default function AdminPage() {
     const { user, loading: authLoading, getToken } = useAuth();
     const router = useRouter();
     const [groups, setGroups] = useState<Group[]>([]);
+    const [reports, setReports] = useState<Report[]>([]);
     const [stats, setStats] = useState<Stats | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+
+    const [tabValue, setTabValue] = useState(0);
 
     // 編輯對話框
     const [editDialog, setEditDialog] = useState(false);
@@ -101,16 +122,18 @@ export default function AdminPage() {
             const token = await getToken();
             if (!token) return;
 
-            const [groupsRes, statsRes] = await Promise.all([
+            const [groupsRes, statsRes, reportsRes] = await Promise.all([
                 api.getAdminGroups(token),
                 api.getAdminStats(token),
+                api.getAdminReports(token),
             ]);
 
-            if (!groupsRes.success || !statsRes.success) {
-                throw new Error(groupsRes.error?.message || statsRes.error?.message || '無法載入資料');
+            if (!groupsRes.success || !statsRes.success || !reportsRes.success) {
+                throw new Error(groupsRes.error?.message || statsRes.error?.message || reportsRes.error?.message || '無法載入資料');
             }
 
             setGroups((groupsRes.data?.items as Group[]) || []);
+            setReports((reportsRes.data?.items as Report[]) || []);
             setStats(statsRes.data || null);
             setError(null);
         } catch (err) {
@@ -213,6 +236,26 @@ export default function AdminPage() {
         }
     };
 
+    const handleDeleteReport = async (reportId: string) => {
+        if (!window.confirm('確定要標記此檢舉為已處理（刪除紀錄）嗎？')) return;
+        try {
+            const token = await getToken();
+            if (!token) return;
+            const res = await api.deleteReport(token, reportId);
+
+            if (!res.success) throw new Error(res.error?.message || '刪除失敗');
+
+            setSuccess('檢舉已處理');
+            fetchData();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '操作失敗');
+        }
+    };
+
+    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+        setTabValue(newValue);
+    };
+
     if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
@@ -247,120 +290,204 @@ export default function AdminPage() {
                 </Alert>
             )}
 
-            {/* 統計卡片 */}
-            {stats && (
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4 }}>
-                    <Card sx={{ flex: 1 }}>
-                        <CardContent>
-                            <Typography color="text.secondary">總揪團數</Typography>
-                            <Typography variant="h4">{stats.totalGroups}</Typography>
-                        </CardContent>
-                    </Card>
-                    <Card sx={{ flex: 1 }}>
-                        <CardContent>
-                            <Typography color="text.secondary">進行中</Typography>
-                            <Typography variant="h4" color="success.main">
-                                {stats.activeGroups}
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                    <Card sx={{ flex: 1 }}>
-                        <CardContent>
-                            <Typography color="text.secondary">待清理</Typography>
-                            <Typography variant="h4" color="warning.main">
-                                {stats.expiredGroups}
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                    <Card sx={{ flex: 1 }}>
-                        <CardContent>
-                            <Typography color="text.secondary">總用戶</Typography>
-                            <Typography variant="h4">{stats.totalUsers}</Typography>
-                        </CardContent>
-                    </Card>
-                </Stack>
-            )}
-
-            {/* 操作按鈕 */}
-            <Box sx={{ mb: 2, display: 'flex', gap: 2 }}>
-                <Button variant="outlined" startIcon={<RefreshIcon />} onClick={fetchData}>
-                    重新整理
-                </Button>
-                <Button
-                    variant="contained"
-                    color="warning"
-                    startIcon={<CleanupIcon />}
-                    onClick={handleCleanup}
-                >
-                    清理過期揪團
-                </Button>
+            {/* Tabs */}
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mt: 4, mb: 3 }}>
+                <Tabs value={tabValue} onChange={handleTabChange}>
+                    <Tab label="揪團管理" />
+                    <Tab label={`檢舉處理 ${reports.length > 0 ? `(${reports.length})` : ''}`} />
+                </Tabs>
             </Box>
 
-            {/* 揪團表格 */}
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>標題</TableCell>
-                            <TableCell>類型</TableCell>
-                            <TableCell>時間</TableCell>
-                            <TableCell>人數</TableCell>
-                            <TableCell>狀態</TableCell>
-                            <TableCell>建立者</TableCell>
-                            <TableCell>操作</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {groups.map((group) => (
-                            <TableRow key={group.id}>
-                                <TableCell>{group.title}</TableCell>
-                                <TableCell>{sportTypeLabels[group.sportType] || group.sportType}</TableCell>
-                                <TableCell>
-                                    {new Date(group.time).toLocaleString('zh-TW', {
-                                        month: 'short',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                    })}
-                                </TableCell>
-                                <TableCell>
-                                    {group.currentCount}/{group.capacity}
-                                </TableCell>
-                                <TableCell>
-                                    <Chip
-                                        label={group.status}
-                                        size="small"
-                                        color={statusColors[group.status] || 'default'}
-                                    />
-                                </TableCell>
-                                <TableCell>{group.createdBy?.nickname || group.createdBy?.email}</TableCell>
-                                <TableCell>
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => {
-                                            setEditingGroup(group);
-                                            setEditForm({ title: group.title, status: group.status });
-                                            setEditDialog(true);
-                                        }}
-                                    >
-                                        <EditIcon />
-                                    </IconButton>
-                                    <IconButton
-                                        size="small"
-                                        color="error"
-                                        onClick={() => {
-                                            setDeletingId(group.id);
-                                            setDeleteDialog(true);
-                                        }}
-                                    >
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+            {tabValue === 0 && (
+                <>
+                    {/* 統計卡片 */}
+                    {stats && (
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4 }}>
+                            <Card sx={{ flex: 1 }}>
+                                <CardContent>
+                                    <Typography color="text.secondary">總揪團數</Typography>
+                                    <Typography variant="h4">{stats.totalGroups}</Typography>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{ flex: 1 }}>
+                                <CardContent>
+                                    <Typography color="text.secondary">進行中</Typography>
+                                    <Typography variant="h4" color="success.main">
+                                        {stats.activeGroups}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{ flex: 1 }}>
+                                <CardContent>
+                                    <Typography color="text.secondary">待清理</Typography>
+                                    <Typography variant="h4" color="warning.main">
+                                        {stats.expiredGroups}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{ flex: 1 }}>
+                                <CardContent>
+                                    <Typography color="text.secondary">總用戶</Typography>
+                                    <Typography variant="h4">{stats.totalUsers}</Typography>
+                                </CardContent>
+                            </Card>
+                        </Stack>
+                    )}
+
+                    {/* 操作按鈕 */}
+                    <Box sx={{ mb: 2, display: 'flex', gap: 2 }}>
+                        <Button variant="outlined" startIcon={<RefreshIcon />} onClick={fetchData}>
+                            重新整理
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="warning"
+                            startIcon={<CleanupIcon />}
+                            onClick={handleCleanup}
+                        >
+                            清理過期揪團
+                        </Button>
+                    </Box>
+
+                    {/* 揪團表格 */}
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>標題</TableCell>
+                                    <TableCell>類型</TableCell>
+                                    <TableCell>時間</TableCell>
+                                    <TableCell>人數</TableCell>
+                                    <TableCell>狀態</TableCell>
+                                    <TableCell>建立者</TableCell>
+                                    <TableCell>操作</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {groups.map((group) => (
+                                    <TableRow key={group.id}>
+                                        <TableCell>{group.title}</TableCell>
+                                        <TableCell>{sportTypeLabels[group.sportType] || group.sportType}</TableCell>
+                                        <TableCell>
+                                            {new Date(group.time).toLocaleString('zh-TW', {
+                                                month: 'short',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })}
+                                        </TableCell>
+                                        <TableCell>
+                                            {group.currentCount}/{group.capacity}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Chip
+                                                label={group.status}
+                                                size="small"
+                                                color={statusColors[group.status] || 'default'}
+                                            />
+                                        </TableCell>
+                                        <TableCell>{group.createdBy?.nickname || group.createdBy?.email}</TableCell>
+                                        <TableCell>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => {
+                                                    setEditingGroup(group);
+                                                    setEditForm({ title: group.title, status: group.status });
+                                                    setEditDialog(true);
+                                                }}
+                                            >
+                                                <EditIcon />
+                                            </IconButton>
+                                            <IconButton
+                                                size="small"
+                                                color="error"
+                                                onClick={() => {
+                                                    setDeletingId(group.id);
+                                                    setDeleteDialog(true);
+                                                }}
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </>
+            )}
+
+            {tabValue === 1 && (
+                <>
+                    <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider' }}>
+                        <Table>
+                            <TableHead sx={{ bgcolor: 'action.hover' }}>
+                                <TableRow>
+                                    <TableCell>檢舉時間</TableCell>
+                                    <TableCell>檢舉人</TableCell>
+                                    <TableCell>目標</TableCell>
+                                    <TableCell>原因</TableCell>
+                                    <TableCell>補充說明</TableCell>
+                                    <TableCell align="right">操作</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {reports.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                                            目前沒有檢舉紀錄
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    reports.map((report) => (
+                                        <TableRow key={report.id}>
+                                            <TableCell>{new Date(report.createdAt).toLocaleString('zh-TW', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2">{report.reporter.nickname}</Typography>
+                                                <Typography variant="caption" color="text.secondary">{report.reporter.email}</Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    size="small"
+                                                    label={report.targetType === 'USER' ? '使用者' : '揪團'}
+                                                    color={report.targetType === 'USER' ? 'primary' : 'secondary'}
+                                                    sx={{ mb: 1 }}
+                                                />
+                                                <Typography variant="body2">
+                                                    {report.targetType === 'USER'
+                                                        ? report.targetDetails?.nickname || '未知用戶'
+                                                        : report.targetDetails?.title || '未知揪團'}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2" fontWeight="bold" color="error">
+                                                    {report.reason}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell sx={{ maxWidth: 200, wordBreak: 'break-word' }}>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {report.details || '-'}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                <Button
+                                                    color="success"
+                                                    size="small"
+                                                    variant="outlined"
+                                                    onClick={() => handleDeleteReport(report.id)}
+                                                >
+                                                    標記已處理 (刪除)
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    )
+                </>
+            )}
 
             {/* 編輯對話框 */}
             <Dialog open={editDialog} onClose={() => setEditDialog(false)}>
