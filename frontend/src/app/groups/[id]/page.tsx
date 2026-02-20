@@ -23,7 +23,8 @@ import {
     Paper,
     Divider,
     TextField,
-    IconButton
+    IconButton,
+    Snackbar
 } from '@mui/material';
 import {
     CalendarToday,
@@ -32,7 +33,8 @@ import {
     ArrowBack,
     Security,
     Send as SendIcon,
-    ChatBubbleOutline
+    ChatBubbleOutline,
+    Share as ShareIcon
 } from '@mui/icons-material';
 
 interface GroupDetail {
@@ -90,6 +92,8 @@ export default function GroupDetailPage() {
     const [comments, setComments] = useState<CommentDetail[]>([]);
     const [newComment, setNewComment] = useState('');
     const [commentLoading, setCommentLoading] = useState(false);
+
+    const [shareMessage, setShareMessage] = useState<string | null>(null);
 
     useEffect(() => {
         fetchGroup();
@@ -214,6 +218,28 @@ export default function GroupDetailPage() {
         setActionLoading(false);
     };
 
+    const handleShare = async () => {
+        if (!group) return;
+
+        const shareData = {
+            title: `LUMO - ${group.title}`,
+            text: `🏀 快來一起打 ${SPORT_NAMES[group.sportType] || group.sportType} 吧！\n時間：${new Date(group.time).toLocaleString('zh-TW', { hour: '2-digit', minute: '2-digit' })}\n地點：${group.location}`,
+            url: window.location.href,
+        };
+
+        try {
+            if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                setShareMessage('連結已複製到剪貼簿！');
+            }
+        } catch (err) {
+            console.error('Share failed', err);
+            // Ignore user cancellation errors
+        }
+    };
+
     const formatDate = (dateStr: string) => {
         const date = new Date(dateStr);
         return date.toLocaleDateString('zh-TW', {
@@ -279,17 +305,23 @@ export default function GroupDetailPage() {
 
             <Paper sx={{ p: 4, mb: 4, borderRadius: 4 }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={3}>
-                    <Chip
-                        label={SPORT_NAMES[group.sportType]}
-                        color="primary"
-                        variant="filled"
-                    />
-                    <Chip
-                        label={LEVEL_NAMES[group.level]}
-                        // @ts-ignore
-                        color={getLevelColor(group.level)}
-                        variant="outlined"
-                    />
+                    <Box>
+                        <Chip
+                            label={SPORT_NAMES[group.sportType]}
+                            color="primary"
+                            variant="filled"
+                            sx={{ mr: 1 }}
+                        />
+                        <Chip
+                            label={LEVEL_NAMES[group.level]}
+                            // @ts-ignore
+                            color={getLevelColor(group.level)}
+                            variant="outlined"
+                        />
+                    </Box>
+                    <IconButton onClick={handleShare} color="primary" aria-label="分享" size="large">
+                        <ShareIcon />
+                    </IconButton>
                 </Stack>
 
                 <Typography variant="h4" fontWeight="bold" gutterBottom>
@@ -554,6 +586,14 @@ export default function GroupDetailPage() {
                     )}
                 </CardContent>
             </Card>
+
+            <Snackbar
+                open={!!shareMessage}
+                autoHideDuration={3000}
+                onClose={() => setShareMessage(null)}
+                message={shareMessage}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            />
         </Container>
     );
 }
