@@ -36,6 +36,8 @@ import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useState, useEffect } from 'react';
 import { useThemeMode } from '@/theme/ThemeModeContext';
 import { getSocket } from '@/lib/socket';
+import { useInAppBrowser } from '@/hooks/useInAppBrowser';
+import { ContentCopy } from '@mui/icons-material';
 
 const SPORTS = [
     { icon: <SportsBasketball fontSize="large" />, name: '籃球' },
@@ -58,6 +60,7 @@ export default function LandingPage() {
     const { user, loading, error, signIn } = useAuth();
     const { mode, toggleMode } = useThemeMode();
     const [showError, setShowError] = useState(false);
+    const isInAppBrowser = useInAppBrowser();
 
     // 預先喚醒後端 (Render 冷啟動優化)
     useWakeupBackend();
@@ -180,7 +183,7 @@ export default function LandingPage() {
                                     {user.nickname || '我的帳號'}
                                 </Button>
                             ) : (
-                                <Button variant="contained" onClick={signIn}>登入</Button>
+                                !isInAppBrowser && <Button variant="contained" onClick={signIn}>登入</Button>
                             )}
                         </Stack>
                     </Toolbar>
@@ -211,14 +214,40 @@ export default function LandingPage() {
                             瀏覽揪團
                         </Button>
                         {!user ? (
-                            <Button
-                                variant="outlined"
-                                size="large"
-                                onClick={signIn}
-                                sx={{ fontSize: '1.2rem', py: 1.5, px: 4 }}
-                            >
-                                學生登入
-                            </Button>
+                            isInAppBrowser ? (
+                                <Card sx={{ maxWidth: 400, mx: 'auto', bgcolor: 'error.main', color: 'white', borderRadius: 4 }}>
+                                    <CardContent>
+                                        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                                            ⚠️ 偵測到內建瀏覽器 (LINE/IG)
+                                        </Typography>
+                                        <Typography variant="body2" mb={2}>
+                                            為保護您的帳號安全，Google 禁止在此環境登入。請點擊右上角 (或右下角) 選擇「使用預設瀏覽器開啟」以繼續。
+                                        </Typography>
+                                        <Button
+                                            variant="contained"
+                                            color="inherit"
+                                            sx={{ color: 'error.main', fontWeight: 'bold' }}
+                                            startIcon={<ContentCopy />}
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(window.location.href);
+                                                setLiveFeed({ message: '網址已複製！請貼到 Safari 或 Chrome 中開啟', open: true });
+                                            }}
+                                            fullWidth
+                                        >
+                                            複製網址
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            ) : (
+                                <Button
+                                    variant="outlined"
+                                    size="large"
+                                    onClick={signIn}
+                                    sx={{ fontSize: '1.2rem', py: 1.5, px: 4 }}
+                                >
+                                    學生登入
+                                </Button>
+                            )
                         ) : (
                             <Button
                                 variant="outlined"

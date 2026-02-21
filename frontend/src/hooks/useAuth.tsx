@@ -84,8 +84,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    // 監聽 Firebase auth 狀態
+    // 監聽 Firebase auth 狀態與 Redirect Result
     useEffect(() => {
+        // 先處理可能有 Redirect 返回的登入結果
+        auth.getRedirectResult()
+            .then(async (result) => {
+                if (result.user) {
+                    await fetchUserData(result.user);
+                }
+            })
+            .catch((err) => {
+                console.error('Redirect sign in error:', err);
+                // 通常 DOMAIN_NOT_ALLOWED 錯誤會在 fetchUserData 中拋出
+                // 若這層有錯，也設定 error state
+                setError(err instanceof Error ? err.message : '登入授權失敗');
+            });
+
         const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
             if (firebaseUser) {
                 await fetchUserData(firebaseUser);
@@ -103,15 +117,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             setLoading(true);
             setError(null);
-            const result = await auth.signInWithPopup(googleProvider);
-            if (result.user) {
-                await fetchUserData(result.user);
+
+            // 判斷是否為行動裝置
+            const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+            const isMobile = /android|webos|iphone|ipad|ipod|blackberry|windows phone/i.test(userAgent);
+
+            if (isMobile) {
+                // 手機版改用 redirect 避免被 popup 阻擋或遇到帳號無法選擇的 Bug
+                await auth.signInWithRedirect(googleProvider);
+            } else {
+                // 電腦版維持 popup 體驗更順暢
+                const result = await auth.signInWithPopup(googleProvider);
+                if (result.user) {
+                    await fetchUserData(result.user);
+                }
+                setLoading(false);
             }
         } catch (err: unknown) {
             console.error('Sign in error:', err);
             const errorMessage = err instanceof Error ? err.message : '登入失敗';
             setError(errorMessage);
-        } finally {
             setLoading(false);
         }
     };
