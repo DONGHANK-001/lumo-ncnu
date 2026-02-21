@@ -26,6 +26,7 @@ const googleProvider = new firebase.auth.GoogleAuthProvider();
 const allowedDomain = process.env.NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN || 'mail1.ncnu.edu.tw';
 googleProvider.setCustomParameters({
     hd: allowedDomain.split(',')[0].trim(), // 取第一個 domain
+    prompt: 'select_account' // 強制跳出帳號選擇畫面，避免 Android 卡死在手動輸入
 });
 
 export { app, auth, googleProvider, firebase };
