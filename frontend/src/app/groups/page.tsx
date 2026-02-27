@@ -257,9 +257,11 @@ export default function GroupsPage() {
                                     display: 'flex',
                                     flexDirection: 'column',
                                     borderRadius: 3,
-                                    transition: 'transform 0.2s',
-                                    '&:hover': { transform: 'translateY(-4px)' }
+                                    cursor: 'pointer',
+                                    transition: 'transform 0.2s, box-shadow 0.2s',
+                                    '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 }
                                 }}
+                                onClick={() => window.location.href = `/groups/${group.id}`}
                             >
                                 <CardContent sx={{ flexGrow: 1 }}>
                                     <Stack direction="row" justifyContent="space-between" mb={2}>
@@ -278,7 +280,7 @@ export default function GroupsPage() {
                                         />
                                     </Stack>
 
-                                    <Typography variant="h6" gutterBottom component={Link} href={`/groups/${group.id}`} sx={{ textDecoration: 'none', color: 'inherit', display: 'block', '&:hover': { color: 'primary.main' } }}>
+                                    <Typography variant="h6" gutterBottom sx={{ '&:hover': { color: 'primary.main' } }}>
                                         {group.title}
                                     </Typography>
 
