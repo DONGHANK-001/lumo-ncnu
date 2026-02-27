@@ -1,0 +1,10 @@
+8520539 refactor(auth): revert to Firebase native popup/redirect and remove GSI
+4c4951c feat(auth): remove university email domain restriction
+86ce0c2 fix(auth): revoke GSI prompt to force account chooser
+cea63d6 fix(auth): force GSI account selection prompt
+798350f feat(auth): migrate to GSI and firebase custom tokens
+e64b6d3 fix: revert google auth to signInWithPopup to resolve infinite redirect loop on mobile devices
+f94c617 fix: force select_account prompt in google auth provider to prevent android autofill block
+eaf8127 feat: optimize google oauth flow for mobile and in-app browsers
+65bc0c2 feat: reputation and attendance system
+79b53c2 feat: social sharing optimization with open graph and web share API
