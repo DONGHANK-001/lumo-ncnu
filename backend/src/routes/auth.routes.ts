@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 import { validateBody } from '../middleware/validation.js';
@@ -21,12 +21,17 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
             id: user.id,
             email: user.email,
             nickname: user.nickname,
+            realName: user.realName,
+            studentId: user.studentId,
+            department: user.department,
             school: user.school,
             role: user.role,
             planType: user.planType,
             preferences: user.preferences,
             attendedCount: user.attendedCount,
             noShowCount: user.noShowCount,
+            disclaimerAccepted: user.disclaimerAccepted,
+            onboardingCompleted: user.onboardingCompleted,
             createdAt: user.createdAt,
         },
     });
@@ -62,6 +67,50 @@ router.post(
                 planType: updated.planType,
             },
         });
+    }
+);
+
+/**
+ * POST /onboarding
+ * 新用戶引導流程完成
+ */
+router.post(
+    '/onboarding',
+    firebaseAuthMiddleware,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = req.user!;
+            const { realName, studentId, department, disclaimerAccepted } = req.body;
+
+            if (!realName || !studentId || !department || !disclaimerAccepted) {
+                res.status(400).json({
+                    success: false,
+                    error: { code: 'MISSING_FIELDS', message: '請填寫所有必填欄位' },
+                });
+                return;
+            }
+
+            const updated = await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    realName,
+                    studentId,
+                    department,
+                    disclaimerAccepted: true,
+                    onboardingCompleted: true,
+                },
+            });
+
+            res.json({
+                success: true,
+                data: {
+                    id: updated.id,
+                    onboardingCompleted: updated.onboardingCompleted,
+                },
+            });
+        } catch (error) {
+            next(error);
+        }
     }
 );
 

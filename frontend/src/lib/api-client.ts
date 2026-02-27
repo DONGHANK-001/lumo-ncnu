@@ -95,6 +95,10 @@ class ApiClient {
         return this.request('/profile', { method: 'POST', token, body: data });
     }
 
+    submitOnboarding(token: string, data: { realName: string; studentId: string; department: string; disclaimerAccepted: boolean }) {
+        return this.request<{ id: string; onboardingCompleted: boolean }>('/onboarding', { method: 'POST', token, body: data });
+    }
+
     upgradePlan(token: string) {
         return this.request<{ planType: string; message: string }>('/plan/upgrade', { method: 'POST', token });
     }

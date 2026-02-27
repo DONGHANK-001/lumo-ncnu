@@ -34,6 +34,7 @@ import {
     SportsTennis,
     FitnessCenter
 } from '@mui/icons-material';
+import SafetyNoticeDialog from '../components/SafetyNoticeDialog';
 
 const SPORT_OPTIONS = [
     { value: 'BASKETBALL', label: '籃球', icon: <SportsBasketball /> },
@@ -65,6 +66,7 @@ export default function CreateGroupPage() {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showSafetyNotice, setShowSafetyNotice] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -73,12 +75,16 @@ export default function CreateGroupPage() {
             setError('請先登入');
             return;
         }
+        // 彈出安全須知
+        setShowSafetyNotice(true);
+    };
 
+    const confirmCreate = async () => {
+        setShowSafetyNotice(false);
         setLoading(true);
         setError(null);
 
         const token = await getToken();
-        // Ensure time is in ISO format
         const isoTime = form.time ? new Date(form.time).toISOString() : '';
 
         const response = await api.createGroup(token!, {
@@ -303,6 +309,11 @@ export default function CreateGroupPage() {
                     </Box>
                 </Grid>
             </Grid>
+            <SafetyNoticeDialog
+                open={showSafetyNotice}
+                onConfirm={confirmCreate}
+                onCancel={() => setShowSafetyNotice(false)}
+            />
         </Container>
     );
 }

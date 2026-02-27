@@ -27,7 +27,8 @@ import {
     Group,
     Security,
     DarkMode,
-    LightMode
+    LightMode,
+    Instagram
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
@@ -36,6 +37,7 @@ import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useState, useEffect } from 'react';
 import { useThemeMode } from '@/theme/ThemeModeContext';
 import { getSocket } from '@/lib/socket';
+import OnboardingDialog from './components/OnboardingDialog';
 
 const SPORTS = [
     { icon: <SportsBasketball fontSize="large" />, name: '籃球' },
@@ -55,7 +57,7 @@ const SPORT_NAMES: Record<string, string> = {
 
 export default function LandingPage() {
     const theme = useTheme();
-    const { user, loading, error, signIn } = useAuth();
+    const { user, loading, error, signIn, getToken, refreshUser } = useAuth();
     const { mode, toggleMode } = useThemeMode();
     const [showError, setShowError] = useState(false);
 
@@ -71,6 +73,15 @@ export default function LandingPage() {
 
     // Live Feed State
     const [liveFeed, setLiveFeed] = useState<{ message: string; open: boolean }>({ message: '', open: false });
+
+    // Onboarding Dialog
+    const [showOnboarding, setShowOnboarding] = useState(false);
+
+    useEffect(() => {
+        if (user && !user.onboardingCompleted) {
+            setShowOnboarding(true);
+        }
+    }, [user]);
 
     useEffect(() => {
         const socket = getSocket();
@@ -234,8 +245,29 @@ export default function LandingPage() {
                 </Container>
             </Box>
 
-            {/* Sports Icons */}
+            {/* Instagram & Sports Icons */}
             <Container maxWidth="lg" sx={{ py: 8 }}>
+                {/* IG Icon */}
+                <Box sx={{ textAlign: 'center', mb: 3 }}>
+                    <Button
+                        href="https://www.instagram.com/lumo_dailyfit?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                        target="_blank"
+                        startIcon={<Instagram />}
+                        sx={{
+                            background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            borderRadius: 3,
+                            px: 3,
+                            py: 1,
+                            '&:hover': {
+                                background: 'linear-gradient(45deg, #e6683c 0%, #dc2743 25%, #cc2366 50%, #bc1888 75%, #a01472 100%)',
+                            }
+                        }}
+                    >
+                        追蹤 @lumo_dailyfit
+                    </Button>
+                </Box>
                 <Typography variant="h5" fontWeight="bold" textAlign="center" mb={6}>支援運動類型</Typography>
                 <Stack direction="row" flexWrap="wrap" justifyContent="center" gap={4}>
                     {SPORTS.map((sport) => (
@@ -315,6 +347,16 @@ export default function LandingPage() {
                 onClose={() => setLiveFeed(prev => ({ ...prev, open: false }))}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
                 message={liveFeed.message}
+            />
+
+            {/* Onboarding Dialog */}
+            <OnboardingDialog
+                open={showOnboarding}
+                onComplete={() => {
+                    setShowOnboarding(false);
+                    refreshUser();
+                }}
+                getToken={getToken}
             />
         </Box>
     );

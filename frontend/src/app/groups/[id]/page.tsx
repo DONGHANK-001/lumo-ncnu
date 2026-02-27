@@ -36,6 +36,7 @@ import {
     ChatBubbleOutline,
     Share as ShareIcon
 } from '@mui/icons-material';
+import SafetyNoticeDialog from '../../components/SafetyNoticeDialog';
 
 interface GroupDetail {
     id: string;
@@ -96,6 +97,7 @@ export default function GroupDetailPage() {
 
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
     const [attendanceRecords, setAttendanceRecords] = useState<Record<string, boolean | null>>({});
+    const [showSafetyNotice, setShowSafetyNotice] = useState(false);
 
     useEffect(() => {
         fetchGroup();
@@ -172,7 +174,12 @@ export default function GroupDetailPage() {
             setError('請先登入');
             return;
         }
+        // 先彈出安全須知
+        setShowSafetyNotice(true);
+    };
 
+    const confirmJoin = async () => {
+        setShowSafetyNotice(false);
         setActionLoading(true);
         setError(null);
 
@@ -670,6 +677,11 @@ export default function GroupDetailPage() {
                 onClose={() => setSnackbarMessage(null)}
                 message={snackbarMessage}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            />
+            <SafetyNoticeDialog
+                open={showSafetyNotice}
+                onConfirm={confirmJoin}
+                onCancel={() => setShowSafetyNotice(false)}
             />
         </Container>
     );

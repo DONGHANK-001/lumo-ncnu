@@ -74,12 +74,17 @@ model User {
   firebaseUid String    @unique
   email       String    @unique
   nickname    String?
+  realName    String?   // 真實姓名
+  studentId   String?   // 學號
+  department  String?   // 系所
   school      String    @default("NCNU")
   role        String    @default("USER") // USER | ADMIN
   planType    PlanType  @default(FREE)
   preferences Json?     // UserPreferences JSON
   attendedCount Int     @default(0) // 出席次數
   noShowCount   Int     @default(0) // 缺席次數
+  disclaimerAccepted Boolean @default(false) // 免責聲明同意
+  onboardingCompleted Boolean @default(false) // 引導流程完成
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

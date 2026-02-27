@@ -18,11 +18,16 @@ interface User {
     id: string;
     email: string;
     nickname: string | null;
+    realName: string | null;
+    studentId: string | null;
+    department: string | null;
     planType: 'FREE' | 'PLUS';
     role: string;
     preferences: UserPreferences | null;
     attendedCount: number;
     noShowCount: number;
+    disclaimerAccepted: boolean;
+    onboardingCompleted: boolean;
     firebaseUser: FirebaseUser;
 }
 
@@ -61,11 +66,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     id: response.data.id,
                     email: response.data.email,
                     nickname: response.data.nickname,
+                    realName: (response.data as any).realName || null,
+                    studentId: (response.data as any).studentId || null,
+                    department: (response.data as any).department || null,
                     planType: response.data.planType as 'FREE' | 'PLUS',
                     role: response.data.role || 'USER',
                     preferences: (response.data as any).preferences || null,
                     attendedCount: (response.data as any).attendedCount || 0,
                     noShowCount: (response.data as any).noShowCount || 0,
+                    disclaimerAccepted: (response.data as any).disclaimerAccepted || false,
+                    onboardingCompleted: (response.data as any).onboardingCompleted || false,
                     firebaseUser,
                 });
                 setError(null);
