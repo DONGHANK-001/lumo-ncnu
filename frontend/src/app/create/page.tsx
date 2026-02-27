@@ -32,7 +32,8 @@ import {
     SportsBasketball,
     DirectionsRun,
     SportsTennis,
-    FitnessCenter
+    FitnessCenter,
+    SportsVolleyball
 } from '@mui/icons-material';
 import SafetyNoticeDialog from '../components/SafetyNoticeDialog';
 
@@ -42,6 +43,7 @@ const SPORT_OPTIONS = [
     { value: 'BADMINTON', label: '羽球', icon: <SportsTennis /> },
     { value: 'TABLE_TENNIS', label: '桌球', icon: <SportsTennis /> },
     { value: 'GYM', label: '健身', icon: <FitnessCenter /> },
+    { value: 'VOLLEYBALL', label: '排球', icon: <SportsVolleyball /> },
 ];
 
 const LEVEL_OPTIONS = [

@@ -37,6 +37,7 @@ import {
     Share as ShareIcon
 } from '@mui/icons-material';
 import SafetyNoticeDialog from '../../components/SafetyNoticeDialog';
+import ShareButtons from '../../components/ShareButtons';
 
 interface GroupDetail {
     id: string;
@@ -71,6 +72,7 @@ const SPORT_NAMES: Record<string, string> = {
     BADMINTON: '羽球',
     TABLE_TENNIS: '桌球',
     GYM: '健身',
+    VOLLEYBALL: '排球',
 };
 
 const LEVEL_NAMES: Record<string, string> = {
@@ -357,9 +359,11 @@ export default function GroupDetailPage() {
                             variant="outlined"
                         />
                     </Box>
-                    <IconButton onClick={handleShare} color="primary" aria-label="分享" size="large">
-                        <ShareIcon />
-                    </IconButton>
+                    <ShareButtons
+                        url={typeof window !== 'undefined' ? window.location.href : ''}
+                        title={`LUMO - ${group.title}`}
+                        text={`🏀 快來一起打 ${SPORT_NAMES[group.sportType] || group.sportType} 吧！\n時間：${new Date(group.time).toLocaleString('zh-TW', { hour: '2-digit', minute: '2-digit' })}\n地點：${group.location}`}
+                    />
                 </Stack>
 
                 <Typography variant="h4" fontWeight="bold" gutterBottom>

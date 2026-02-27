@@ -21,6 +21,7 @@ enum SportType {
   BADMINTON
   TABLE_TENNIS
   GYM
+  VOLLEYBALL
 }
 
 enum SkillLevel {

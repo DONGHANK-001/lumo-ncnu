@@ -180,6 +180,19 @@ class ApiClient {
     deleteReport(token: string, id: string) {
         return this.request(`/admin/reports/${id}`, { method: 'DELETE', token });
     }
+
+    // Badges
+    getBadges() {
+        return this.request<any[]>('/badges');
+    }
+
+    getMyBadges(token: string) {
+        return this.request<any[]>('/badges/me', { token });
+    }
+
+    checkBadges(token: string) {
+        return this.request<{ newlyUnlocked: any[] }>('/badges/check', { method: 'POST', token });
+    }
 }
 
 export const api = new ApiClient(API_BASE_URL);

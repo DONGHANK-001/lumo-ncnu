@@ -28,7 +28,8 @@ import {
     Security,
     DarkMode,
     LightMode,
-    Instagram
+    Instagram,
+    SportsVolleyball
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
@@ -45,6 +46,7 @@ const SPORTS = [
     { icon: <SportsTennis fontSize="large" />, name: '羽球' }, // Using Tennis icon for Badminton as generic racket sport
     { icon: <SportsTennis fontSize="large" />, name: '桌球' }, // Placeholder
     { icon: <FitnessCenter fontSize="large" />, name: '健身' },
+    { icon: <SportsVolleyball fontSize="large" />, name: '排球' },
 ];
 
 const SPORT_NAMES: Record<string, string> = {
@@ -53,6 +55,7 @@ const SPORT_NAMES: Record<string, string> = {
     BADMINTON: '羽球',
     TABLE_TENNIS: '桌球',
     GYM: '健身',
+    VOLLEYBALL: '排球',
 };
 
 export default function LandingPage() {
@@ -241,6 +244,15 @@ export default function LandingPage() {
                                 發起揪團
                             </Button>
                         )}
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            component={Link}
+                            href="/leaderboard"
+                            sx={{ fontSize: '1.2rem', py: 1.5, px: 4, borderColor: 'warning.main', color: 'warning.main' }}
+                        >
+                            🏆 排行榜
+                        </Button>
                     </Stack>
                 </Container>
             </Box>

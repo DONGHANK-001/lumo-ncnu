@@ -57,6 +57,7 @@ const SPORT_NAMES: Record<string, string> = {
     BADMINTON: '羽球',
     TABLE_TENNIS: '桌球',
     GYM: '健身',
+    VOLLEYBALL: '排球',
 };
 
 const LEVEL_NAMES: Record<string, string> = {

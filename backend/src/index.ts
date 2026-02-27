@@ -8,6 +8,8 @@ import groupsRoutes from './routes/groups.routes.js';
 import reportsRoutes from './routes/reports.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import leaderboardRoutes from './routes/leaderboard.routes.js';
+import badgesRoutes from './routes/badges.routes.js';
 import http from 'http';
 import { initSocket } from './socket.js';
 
@@ -95,6 +97,8 @@ app.use('/groups', groupsRoutes);   // /groups, /groups/:id, etc.
 app.use('/reports', reportsRoutes); // /reports
 app.use('/ai', aiRoutes);           // /ai/status
 app.use('/admin', adminRoutes);     // /admin/*
+app.use('/leaderboard', leaderboardRoutes); // /leaderboard/departments, /leaderboard/users
+app.use('/badges', badgesRoutes);           // /badges, /badges/me, /badges/check
 
 // ============================================
 // Error Handling

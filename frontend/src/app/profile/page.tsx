@@ -37,6 +37,7 @@ const SPORT_OPTIONS = [
     { value: 'BADMINTON', label: '🏸 羽球' },
     { value: 'TABLE_TENNIS', label: '🏓 桌球' },
     { value: 'GYM', label: '💪 健身' },
+    { value: 'VOLLEYBALL', label: '🏐 排球' },
 ];
 
 const LEVEL_OPTIONS = [
@@ -76,6 +77,26 @@ export default function ProfilePage() {
     });
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    // Badges
+    const [allBadges, setAllBadges] = useState<any[]>([]);
+    const [myBadges, setMyBadges] = useState<any[]>([]);
+
+    useEffect(() => {
+        // Fetch all badges
+        api.getBadges().then(res => { if (res.success && res.data) setAllBadges(res.data as any[]); });
+    }, []);
+
+    useEffect(() => {
+        if (user) {
+            getToken().then(token => {
+                if (token) {
+                    api.getMyBadges(token).then(res => { if (res.success && res.data) setMyBadges(res.data as any[]); });
+                    api.checkBadges(token); // auto-check
+                }
+            });
+        }
+    }, [user]);
 
     useEffect(() => {
         if (user) {
@@ -386,6 +407,37 @@ export default function ProfilePage() {
                         >
                             {saving ? '儲存中...' : '儲存變更'}
                         </Button>
+
+                        {/* Badges Section */}
+                        <Paper sx={{ p: 3, borderRadius: 4 }}>
+                            <Typography variant="h6" fontWeight="bold" mb={2}>🏅 成就勳章</Typography>
+                            <Stack direction="row" flexWrap="wrap" gap={2}>
+                                {allBadges.map(badge => {
+                                    const unlocked = myBadges.some(mb => mb.code === badge.code);
+                                    return (
+                                        <Box key={badge.code} sx={{
+                                            textAlign: 'center',
+                                            p: 2,
+                                            borderRadius: 3,
+                                            bgcolor: unlocked ? 'action.hover' : 'transparent',
+                                            opacity: unlocked ? 1 : 0.4,
+                                            border: '1px solid',
+                                            borderColor: unlocked ? 'primary.main' : 'divider',
+                                            minWidth: 90,
+                                            transition: 'all 0.3s',
+                                        }}>
+                                            <Typography variant="h4">{badge.icon}</Typography>
+                                            <Typography variant="caption" fontWeight="bold" display="block">
+                                                {badge.name}
+                                            </Typography>
+                                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                                {badge.description}
+                                            </Typography>
+                                        </Box>
+                                    );
+                                })}
+                            </Stack>
+                        </Paper>
                     </Stack>
                 </Grid>
             </Grid>
