@@ -95,38 +95,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setLoading(false);
         });
 
-        // 處理 signInWithRedirect 跳轉回來的結果
-        auth.getRedirectResult().then(async (result) => {
-            if (result?.user) {
-                await fetchUserData(result.user);
-            }
-        }).catch((err) => {
-            console.error('Redirect result error:', err);
-        });
-
         return () => unsubscribe();
     }, []);
-
-    // 偵測是否為行動裝置
-    const isMobile = () => {
-        if (typeof window === 'undefined') return false;
-        return /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    };
 
     // Google 登入
     const signIn = async () => {
         try {
             setLoading(true);
             setError(null);
-            if (isMobile()) {
-                // 手機：整頁跳轉到 Google 登入，登完跳回來
-                await auth.signInWithRedirect(googleProvider);
-            } else {
-                // 桌面：彈窗登入
-                const result = await auth.signInWithPopup(googleProvider);
-                if (result.user) {
-                    await fetchUserData(result.user);
-                }
+            const result = await auth.signInWithPopup(googleProvider);
+            if (result.user) {
+                await fetchUserData(result.user);
             }
         } catch (err: unknown) {
             console.error('Sign in error:', err);
