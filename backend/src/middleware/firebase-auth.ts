@@ -51,7 +51,19 @@ export async function firebaseAuthMiddleware(
             return;
         }
 
-        // (已移除信箱網域限制)
+        const allowedDomains = (process.env.ALLOWED_EMAIL_DOMAIN || 'mail1.ncnu.edu.tw,ncnu.edu.tw').split(',').map(d => d.trim());
+        const emailDomain = email.split('@')[1];
+
+        if (!allowedDomains.includes(emailDomain)) {
+            res.status(403).json({
+                success: false,
+                error: {
+                    code: 'DOMAIN_NOT_ALLOWED',
+                    message: `請使用暨南學生帳號登入 (允許: ${allowedDomains.join(', ')})`,
+                },
+            });
+            return;
+        }
 
         req.firebaseUser = decodedToken;
 
