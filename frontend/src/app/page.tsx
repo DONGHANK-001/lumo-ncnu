@@ -282,16 +282,6 @@ export default function LandingPage() {
                         >
                             🏆 排行榜
                         </Button>
-                        <Button
-                            variant="outlined"
-                            color="secondary"
-                            size="large"
-                            component={Link}
-                            href="/match"
-                            sx={{ fontSize: '1.2rem', py: 1.5, px: 4 }}
-                        >
-                            🤖 智慧配對
-                        </Button>
                     </Stack>
                 </Container>
             </Box>
