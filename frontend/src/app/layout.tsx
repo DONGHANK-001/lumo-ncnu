@@ -3,6 +3,7 @@ import { AuthProvider } from '@/hooks/useAuth';
 import '@/styles/globals.css';
 import ThemeRegistry from '@/theme/ThemeRegistry';
 import ErrorBoundary from './components/ErrorBoundary';
+import InAppBrowserOverlay from './components/InAppBrowserOverlay';
 
 export const metadata: Metadata = {
     title: 'LUMO - 暨大揪團平台',
@@ -30,6 +31,7 @@ export default function RootLayout({
                 <ThemeRegistry>
                     <ErrorBoundary>
                         <AuthProvider>
+                            <InAppBrowserOverlay />
                             {children}
                         </AuthProvider>
                     </ErrorBoundary>
