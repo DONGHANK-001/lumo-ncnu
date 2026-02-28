@@ -40,8 +40,8 @@ import SafetyNoticeDialog from '../components/SafetyNoticeDialog';
 const SPORT_OPTIONS = [
     { value: 'BASKETBALL', label: '籃球', icon: <SportsBasketball /> },
     { value: 'RUNNING', label: '跑步', icon: <DirectionsRun /> },
-    { value: 'BADMINTON', label: '羽球', icon: <Box component="span" sx={{ fontSize: '1.5rem', lineHeight: 1 }}>🏸</Box> },
-    { value: 'TABLE_TENNIS', label: '桌球', icon: <Box component="span" sx={{ fontSize: '1.5rem', lineHeight: 1 }}>🏓</Box> },
+    { value: 'BADMINTON', label: '羽球', icon: <SportsTennis /> },
+    { value: 'TABLE_TENNIS', label: '桌球', icon: <SportsTennis /> },
     { value: 'GYM', label: '健身', icon: <FitnessCenter /> },
     { value: 'VOLLEYBALL', label: '排球', icon: <SportsVolleyball /> },
 ];
