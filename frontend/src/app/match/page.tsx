@@ -97,10 +97,10 @@ export default function MatchPage() {
             </Link>
 
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-                🤝 專屬配對
+                🤖 智慧配對
             </Typography>
             <Typography variant="body1" color="text.secondary" paragraph>
-                根據您的「偏好設定」（常去場館、喜愛運動、時間等），為您推薦校園內活躍且符合興趣的同好！
+                根據程度、時間、地點，找到最適合你的夥伴！
             </Typography>
 
             {error && (
