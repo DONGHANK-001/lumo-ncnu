@@ -219,6 +219,11 @@ class ApiClient {
     getAdminFeedbacks(token: string) {
         return this.request<any[]>('/feedback', { token });
     }
+
+    // Payment
+    checkoutSubscription(token: string, planType: string) {
+        return this.request<any>('/payment/checkout', { method: 'POST', token, body: { planType } });
+    }
 }
 
 export const api = new ApiClient(API_BASE_URL);

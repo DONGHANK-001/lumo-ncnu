@@ -211,6 +211,16 @@ export default function LandingPage() {
                             >
                                 揪團列表
                             </Button>
+                            {user?.role === 'ADMIN' && (
+                                <Button
+                                    component={Link}
+                                    href="/subscription"
+                                    color="secondary"
+                                    sx={{ fontWeight: 'bold' }}
+                                >
+                                    👑 升級 PRO
+                                </Button>
+                            )}
                             {loading ? (
                                 <Box sx={{ width: 80, height: 36, bgcolor: 'action.hover', borderRadius: 2 }} />
                             ) : user ? (

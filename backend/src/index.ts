@@ -12,6 +12,7 @@ import leaderboardRoutes from './routes/leaderboard.routes.js';
 import badgesRoutes from './routes/badges.routes.js';
 import feedbackRoutes from './routes/feedback.routes.js';
 import matchRoutes from './routes/match.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
 import http from 'http';
 import { initSocket } from './socket.js';
 
@@ -63,6 +64,7 @@ app.use((req, res, next) => {
 
 // Body parsing
 app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' })); // For ECPay webhook callback
 
 // Rate limiting
 const limiter = rateLimit({
@@ -103,6 +105,7 @@ app.use('/leaderboard', leaderboardRoutes); // /leaderboard/departments, /leader
 app.use('/badges', badgesRoutes);           // /badges, /badges/me, /badges/check
 app.use('/feedback', feedbackRoutes);       // /feedback
 app.use('/match', matchRoutes);             // /match/partners
+app.use('/payment', paymentRoutes);         // /payment/checkout, /payment/callback
 
 // ============================================
 // Error Handling

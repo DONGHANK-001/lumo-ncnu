@@ -66,6 +66,12 @@ enum SubscriptionStatus {
   EXPIRED
 }
 
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
 // ============================================
 // Models
 // ============================================
@@ -98,6 +104,7 @@ model User {
   coachProfile    CoachProfile?
   comments        GroupComment[]
   feedbacks       Feedback[]
+  paymentLogs     PaymentLog[]
 
   @@map("users")
 }
@@ -223,4 +230,18 @@ model Feedback {
   createdAt DateTime @default(now())
 
   @@map("feedbacks")
+}
+
+model PaymentLog {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  merchantOrderNo String        @unique
+  amount          Int
+  status          PaymentStatus @default(PENDING)
+  paymentMethod   String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("payment_logs")
 }
