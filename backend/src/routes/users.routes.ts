@@ -8,7 +8,7 @@ const router = Router();
  * GET /users/:id
  * 取得指定使用者的公開個人檔案
  */
-router.get('/:id', firebaseAuthMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = req.params.id;
 
