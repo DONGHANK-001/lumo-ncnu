@@ -19,7 +19,17 @@ interface DeptRanking {
     department: string;
     totalJoins: number;
     uniqueUsers: number;
+    topSport?: string;
 }
+
+const SPORT_MAP: Record<string, { label: string; icon: string }> = {
+    BASKETBALL: { label: '籃球', icon: '🏀' },
+    RUNNING: { label: '跑步', icon: '🏃‍♂️' },
+    BADMINTON: { label: '羽球', icon: '🏸' },
+    TABLE_TENNIS: { label: '桌球', icon: '🏓' },
+    GYM: { label: '健身', icon: '🏋️' },
+    VOLLEYBALL: { label: '排球', icon: '🏐' },
+};
 
 const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
 const MEDAL_ICONS = [
@@ -117,6 +127,11 @@ export default function LeaderboardPage() {
                                         <Typography variant="body2" color="text.secondary">
                                             {departments[1].totalJoins} 次
                                         </Typography>
+                                        {departments[1].topSport && SPORT_MAP[departments[1].topSport] && (
+                                            <Typography variant="caption" display="block" color="text.secondary" mt={0.5}>
+                                                最愛: {SPORT_MAP[departments[1].topSport].icon} {SPORT_MAP[departments[1].topSport].label}
+                                            </Typography>
+                                        )}
                                     </Box>
                                     {/* 1st Place */}
                                     <Box textAlign="center" flex={1}>
@@ -130,6 +145,11 @@ export default function LeaderboardPage() {
                                             size="small"
                                             sx={{ mt: 0.5 }}
                                         />
+                                        {departments[0].topSport && SPORT_MAP[departments[0].topSport] && (
+                                            <Typography variant="caption" display="block" color="text.secondary" mt={0.5}>
+                                                最愛: {SPORT_MAP[departments[0].topSport].icon} {SPORT_MAP[departments[0].topSport].label}
+                                            </Typography>
+                                        )}
                                     </Box>
                                     {/* 3rd Place */}
                                     <Box textAlign="center" flex={1}>
@@ -140,6 +160,11 @@ export default function LeaderboardPage() {
                                         <Typography variant="body2" color="text.secondary">
                                             {departments[2].totalJoins} 次
                                         </Typography>
+                                        {departments[2].topSport && SPORT_MAP[departments[2].topSport] && (
+                                            <Typography variant="caption" display="block" color="text.secondary" mt={0.5}>
+                                                最愛: {SPORT_MAP[departments[2].topSport].icon} {SPORT_MAP[departments[2].topSport].label}
+                                            </Typography>
+                                        )}
                                     </Box>
                                 </Stack>
                             </CardContent>
@@ -172,6 +197,14 @@ export default function LeaderboardPage() {
                                             <Typography variant="caption" color="text.secondary">
                                                 {dept.uniqueUsers} 位同學
                                             </Typography>
+                                            {dept.topSport && SPORT_MAP[dept.topSport] && (
+                                                <>
+                                                    <Typography variant="caption" color="text.secondary" sx={{ mx: 0.5 }}>•</Typography>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        最愛: {SPORT_MAP[dept.topSport].icon} {SPORT_MAP[dept.topSport].label}
+                                                    </Typography>
+                                                </>
+                                            )}
                                         </Stack>
                                     </Box>
                                     <Box textAlign="right">

@@ -12,14 +12,16 @@ router.get('/departments', async (req: Request, res: Response) => {
         const period = (req.query.period as string) || 'weekly';
 
         const results = await prisma.$queryRaw<
-            { department: string; total_joins: bigint; unique_users: bigint }[]
+            { department: string; total_joins: bigint; unique_users: bigint; top_sport: string }[]
         >`
             SELECT 
                 u."department",
                 COUNT(gm.id)::bigint as total_joins,
-                COUNT(DISTINCT u.id)::bigint as unique_users
+                COUNT(DISTINCT u.id)::bigint as unique_users,
+                MODE() WITHIN GROUP (ORDER BY g."sportType" DESC) as top_sport
             FROM group_members gm
             JOIN users u ON u.id = gm."userId"
+            JOIN groups g ON g.id = gm."groupId"
             WHERE gm.status = 'JOINED'
               AND u."department" IS NOT NULL
               AND u."department" != ''
@@ -35,6 +37,7 @@ router.get('/departments', async (req: Request, res: Response) => {
             department: r.department,
             totalJoins: Number(r.total_joins),
             uniqueUsers: Number(r.unique_users),
+            topSport: r.top_sport,
         }));
 
         res.json({ success: true, data: { period, departments } });
@@ -44,26 +47,37 @@ router.get('/departments', async (req: Request, res: Response) => {
         try {
             const members = await prisma.groupMember.findMany({
                 where: { status: 'JOINED' },
-                include: { user: { select: { department: true } } },
+                include: {
+                    user: { select: { department: true } },
+                    group: { select: { sportType: true } }
+                },
             });
 
-            const deptMap = new Map<string, { joins: number; users: Set<string> }>();
+            const deptMap = new Map<string, { joins: number; users: Set<string>; sports: Record<string, number> }>();
             for (const m of members) {
                 const dept = (m as any).user?.department;
-                if (!dept) continue;
-                if (!deptMap.has(dept)) deptMap.set(dept, { joins: 0, users: new Set() });
+                const sport = (m as any).group?.sportType;
+                if (!dept || !sport) continue;
+
+                if (!deptMap.has(dept)) deptMap.set(dept, { joins: 0, users: new Set(), sports: {} });
                 const entry = deptMap.get(dept)!;
                 entry.joins++;
                 entry.users.add(m.userId);
+                entry.sports[sport] = (entry.sports[sport] || 0) + 1;
             }
 
             const departments = Array.from(deptMap.entries())
-                .map(([dept, data], index) => ({
-                    rank: index + 1,
-                    department: dept,
-                    totalJoins: data.joins,
-                    uniqueUsers: data.users.size,
-                }))
+                .map(([dept, data], index) => {
+                    // Find the sport with maximum count
+                    const topSport = Object.entries(data.sports).sort((a, b) => b[1] - a[1])[0][0];
+                    return {
+                        rank: index + 1,
+                        department: dept,
+                        totalJoins: data.joins,
+                        uniqueUsers: data.users.size,
+                        topSport,
+                    };
+                })
                 .sort((a, b) => b.totalJoins - a.totalJoins)
                 .map((d, i) => ({ ...d, rank: i + 1 }));
 
