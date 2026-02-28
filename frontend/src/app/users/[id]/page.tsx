@@ -74,9 +74,9 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                 <Typography variant="body1" color="text.secondary" paragraph>
                     {error || '該使用者不存在或已被刪除'}
                 </Typography>
-                <Link href="/" style={{ textDecoration: 'none' }}>
+                <Link href="/leaderboard" style={{ textDecoration: 'none' }}>
                     <Box component="span" sx={{ color: 'primary.main', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                        <ArrowBack fontSize="small" /> 返回首頁
+                        <ArrowBack fontSize="small" /> 返回排行榜
                     </Box>
                 </Link>
             </Container>
@@ -90,7 +90,7 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
         <Container maxWidth="sm" sx={{ py: 4, pb: 10 }}>
             {/* Header */}
             <Stack direction="row" alignItems="center" spacing={2} mb={3}>
-                <IconButton component={Link} href="/" color="primary">
+                <IconButton component={Link} href="/leaderboard" color="primary">
                     <ArrowBack />
                 </IconButton>
                 <Typography variant="h5" fontWeight="bold">玩家檔案</Typography>
