@@ -22,7 +22,9 @@ import {
     Alert,
     CircularProgress,
     ToggleButton,
-    ToggleButtonGroup
+    ToggleButtonGroup,
+    Autocomplete,
+    Chip
 } from '@mui/material';
 import {
     ArrowBack,
@@ -53,6 +55,15 @@ const LEVEL_OPTIONS = [
     { value: 'ADVANCED', label: '進階' },
 ];
 
+const TAG_OPTIONS = [
+    '女性友善',
+    '男性友善',
+    '性別友善',
+    '新手友善',
+    '輕鬆打',
+    '休閒流汗',
+];
+
 export default function CreateGroupPage() {
     const router = useRouter();
     const { user, getToken, signIn } = useAuth();
@@ -65,6 +76,7 @@ export default function CreateGroupPage() {
         location: '',
         level: 'ANY',
         capacity: 4,
+        tags: [] as string[],
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -189,7 +201,36 @@ export default function CreateGroupPage() {
                                         fullWidth
                                         value={form.description}
                                         onChange={(e) => setForm({ ...form, description: e.target.value })}
-                                        placeholder="提供更多資訊，例如：新手友善、歡迎女生參加..."
+                                        placeholder="提供更多資訊，例如：自備球拍、只能打半場..."
+                                    />
+                                    <Autocomplete
+                                        multiple
+                                        options={TAG_OPTIONS}
+                                        value={form.tags}
+                                        onChange={(_, newValue) => setForm({ ...form, tags: newValue })}
+                                        renderTags={(value: readonly string[], getTagProps) =>
+                                            value.map((option: string, index: number) => {
+                                                const { key, ...tagProps } = getTagProps({ index });
+                                                return (
+                                                    <Chip
+                                                        variant="filled"
+                                                        color="primary"
+                                                        size="small"
+                                                        key={key}
+                                                        label={option}
+                                                        {...tagProps}
+                                                    />
+                                                );
+                                            })
+                                        }
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                variant="outlined"
+                                                label="友善標籤 (可選多個)"
+                                                placeholder="加入標籤讓球友更安心"
+                                            />
+                                        )}
                                     />
                                 </Stack>
                             </Paper>

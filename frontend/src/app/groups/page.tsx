@@ -48,6 +48,7 @@ interface Group {
     capacity: number;
     currentCount: number;
     status: string;
+    tags: string[];
     createdBy: { nickname: string | null; email: string };
 }
 
@@ -283,6 +284,14 @@ export default function GroupsPage() {
                                     <Typography variant="h6" gutterBottom sx={{ '&:hover': { color: 'primary.main' } }}>
                                         {group.title}
                                     </Typography>
+
+                                    {group.tags && group.tags.length > 0 && (
+                                        <Stack direction="row" flexWrap="wrap" gap={0.5} mt={1}>
+                                            {group.tags.map((tag: string) => (
+                                                <Chip key={tag} label={tag} size="small" variant="filled" sx={{ bgcolor: 'action.hover', fontSize: '0.7rem' }} />
+                                            ))}
+                                        </Stack>
+                                    )}
 
                                     <Stack spacing={1} sx={{ color: 'text.secondary', mt: 2 }}>
                                         <Stack direction="row" spacing={1} alignItems="center">

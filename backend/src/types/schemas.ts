@@ -10,6 +10,7 @@ export const SportType = {
     BADMINTON: 'BADMINTON',
     TABLE_TENNIS: 'TABLE_TENNIS',
     GYM: 'GYM',
+    VOLLEYBALL: 'VOLLEYBALL',
 } as const;
 
 export const SkillLevel = {
@@ -34,6 +35,7 @@ export const sportTypeSchema = z.enum([
     'BADMINTON',
     'TABLE_TENNIS',
     'GYM',
+    'VOLLEYBALL',
 ]);
 
 export const skillLevelSchema = z.enum([
@@ -69,6 +71,7 @@ export const createGroupSchema = z.object({
     location: z.string().min(1).max(100),
     level: skillLevelSchema,
     capacity: z.number().int().min(2).max(50),
+    tags: z.array(z.string()).max(10).optional(),
 });
 
 export type CreateGroupInput = z.infer<typeof createGroupSchema>;

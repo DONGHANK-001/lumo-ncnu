@@ -99,6 +99,18 @@ class ApiClient {
         return this.request<{ id: string; onboardingCompleted: boolean }>('/onboarding', { method: 'POST', token, body: data });
     }
 
+    getMyStats(token: string) {
+        return this.request<{
+            currentStreak: number;
+            longestStreak: number;
+            weeklyHours: number;
+            monthlyHours: number;
+            totalCalories: number;
+            sportDistribution: { id: number; label: string; value: number }[];
+            weeklyData: { day: string; hours: number }[];
+        }>('/me/stats', { token });
+    }
+
     upgradePlan(token: string) {
         return this.request<{ planType: string; message: string }>('/plan/upgrade', { method: 'POST', token });
     }

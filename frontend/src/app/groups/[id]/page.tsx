@@ -50,6 +50,7 @@ interface GroupDetail {
     capacity: number;
     currentCount: number;
     status: string;
+    tags: string[];
     createdBy: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; };
     members: Array<{
         user: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; };
@@ -369,6 +370,14 @@ export default function GroupDetailPage() {
                 <Typography variant="h4" fontWeight="bold" gutterBottom>
                     {group.title}
                 </Typography>
+
+                {group.tags && group.tags.length > 0 && (
+                    <Stack direction="row" flexWrap="wrap" gap={1} mb={3}>
+                        {group.tags.map((tag: string) => (
+                            <Chip key={tag} label={tag} size="small" variant="filled" sx={{ bgcolor: 'action.hover', color: 'primary.main', fontWeight: 'bold' }} />
+                        ))}
+                    </Stack>
+                )}
 
                 {group.description && (
                     <Typography variant="body1" color="text.secondary" paragraph sx={{ mb: 4 }}>

@@ -94,7 +94,7 @@ router.post(
     validateBody(createGroupSchema),
     async (req: Request, res: Response) => {
         const user = req.user!;
-        const { sportType, title, description, time, location, level, capacity } = req.body;
+        const { sportType, title, description, time, location, level, capacity, tags } = req.body;
 
         const initialStatus = capacity === 1 ? 'FULL' : 'OPEN';
 
@@ -107,6 +107,7 @@ router.post(
                 location,
                 level,
                 capacity,
+                tags: tags || [],
                 currentCount: 1, // 建立者自動加入
                 status: initialStatus,
                 createdById: user.id,

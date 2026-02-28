@@ -21,6 +21,8 @@ import {
     Divider,
     IconButton
 } from '@mui/material';
+import { BarChart } from '@mui/x-charts/BarChart';
+import { PieChart } from '@mui/x-charts/PieChart';
 import {
     ArrowBack,
     Edit,
@@ -81,6 +83,7 @@ export default function ProfilePage() {
     // Badges
     const [allBadges, setAllBadges] = useState<any[]>([]);
     const [myBadges, setMyBadges] = useState<any[]>([]);
+    const [stats, setStats] = useState<any>(null);
 
     useEffect(() => {
         // Fetch all badges
@@ -92,6 +95,7 @@ export default function ProfilePage() {
             getToken().then(token => {
                 if (token) {
                     api.getMyBadges(token).then(res => { if (res.success && res.data) setMyBadges(res.data as any[]); });
+                    api.getMyStats(token).then(res => { if (res.success && res.data) setStats(res.data); });
                     api.checkBadges(token); // auto-check
                 }
             });
@@ -315,6 +319,67 @@ export default function ProfilePage() {
                                 {message.text}
                             </Alert>
                         )}
+
+                        <Paper sx={{ p: 4, borderRadius: 4 }}>
+                            <Typography variant="h6" fontWeight="bold" mb={3}>📊 我的運動數據 (本週)</Typography>
+
+                            {stats ? (
+                                <Stack spacing={4}>
+                                    <Stack direction="row" spacing={3} justifyContent="space-around" sx={{ textAlign: 'center' }}>
+                                        <Box>
+                                            <Typography variant="h4" color="primary.main" fontWeight="bold">{stats.currentStreak}</Typography>
+                                            <Typography variant="body2" color="text.secondary">🔥 連續天數</Typography>
+                                            <Typography variant="caption" color="text.secondary">最高 {stats.longestStreak} 天</Typography>
+                                        </Box>
+                                        <Box>
+                                            <Typography variant="h4" color="secondary.main" fontWeight="bold">{stats.weeklyHours}</Typography>
+                                            <Typography variant="body2" color="text.secondary">⏱️ 本週時數</Typography>
+                                            <Typography variant="caption" color="text.secondary">本月積累 {stats.monthlyHours} 懂</Typography>
+                                        </Box>
+                                        <Box>
+                                            <Typography variant="h4" color="warning.main" fontWeight="bold">{stats.totalCalories}</Typography>
+                                            <Typography variant="body2" color="text.secondary">🔥 預估燃脂 (大卡)</Typography>
+                                        </Box>
+                                    </Stack>
+
+                                    <Divider />
+
+                                    <Grid container spacing={3}>
+                                        <Grid size={{ xs: 12, md: 6 }}>
+                                            <Typography variant="subtitle2" mb={2} color="text.secondary" textAlign="center">
+                                                一週運動時數分佈
+                                            </Typography>
+                                            <BarChart
+                                                xAxis={[{ scaleType: 'band', data: stats.weeklyData.map((d: any) => d.day) }]}
+                                                series={[{ data: stats.weeklyData.map((d: any) => d.hours), color: '#FE6B8B' }]}
+                                                height={250}
+                                                margin={{ left: 30, right: 10, top: 10, bottom: 30 }}
+                                            />
+                                        </Grid>
+                                        <Grid size={{ xs: 12, md: 6 }}>
+                                            <Typography variant="subtitle2" mb={2} color="text.secondary" textAlign="center">
+                                                運動項目分佈
+                                            </Typography>
+                                            <PieChart
+                                                series={[{
+                                                    data: stats.sportDistribution,
+                                                    innerRadius: 30,
+                                                    outerRadius: 80,
+                                                    paddingAngle: 5,
+                                                    cornerRadius: 5,
+                                                }]}
+                                                height={250}
+                                                margin={{ right: 80 }}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Stack>
+                            ) : (
+                                <Box display="flex" justifyContent="center" py={4}>
+                                    <CircularProgress size={24} />
+                                </Box>
+                            )}
+                        </Paper>
 
                         <Paper sx={{ p: 4, borderRadius: 4 }}>
                             <Typography variant="h6" gutterBottom mb={3}>基本資料</Typography>
