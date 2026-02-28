@@ -205,6 +205,20 @@ class ApiClient {
     checkBadges(token: string) {
         return this.request<{ newlyUnlocked: any[] }>('/badges/check', { method: 'POST', token });
     }
+
+    // Match
+    getMatchPartners(token: string) {
+        return this.request<any[]>('/match/partners', { token });
+    }
+
+    // Feedback
+    submitFeedback(token: string | undefined, content: string) {
+        return this.request<any>('/feedback', { method: 'POST', token, body: { content } });
+    }
+
+    getAdminFeedbacks(token: string) {
+        return this.request<any[]>('/feedback', { token });
+    }
 }
 
 export const api = new ApiClient(API_BASE_URL);

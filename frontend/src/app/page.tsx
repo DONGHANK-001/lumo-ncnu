@@ -16,7 +16,13 @@ import {
     Snackbar,
     Paper,
     useTheme,
-    IconButton
+    IconButton,
+    Fab,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField
 } from '@mui/material';
 import {
     SportsBasketball,
@@ -29,9 +35,11 @@ import {
     DarkMode,
     LightMode,
     Instagram,
-    SportsVolleyball
+    SportsVolleyball,
+    Feedback
 } from '@mui/icons-material';
 import Link from 'next/link';
+import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
 import { useWakeupBackend } from '@/hooks/useWakeupBackend';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
@@ -85,6 +93,27 @@ export default function LandingPage() {
             setShowOnboarding(true);
         }
     }, [user]);
+
+    // Feedback
+    const [feedbackOpen, setFeedbackOpen] = useState(false);
+    const [feedbackContent, setFeedbackContent] = useState('');
+    const [feedbackLoading, setFeedbackLoading] = useState(false);
+
+    const handleFeedbackSubmit = async () => {
+        if (!feedbackContent.trim()) return;
+        setFeedbackLoading(true);
+        const token = await getToken();
+        // 原本 token 可能沒有 (未登入者)，可以支援匿名回饋
+        const response = await api.submitFeedback(token || undefined, feedbackContent);
+        if (response.success) {
+            setFeedbackOpen(false);
+            setFeedbackContent('');
+            setLiveFeed({ message: '謝謝您的回饋！我們已收到您的建議。', open: true });
+        } else {
+            setLiveFeed({ message: response.error?.message || '送出失敗，請稍後再試', open: true });
+        }
+        setFeedbackLoading(false);
+    };
 
     useEffect(() => {
         const socket = getSocket();
@@ -370,6 +399,58 @@ export default function LandingPage() {
                 }}
                 getToken={getToken}
             />
+
+            {/* Feedback FAB */}
+            <Fab
+                color="primary"
+                aria-label="feedback"
+                sx={{
+                    position: 'fixed',
+                    bottom: 24,
+                    right: 24,
+                    zIndex: 1000
+                }}
+                onClick={() => setFeedbackOpen(true)}
+            >
+                <Feedback />
+            </Fab>
+
+            {/* Feedback Dialog */}
+            <Dialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} fullWidth maxWidth="sm">
+                <DialogTitle sx={{ fontWeight: 'bold' }}>提供意見回饋</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" color="text.secondary" paragraph sx={{ mt: 1 }}>
+                        遇到 bug、有新功能建議，或有任何想對我們說的話，都歡迎在這邊留言給開發團隊！
+                    </Typography>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="feedback"
+                        label="您的建議或回饋"
+                        type="text"
+                        fullWidth
+                        multiline
+                        rows={4}
+                        variant="outlined"
+                        value={feedbackContent}
+                        onChange={(e) => setFeedbackContent(e.target.value)}
+                        placeholder="請輸入您的回饋內容..."
+                    />
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <Button onClick={() => setFeedbackOpen(false)} color="inherit">
+                        取消
+                    </Button>
+                    <Button
+                        onClick={handleFeedbackSubmit}
+                        variant="contained"
+                        disabled={!feedbackContent.trim() || feedbackLoading}
+                        sx={{ borderRadius: 4, px: 3 }}
+                    >
+                        送出
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

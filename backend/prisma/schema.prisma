@@ -97,6 +97,7 @@ model User {
   subscription    PlusSubscription?
   coachProfile    CoachProfile?
   comments        GroupComment[]
+  feedbacks       Feedback[]
 
   @@map("users")
 }

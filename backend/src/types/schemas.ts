@@ -102,3 +102,9 @@ export const createReportSchema = z.object({
 });
 
 export type CreateReportInput = z.infer<typeof createReportSchema>;
+
+export const createFeedbackSchema = z.object({
+    content: z.string().min(1).max(1000),
+});
+
+export type CreateFeedbackInput = z.infer<typeof createFeedbackSchema>;
