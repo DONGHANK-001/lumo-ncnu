@@ -2,10 +2,19 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { Box, Typography, Button, Container, Paper, CircularProgress, Stack, Chip, Divider } from '@mui/material';
+import { Box, Typography, Button, Container, Paper, CircularProgress, Stack, Chip, Divider, Grid } from '@mui/material';
 import { api } from '@/lib/api-client';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Link from 'next/link';
+
+const PLANS = [
+    { type: 'WEEKLY', name: '試用方案', price: 19, period: '週', features: ['解除發起揪團上限', '專屬 PLUS 徽章'] },
+    { type: 'MONTHLY', name: '月租方案', price: 60, period: '月', features: ['包含試用方案功能', '無限查看參與者聯絡資訊'] },
+    { type: 'QUARTERLY', name: '超值季卡', price: 150, period: '季', features: ['包含月租方案功能', '解鎖智慧配對進階條件'] },
+    { type: 'LIFETIME', name: '終身黑金卡', price: 399, period: '永久', features: ['未來所有新功能免費', '終身專屬特權服務'] }
+];
 
 export default function SubscriptionPage() {
     const { user, getToken } = useAuth();
@@ -32,14 +41,14 @@ export default function SubscriptionPage() {
         );
     }
 
-    const handleCheckout = async () => {
+    const handleCheckout = async (planType: string) => {
         try {
             setLoading(true);
             setError('');
             const token = await getToken();
             if (!token) throw new Error('未登入');
 
-            const res = await api.checkoutSubscription(token, 'PLUS');
+            const res = await api.checkoutSubscription(token, planType);
             if (res.success && res.data) {
                 // 建構動態表單送往綠界
                 const form = document.createElement('form');
@@ -69,7 +78,13 @@ export default function SubscriptionPage() {
     };
 
     return (
-        <Container maxWidth="md" sx={{ py: 8 }}>
+        <Container maxWidth="lg" sx={{ py: 6, pb: 10 }}>
+            <Link href="/" style={{ textDecoration: 'none' }}>
+                <Button startIcon={<ArrowBackIcon />} sx={{ mb: 2, color: 'text.secondary' }}>
+                    返回首頁
+                </Button>
+            </Link>
+
             <Box textAlign="center" mb={6}>
                 <Typography variant="h3" fontWeight="bold" gutterBottom>
                     解鎖完整 LUMO 體驗
@@ -88,70 +103,88 @@ export default function SubscriptionPage() {
                 )}
             </Box>
 
-            <Box display="flex" justifyContent="center">
-                <Paper
-                    elevation={12}
-                    sx={{
-                        p: 5,
-                        borderRadius: 4,
-                        maxWidth: 400,
-                        width: '100%',
-                        position: 'relative',
-                        border: '2px solid',
-                        borderColor: 'secondary.main',
-                        bgcolor: 'background.paper',
-                    }}
-                >
-                    <Chip
-                        label="超值推薦"
-                        color="secondary"
-                        size="small"
-                        sx={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', fontWeight: 'bold' }}
-                    />
+            <Grid container spacing={4} justifyContent="center">
+                {PLANS.map((plan) => (
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }} key={plan.type} sx={{ display: 'flex' }}>
+                        <Paper
+                            elevation={plan.type === 'MONTHLY' ? 12 : 4}
+                            sx={{
+                                p: 4,
+                                borderRadius: 4,
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                position: 'relative',
+                                border: plan.type === 'MONTHLY' ? '2px solid' : '1px solid',
+                                borderColor: plan.type === 'MONTHLY' ? 'secondary.main' : 'divider',
+                                bgcolor: 'background.paper',
+                                transition: 'transform 0.2s',
+                                '&:hover': { transform: 'translateY(-8px)' }
+                            }}
+                        >
+                            {plan.type === 'MONTHLY' && (
+                                <Chip
+                                    label="最受歡迎"
+                                    color="secondary"
+                                    size="small"
+                                    sx={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', fontWeight: 'bold' }}
+                                />
+                            )}
 
-                    <Typography variant="h4" fontWeight="bold" textAlign="center" gutterBottom>
-                        PLUS 方案
-                    </Typography>
+                            {plan.type === 'LIFETIME' && (
+                                <Chip
+                                    label="限量發售"
+                                    color="primary"
+                                    size="small"
+                                    sx={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', fontWeight: 'bold' }}
+                                />
+                            )}
 
-                    <Box display="flex" justifyContent="center" alignItems="baseline" mb={4}>
-                        <Typography variant="h3" fontWeight="bold">
-                            $199
-                        </Typography>
-                        <Typography variant="subtitle1" color="text.secondary" ml={1}>
-                            / 月
-                        </Typography>
-                    </Box>
+                            <Typography variant="h5" fontWeight="bold" textAlign="center" gutterBottom>
+                                {plan.name}
+                            </Typography>
 
-                    <Divider sx={{ mb: 4 }} />
-
-                    <Stack spacing={2} mb={5}>
-                        {['解除每月發起揪團上限', '解鎖智慧配對進階條件', '無限查看活動參與者聯絡資訊', '專屬 PLUS 會員徽章'].map((feat, idx) => (
-                            <Box key={idx} display="flex" alignItems="center">
-                                <CheckCircleOutlineIcon color="secondary" sx={{ mr: 2 }} />
-                                <Typography variant="body1">{feat}</Typography>
+                            <Box display="flex" justifyContent="center" alignItems="baseline" mb={3}>
+                                <Typography variant="h3" fontWeight="bold">
+                                    ${plan.price}
+                                </Typography>
+                                <Typography variant="subtitle1" color="text.secondary" ml={1}>
+                                    / {plan.period}
+                                </Typography>
                             </Box>
-                        ))}
-                    </Stack>
 
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        size="large"
-                        fullWidth
-                        disabled={loading || user.planType === 'PLUS'}
-                        onClick={handleCheckout}
-                        sx={{ py: 2, fontSize: '1.2rem', fontWeight: 'bold', borderRadius: 2 }}
-                    >
-                        {loading ? <CircularProgress size={28} color="inherit" /> : (user.planType === 'PLUS' ? '已訂閱此方案' : '立即升級 PRO')}
-                    </Button>
+                            <Divider sx={{ mb: 3 }} />
 
-                    {error && (
-                        <Typography color="error" variant="body2" textAlign="center" mt={2}>
-                            {error}
-                        </Typography>
-                    )}
-                </Paper>
-            </Box>
+                            <Stack spacing={2} mb={4} flex={1}>
+                                {plan.features.map((feat, idx) => (
+                                    <Box key={idx} display="flex" alignItems="flex-start">
+                                        <CheckCircleOutlineIcon color="secondary" sx={{ mr: 1.5, mt: 0.2, fontSize: 20 }} />
+                                        <Typography variant="body2">{feat}</Typography>
+                                    </Box>
+                                ))}
+                            </Stack>
+
+                            <Button
+                                variant={plan.type === 'MONTHLY' || plan.type === 'LIFETIME' ? 'contained' : 'outlined'}
+                                color={plan.type === 'LIFETIME' ? 'primary' : 'secondary'}
+                                size="large"
+                                fullWidth
+                                disabled={loading || user.planType === 'PLUS'}
+                                onClick={() => handleCheckout(plan.type)}
+                                sx={{ py: 1.5, fontWeight: 'bold', borderRadius: 2 }}
+                            >
+                                {loading ? <CircularProgress size={24} color="inherit" /> : '立即升級'}
+                            </Button>
+                        </Paper>
+                    </Grid>
+                ))}
+            </Grid>
+
+            {error && (
+                <Typography color="error" variant="body2" textAlign="center" mt={4}>
+                    {error}
+                </Typography>
+            )}
 
             <Box textAlign="center" mt={4}>
                 <Typography variant="caption" color="text.secondary">

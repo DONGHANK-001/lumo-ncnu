@@ -23,10 +23,34 @@ router.post('/checkout', firebaseAuthMiddleware, async (req, res) => {
             return res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
         }
 
-        // 可以根據 planType 從資料庫或常數取得金額
-        const amount = planType === 'PLUS' ? 199 : 0;
-        if (amount <= 0) {
-            return res.status(400).json({ success: false, error: { message: '無效的方案' } });
+        let amount = 0;
+        let planName = '';
+
+        switch (planType) {
+            case 'WEEKLY':
+                amount = 19;
+                planName = '一週';
+                break;
+            case 'MONTHLY':
+                amount = 60;
+                planName = '一個月';
+                break;
+            case 'QUARTERLY':
+                amount = 150;
+                planName = '一季';
+                break;
+            case 'LIFETIME':
+                amount = 399;
+                planName = '永久';
+                break;
+            default:
+                // Fallback for previous PLUS plan type or invalid types
+                if (planType === 'PLUS') {
+                    amount = 60;
+                    planName = '一個月';
+                } else {
+                    return res.status(400).json({ success: false, error: { message: '無效的方案' } });
+                }
         }
 
         // 產生訂單編號 (必須唯一，綠界規定不得重複，長度小於20字元)
@@ -42,8 +66,8 @@ router.post('/checkout', firebaseAuthMiddleware, async (req, res) => {
             }
         });
 
-        const tradeDesc = `LUMO ${planType} 訂閱方案`;
-        const itemName = `LUMO ${planType} 會員 (一個月)`;
+        const tradeDesc = `LUMO PLUS ${planName} 方案`;
+        const itemName = `LUMO PLUS 會員 (${planName})`;
 
         // 準備送給綠界的基礎參數
         const ecpayParams: Record<string, any> = {
@@ -112,9 +136,20 @@ router.post('/callback', async (req, res) => {
                 // 幫使用者訂閱（或是延長時間）
                 const userId = paymentLog.userId;
 
-                // 計算到期日 (加一個月)
+                // 計算到期日
                 const endDate = new Date();
-                endDate.setMonth(endDate.getMonth() + 1);
+                if (paymentLog.amount === 19) {
+                    endDate.setDate(endDate.getDate() + 7); // 7天
+                } else if (paymentLog.amount === 60) {
+                    endDate.setMonth(endDate.getMonth() + 1); // 1個月
+                } else if (paymentLog.amount === 150) {
+                    endDate.setMonth(endDate.getMonth() + 3); // 3個月
+                } else if (paymentLog.amount === 399) {
+                    endDate.setFullYear(endDate.getFullYear() + 100); // 永久 (加100年)
+                } else {
+                    // Fallback
+                    endDate.setMonth(endDate.getMonth() + 1);
+                }
 
                 // 檢查是否已經有訂閱記錄 (用 upsert 更新或新建)
                 await prisma.plusSubscription.upsert({
