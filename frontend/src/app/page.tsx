@@ -43,8 +43,8 @@ import OnboardingDialog from './components/OnboardingDialog';
 const SPORTS = [
     { icon: <SportsBasketball fontSize="large" />, name: '籃球' },
     { icon: <DirectionsRun fontSize="large" />, name: '跑步' },
-    { icon: <SportsTennis fontSize="large" />, name: '羽球' }, // Using Tennis icon for Badminton as generic racket sport
-    { icon: <SportsTennis fontSize="large" />, name: '桌球' }, // Placeholder
+    { icon: <Box component="span" sx={{ fontSize: '2.1rem', lineHeight: 1 }}>🏸</Box>, name: '羽球' },
+    { icon: <Box component="span" sx={{ fontSize: '2.1rem', lineHeight: 1 }}>🏓</Box>, name: '桌球' },
     { icon: <FitnessCenter fontSize="large" />, name: '健身' },
     { icon: <SportsVolleyball fontSize="large" />, name: '排球' },
 ];
