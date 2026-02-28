@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { api } from '@/lib/api-client';
@@ -36,8 +36,8 @@ const SKILL_LABELS: Record<string, string> = {
     ANY: '不限程度',
 };
 
-export default function PublicProfilePage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params);
+export default function PublicProfilePage({ params }: { params: { id: string } }) {
+    const { id } = params;
     const { user: currentUser } = useAuth();
 
     const [profile, setProfile] = useState<any>(null);
