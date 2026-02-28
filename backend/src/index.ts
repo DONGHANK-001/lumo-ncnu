@@ -13,6 +13,7 @@ import badgesRoutes from './routes/badges.routes.js';
 import feedbackRoutes from './routes/feedback.routes.js';
 import matchRoutes from './routes/match.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
+import usersRoutes from './routes/users.routes.js';
 import http from 'http';
 import { initSocket } from './socket.js';
 
@@ -106,6 +107,7 @@ app.use('/badges', badgesRoutes);           // /badges, /badges/me, /badges/chec
 app.use('/feedback', feedbackRoutes);       // /feedback
 app.use('/match', matchRoutes);             // /match/partners
 app.use('/payment', paymentRoutes);         // /payment/checkout, /payment/callback
+app.use('/users', usersRoutes);     // /users/:id, /users/me/avatar
 
 // ============================================
 // Error Handling

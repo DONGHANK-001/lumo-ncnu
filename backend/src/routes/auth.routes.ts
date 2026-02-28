@@ -33,6 +33,7 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
             disclaimerAccepted: user.disclaimerAccepted,
             onboardingCompleted: user.onboardingCompleted,
             createdAt: user.createdAt,
+            avatarUrl: user.avatarUrl,
         },
     });
 });
@@ -65,6 +66,7 @@ router.post(
                 nickname: updated.nickname,
                 preferences: updated.preferences,
                 planType: updated.planType,
+                avatarUrl: updated.avatarUrl,
             },
         });
     }

@@ -1,7 +1,27 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../lib/prisma.js';
+import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 
 const router = Router();
+
+// 工具函式：判斷是否在免費試用期間 (即日起至 2026/04/01 23:59:59)
+export const isTrialPeriod = () => {
+    const trialEndDate = new Date('2026-04-01T23:59:59+08:00');
+    return new Date() <= trialEndDate;
+};
+
+const COOL_TITLES = [
+    '【傳說】LUMO 霸主',
+    '【無雙】極限強者',
+    '【神域】不敗戰神',
+    '【聖耀】運動狂熱',
+    '【星輝】全能超人',
+    '【輝煌】熱血鬥士',
+    '【閃耀】明日之星',
+    '【精英】系館傳奇',
+    '【卓越】不懈鐵人',
+    '【新銳】黑馬逆襲',
+];
 
 /**
  * GET /leaderboard/departments
@@ -96,8 +116,18 @@ router.get('/departments', async (req: Request, res: Response) => {
  * GET /leaderboard/users
  * 個人排行榜 Top N
  */
-router.get('/users', async (req: Request, res: Response) => {
+router.get('/users', firebaseAuthMiddleware, async (req: Request, res: Response) => {
     try {
+        const user = req.user!;
+
+        // 檢查權限：必須是 PLUS 會員或是處於免費試用期
+        if (user.planType !== 'PLUS' && !isTrialPeriod()) {
+            return res.status(403).json({
+                success: false,
+                error: { code: 'PRO_REQUIRED', message: '只有 PLUS 會員可以解鎖個人排行榜特權' }
+            });
+        }
+
         const limit = parseInt(req.query.top as string) || 10;
 
         const members = await prisma.groupMember.groupBy({
@@ -111,16 +141,22 @@ router.get('/users', async (req: Request, res: Response) => {
         const userIds = members.map(m => m.userId);
         const users = await prisma.user.findMany({
             where: { id: { in: userIds } },
-            select: { id: true, nickname: true, department: true },
+            select: { id: true, nickname: true, department: true, avatarUrl: true },
         });
 
         const userMap = new Map(users.map(u => [u.id, u]));
 
-        const rankings = members.map((m, index) => ({
-            rank: index + 1,
-            user: userMap.get(m.userId) || { id: m.userId, nickname: '匿名' },
-            totalJoins: m._count.id,
-        }));
+        const rankings = members.map((m, index) => {
+            const rank = index + 1;
+            const title = rank <= 10 ? COOL_TITLES[rank - 1] : undefined;
+
+            return {
+                rank,
+                user: userMap.get(m.userId) || { id: m.userId, nickname: '匿名', avatarUrl: null },
+                totalJoins: m._count.id,
+                title,
+            };
+        });
 
         res.json({ success: true, data: rankings });
     } catch (error) {

@@ -81,6 +81,7 @@ model User {
   firebaseUid String    @unique
   email       String    @unique
   nickname    String?
+  avatarUrl   String?   // 大頭貼 URL
   realName    String?   // 真實姓名
   studentId   String?   // 學號
   department  String?   // 系所

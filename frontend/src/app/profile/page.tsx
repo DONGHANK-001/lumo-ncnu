@@ -19,7 +19,11 @@ import {
     Alert,
     CircularProgress,
     Divider,
-    IconButton
+    IconButton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { PieChart } from '@mui/x-charts/PieChart';
@@ -79,6 +83,38 @@ export default function ProfilePage() {
     });
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    // Avatar Editor
+    const [avatarDialog, setAvatarDialog] = useState(false);
+    const [tempAvatarStyle, setTempAvatarStyle] = useState('adventurer');
+    const [tempAvatarSeed, setTempAvatarSeed] = useState('');
+    const [tempAvatarUrl, setTempAvatarUrl] = useState('');
+
+    const avatarStyles = ['adventurer', 'bottts', 'fun-emoji', 'identicon', 'lorelei'];
+
+    const generateRandomAvatar = () => {
+        const style = avatarStyles[Math.floor(Math.random() * avatarStyles.length)];
+        const seed = Math.random().toString(36).substring(7);
+        setTempAvatarStyle(style);
+        setTempAvatarSeed(seed);
+        setTempAvatarUrl(`https://api.dicebear.com/9.x/${style}/svg?seed=${seed}`);
+    };
+
+    const handleSaveAvatar = async () => {
+        if (!user) return;
+        setSaving(true);
+        const token = await getToken();
+        // Fallback user avatar to standard API call
+        const response = await api.updateAvatar(token!, tempAvatarUrl);
+        if (response.success) {
+            setMessage({ type: 'success', text: '頭像更新成功！' });
+            await refreshUser();
+            setAvatarDialog(false);
+        } else {
+            setMessage({ type: 'error', text: response.error?.message || '頭像更新失敗' });
+        }
+        setSaving(false);
+    };
 
     // Badges
     const [allBadges, setAllBadges] = useState<any[]>([]);
@@ -218,19 +254,42 @@ export default function ProfilePage() {
 
             <Grid container spacing={3}>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <Paper sx={{ p: 4, textAlign: 'center', borderRadius: 4 }}>
-                        <Avatar
-                            sx={{
-                                width: 100,
-                                height: 100,
-                                mx: 'auto',
-                                mb: 2,
-                                fontSize: '2.5rem',
-                                bgcolor: 'primary.main'
-                            }}
-                        >
-                            {(form.nickname || user.email)[0].toUpperCase()}
-                        </Avatar>
+                    <Paper sx={{ p: 4, textAlign: 'center', borderRadius: 4, position: 'relative' }}>
+                        <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                            <Avatar
+                                src={user.avatarUrl || undefined}
+                                sx={{
+                                    width: 120,
+                                    height: 120,
+                                    mx: 'auto',
+                                    mb: 2,
+                                    fontSize: '2.5rem',
+                                    bgcolor: 'primary.main',
+                                    border: user.planType === 'PLUS' ? '4px solid gold' : '4px solid transparent',
+                                    boxShadow: user.planType === 'PLUS' ? '0 0 15px rgba(255,215,0,0.5)' : 'none',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                {!user.avatarUrl && (form.nickname || user.email)[0].toUpperCase()}
+                            </Avatar>
+                            <IconButton
+                                onClick={() => {
+                                    if (!tempAvatarUrl) generateRandomAvatar();
+                                    setAvatarDialog(true);
+                                }}
+                                color="primary"
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 12,
+                                    right: 5,
+                                    bgcolor: 'background.paper',
+                                    boxShadow: 2,
+                                    '&:hover': { bgcolor: 'grey.100' }
+                                }}
+                            >
+                                <Edit fontSize="small" />
+                            </IconButton>
+                        </Box>
                         <Stack alignItems="center" spacing={1}>
                             {user.planType === 'PLUS' && (
                                 <Chip label="PLUS 會員" size="small" color="secondary" icon={<Star />} />
@@ -506,6 +565,44 @@ export default function ProfilePage() {
                     </Stack>
                 </Grid>
             </Grid>
+            {/* Avatar Editor Modal */}
+            <Dialog open={avatarDialog} onClose={() => setAvatarDialog(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>選擇您的大頭貼</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ p: 3, textAlign: 'center' }}>
+                        <Avatar
+                            src={tempAvatarUrl}
+                            sx={{
+                                width: 150,
+                                height: 150,
+                                mx: 'auto',
+                                mb: 4,
+                                bgcolor: 'grey.200',
+                            }}
+                        />
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            onClick={generateRandomAvatar}
+                            fullWidth
+                            sx={{ mb: 2, borderRadius: 3 }}
+                        >
+                            🎲 隨機產生器 (DiceBear)
+                        </Button>
+                        <Typography variant="caption" color="text.secondary">
+                            點擊按鈕來隨機產生專屬於你的虛擬化身。
+                        </Typography>
+                    </Box>
+                </DialogContent>
+                <DialogActions sx={{ p: 3, pt: 0 }}>
+                    <Button onClick={() => setAvatarDialog(false)} color="inherit">
+                        取消
+                    </Button>
+                    <Button onClick={handleSaveAvatar} variant="contained" disabled={saving}>
+                        {saving ? <CircularProgress size={24} /> : '儲存頭像'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 }

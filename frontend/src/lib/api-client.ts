@@ -95,6 +95,14 @@ class ApiClient {
         return this.request('/profile', { method: 'POST', token, body: data });
     }
 
+    updateAvatar(token: string, avatarUrl: string) {
+        return this.request<{ id: string; avatarUrl: string }>('/users/me/avatar', { method: 'PUT', token, body: { avatarUrl } });
+    }
+
+    getUserProfile(id: string, token?: string) {
+        return this.request<{ id: string; nickname: string | null; department: string | null; school: string; avatarUrl: string | null; planType: string; preferences: unknown; attendedCount: number; noShowCount: number; createdAt: string }>(`/users/${id}`, { token });
+    }
+
     submitOnboarding(token: string, data: { realName: string; studentId: string; department: string; disclaimerAccepted: boolean }) {
         return this.request<{ id: string; onboardingCompleted: boolean }>('/onboarding', { method: 'POST', token, body: data });
     }

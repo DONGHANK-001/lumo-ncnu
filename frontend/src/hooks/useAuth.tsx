@@ -22,6 +22,7 @@ interface User {
     studentId: string | null;
     department: string | null;
     planType: 'FREE' | 'PLUS';
+    avatarUrl: string | null;
     role: string;
     preferences: UserPreferences | null;
     attendedCount: number;
@@ -33,6 +34,7 @@ interface User {
 
 interface AuthContextType {
     user: User | null;
+    isPlusActive: boolean;
     loading: boolean;
     error: string | null;
     signIn: () => Promise<void>;
@@ -70,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     studentId: (response.data as any).studentId || null,
                     department: (response.data as any).department || null,
                     planType: response.data.planType as 'FREE' | 'PLUS',
+                    avatarUrl: (response.data as any).avatarUrl || null,
                     role: response.data.role || 'USER',
                     preferences: (response.data as any).preferences || null,
                     attendedCount: (response.data as any).attendedCount || 0,
@@ -145,8 +148,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const isTrialPeriod = new Date() <= new Date('2026-04-01T23:59:59+08:00');
+    const isPlusActive = user?.planType === 'PLUS' || isTrialPeriod;
+
     return (
-        <AuthContext.Provider value={{ user, loading, error, signIn, signOut, getToken, refreshUser }}>
+        <AuthContext.Provider value={{ user, isPlusActive, loading, error, signIn, signOut, getToken, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );
