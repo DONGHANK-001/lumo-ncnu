@@ -16,6 +16,7 @@ import paymentRoutes from './routes/payment.routes.js';
 import usersRoutes from './routes/users.routes.js';
 import http from 'http';
 import { initSocket } from './socket.js';
+import { startCleanupJob } from './lib/cleanup.job.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -120,14 +121,31 @@ app.use(errorHandler);
 // Start Server
 // ============================================
 
-import { startCleanupJob } from './lib/cleanup.job.js';
+
+// ============================================
+// Process Error Handling (Render 偵錯用)
+// ============================================
+process.on('uncaughtException', (err) => {
+    console.error('❌ UNCAUGHT EXCEPTION:', err);
+    // 在 Render 環境，如果不結束進程，可能會導致狀態異常，但我們先嘗試記錄
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ UNHANDLED REJECTION at:', promise, 'reason:', reason);
+});
 
 server.listen(PORT, () => {
     console.log(`🚀 API Server running on http://localhost:${PORT}`);
     console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
 
     // 啟動定時清理任務
-    startCleanupJob();
+    try {
+        startCleanupJob();
+    } catch (err) {
+        console.error('❌ Cleanup job start failed:', err);
+    }
+}).on('error', (err) => {
+    console.error('❌ Server listen error:', err);
 });
 
 export default app;
