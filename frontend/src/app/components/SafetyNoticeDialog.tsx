@@ -24,7 +24,7 @@ export default function SafetyNoticeDialog({ open, onConfirm, onCancel }: Safety
         <Dialog open={open} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ fontWeight: 'bold', textAlign: 'center', pt: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
                 <Security color="warning" />
-                運動安全須知
+                揪團與安全須知
             </DialogTitle>
             <DialogContent>
                 <Stack spacing={2.5} sx={{ mt: 1 }}>
@@ -32,10 +32,10 @@ export default function SafetyNoticeDialog({ open, onConfirm, onCancel }: Safety
                         <Warning color="error" sx={{ mt: 0.3 }} />
                         <Box>
                             <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                運動傷害風險
+                                場地不保證提醒
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                參與任何運動活動均存在受傷風險，包括但不限於肌肉拉傷、骨折、扭傷、脫水及中暑。請務必在活動前做好暖身運動。
+                                透過本平台進行的揪團，僅代表成員間的約定，<Typography component="span" fontWeight="bold" color="error.main">並不保證實際會有足夠的現成場地可供使用</Typography>。請務必在出發前，與其他參與者或場地管理方互相確認場地狀況，以避免撲空。
                             </Typography>
                         </Box>
                     </Box>
