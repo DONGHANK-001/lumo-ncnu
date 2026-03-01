@@ -532,21 +532,17 @@ export default function LandingPage() {
 
             {/* Terms FAB */}
             <Fab
-                size="medium"
+                color="secondary"
                 aria-label="terms"
                 sx={{
                     position: 'fixed',
                     bottom: 88,
-                    right: 28,
+                    right: 24,
                     zIndex: 1000,
-                    bgcolor: 'background.paper',
-                    color: 'text.secondary',
-                    boxShadow: 3,
-                    '&:hover': { bgcolor: 'action.hover' },
                 }}
                 onClick={() => setTermsOpen(true)}
             >
-                <Typography fontSize="1.3rem">📜</Typography>
+                <Typography fontSize="1.4rem">📜</Typography>
             </Fab>
 
             {/* Feedback FAB */}
