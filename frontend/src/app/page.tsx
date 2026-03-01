@@ -530,6 +530,25 @@ export default function LandingPage() {
                 getToken={getToken}
             />
 
+            {/* Terms FAB */}
+            <Fab
+                size="medium"
+                aria-label="terms"
+                sx={{
+                    position: 'fixed',
+                    bottom: 88,
+                    right: 28,
+                    zIndex: 1000,
+                    bgcolor: 'background.paper',
+                    color: 'text.secondary',
+                    boxShadow: 3,
+                    '&:hover': { bgcolor: 'action.hover' },
+                }}
+                onClick={() => setTermsOpen(true)}
+            >
+                <Typography fontSize="1.3rem">📜</Typography>
+            </Fab>
+
             {/* Feedback FAB */}
             <Fab
                 color="primary"
@@ -604,21 +623,10 @@ export default function LandingPage() {
             </Dialog>
 
             {/* Footer */}
-            <Box sx={{ py: 4, textAlign: 'center', borderTop: '1px solid', borderColor: 'divider', mt: 4 }}>
-                <Stack direction="row" spacing={2} justifyContent="center" alignItems="center">
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-                        onClick={() => setTermsOpen(true)}
-                    >
-                        📜 服務條款與免責聲明
-                    </Typography>
-                    <Typography variant="body2" color="text.disabled">|</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        © 2026 LUMO NCNU
-                    </Typography>
-                </Stack>
+            <Box sx={{ py: 3, textAlign: 'center', borderTop: '1px solid', borderColor: 'divider', mt: 4 }}>
+                <Typography variant="body2" color="text.secondary">
+                    © 2026 LUMO NCNU
+                </Typography>
             </Box>
         </Box>
     );

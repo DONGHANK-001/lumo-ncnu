@@ -28,6 +28,7 @@ interface User {
     attendedCount: number;
     noShowCount: number;
     disclaimerAccepted: boolean;
+    disclaimerAcceptedAt: string | null;
     onboardingCompleted: boolean;
     firebaseUser: FirebaseUser;
 }
@@ -78,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     attendedCount: (response.data as any).attendedCount || 0,
                     noShowCount: (response.data as any).noShowCount || 0,
                     disclaimerAccepted: (response.data as any).disclaimerAccepted || false,
+                    disclaimerAcceptedAt: (response.data as any).disclaimerAcceptedAt || null,
                     onboardingCompleted: (response.data as any).onboardingCompleted || false,
                     firebaseUser,
                 });
