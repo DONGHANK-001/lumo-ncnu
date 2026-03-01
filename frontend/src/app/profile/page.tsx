@@ -121,6 +121,11 @@ export default function ProfilePage() {
     const [myBadges, setMyBadges] = useState<any[]>([]);
     const [stats, setStats] = useState<any>(null);
 
+    // Titles
+    const [myTitles, setMyTitles] = useState<any[]>([]);
+    const [activeTitleKey, setActiveTitleKey] = useState<string | null>(null);
+    const [titleDialogOpen, setTitleDialogOpen] = useState(false);
+
     useEffect(() => {
         // Fetch all badges
         api.getBadges().then(res => { if (res.success && res.data) setAllBadges(res.data as any[]); });
@@ -132,11 +137,28 @@ export default function ProfilePage() {
                 if (token) {
                     api.getMyBadges(token).then(res => { if (res.success && res.data) setMyBadges(res.data as any[]); });
                     api.getMyStats(token).then(res => { if (res.success && res.data) setStats(res.data); });
+                    api.getMyTitles(token).then(res => {
+                        if (res.success && res.data) {
+                            setMyTitles(res.data.titles || []);
+                            setActiveTitleKey(res.data.activeTitle || null);
+                        }
+                    });
                     api.checkBadges(token); // auto-check
                 }
             });
         }
     }, [user]);
+
+    const handleSetTitle = async (titleKey: string) => {
+        const token = await getToken();
+        if (!token) return;
+        const res = await api.setActiveTitle(token, titleKey);
+        if (res.success) {
+            setActiveTitleKey(titleKey);
+            setTitleDialogOpen(false);
+            await refreshUser();
+        }
+    };
 
     useEffect(() => {
         if (user) {
@@ -294,18 +316,32 @@ export default function ProfilePage() {
                             {user.planType === 'PLUS' && (
                                 <Chip label="PLUS 會員" size="small" color="secondary" icon={<Star />} />
                             )}
-                            {user.pioneerTitle && (
-                                <Chip
-                                    label={user.pioneerTitle.label}
-                                    size="small"
-                                    sx={{
-                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                        color: '#fff',
-                                        fontWeight: 'bold',
-                                        fontSize: '0.75rem',
-                                    }}
-                                />
-                            )}
+                            {(() => {
+                                const activeT = myTitles.find((t: any) => t.key === activeTitleKey);
+                                return activeT ? (
+                                    <Chip
+                                        label={`${activeT.icon} ${activeT.label}`}
+                                        size="small"
+                                        onClick={() => setTitleDialogOpen(true)}
+                                        sx={{
+                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            color: '#fff',
+                                            fontWeight: 'bold',
+                                            fontSize: '0.75rem',
+                                            cursor: 'pointer',
+                                            '&:hover': { opacity: 0.85 },
+                                        }}
+                                    />
+                                ) : myTitles.length > 0 ? (
+                                    <Chip
+                                        label="選擇稱號"
+                                        size="small"
+                                        onClick={() => setTitleDialogOpen(true)}
+                                        variant="outlined"
+                                        sx={{ cursor: 'pointer' }}
+                                    />
+                                ) : null;
+                            })()}
                             <Typography variant="h6" fontWeight="bold">
                                 {form.nickname || '未設定暱稱'}
                             </Typography>
@@ -562,6 +598,51 @@ export default function ProfilePage() {
                     </Stack>
                 </Grid>
             </Grid>
+
+            {/* Title Selector Dialog */}
+            <Dialog open={titleDialogOpen} onClose={() => setTitleDialogOpen(false)} maxWidth="xs" fullWidth>
+                <DialogTitle>🏷️ 選擇展示稱號</DialogTitle>
+                <DialogContent>
+                    <Stack spacing={1.5} sx={{ mt: 1 }}>
+                        {myTitles.length === 0 ? (
+                            <Typography variant="body2" color="text.secondary" textAlign="center" py={3}>
+                                您目前尚未獲得任何稱號
+                            </Typography>
+                        ) : (
+                            myTitles.map((t: any) => (
+                                <Paper
+                                    key={t.key}
+                                    onClick={() => handleSetTitle(t.key)}
+                                    sx={{
+                                        p: 2,
+                                        cursor: 'pointer',
+                                        border: activeTitleKey === t.key ? '2px solid' : '1px solid',
+                                        borderColor: activeTitleKey === t.key ? 'primary.main' : 'divider',
+                                        borderRadius: 2,
+                                        background: activeTitleKey === t.key ? 'linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1))' : 'transparent',
+                                        transition: 'all 0.2s',
+                                        '&:hover': { borderColor: 'primary.main', transform: 'scale(1.02)' },
+                                    }}
+                                >
+                                    <Stack direction="row" alignItems="center" spacing={1.5}>
+                                        <Typography variant="h5">{t.icon}</Typography>
+                                        <Box>
+                                            <Typography variant="subtitle2" fontWeight="bold">{t.label}</Typography>
+                                            <Typography variant="caption" color="text.secondary">{t.description}</Typography>
+                                        </Box>
+                                        {activeTitleKey === t.key && (
+                                            <Chip label="使用中" size="small" color="primary" sx={{ ml: 'auto' }} />
+                                        )}
+                                    </Stack>
+                                </Paper>
+                            ))
+                        )}
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setTitleDialogOpen(false)}>關閉</Button>
+                </DialogActions>
+            </Dialog>
 
             <Dialog open={avatarDialog} onClose={() => setAvatarDialog(false)} maxWidth="sm" fullWidth>
                 <DialogTitle>選擇您的大頭貼</DialogTitle>

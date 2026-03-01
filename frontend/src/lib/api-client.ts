@@ -236,6 +236,15 @@ class ApiClient {
     checkoutSubscription(token: string, planType: string) {
         return this.request<any>('/payment/checkout', { method: 'POST', token, body: { planType } });
     }
+
+    // Titles
+    getMyTitles(token: string) {
+        return this.request<any>('/auth/me/titles', { token });
+    }
+
+    setActiveTitle(token: string, titleKey: string) {
+        return this.request<any>('/auth/me/title', { method: 'PUT', token, body: { titleKey } });
+    }
 }
 
 export const api = new ApiClient(API_BASE_URL);

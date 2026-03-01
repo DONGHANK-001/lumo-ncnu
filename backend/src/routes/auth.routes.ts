@@ -3,7 +3,7 @@ import { prisma } from '../lib/prisma.js';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 import { validateBody } from '../middleware/validation.js';
 import { updateProfileSchema } from '../types/schemas.js';
-import { getPioneerTitle } from '../utils/pioneer-titles.js';
+import { getPioneerTitle, getUserTitles } from '../utils/pioneer-titles.js';
 
 const router = Router();
 
@@ -277,6 +277,58 @@ router.get('/me/stats', firebaseAuthMiddleware, async (req: Request, res: Respon
             sportDistribution,
         }
     });
+});
+
+/**
+ * GET /me/titles
+ * 取得使用者已擁有的所有稱號
+ */
+router.get('/me/titles', firebaseAuthMiddleware, async (req: Request, res: Response) => {
+    try {
+        const user = req.user!;
+        const titles = await getUserTitles(user.id);
+        const rows = await prisma.$queryRaw<{ activeTitle: string | null }[]>`
+            SELECT "activeTitle" FROM users WHERE id = ${user.id} LIMIT 1
+        `;
+        const activeTitle = rows[0]?.activeTitle || (titles.length > 0 ? titles[0].key : null);
+        res.json({ success: true, data: { titles, activeTitle } });
+    } catch (error) {
+        console.error('Titles error:', error);
+        res.status(500).json({ success: false, error: { message: '稱號載入失敗' } });
+    }
+});
+
+/**
+ * PUT /me/title
+ * 設定使用者展示的稱號
+ */
+router.put('/me/title', firebaseAuthMiddleware, async (req: Request, res: Response) => {
+    try {
+        const user = req.user!;
+        const { titleKey } = req.body;
+
+        if (!titleKey || typeof titleKey !== 'string') {
+            res.status(400).json({ success: false, error: { message: '請選擇一個稱號' } });
+            return;
+        }
+
+        // 確認此稱號使用者是否有資格使用
+        const titles = await getUserTitles(user.id);
+        const valid = titles.find(t => t.key === titleKey);
+        if (!valid) {
+            res.status(403).json({ success: false, error: { message: '您尚未獲得此稱號' } });
+            return;
+        }
+
+        await prisma.$executeRaw`
+            UPDATE users SET "activeTitle" = ${titleKey} WHERE id = ${user.id}
+        `;
+
+        res.json({ success: true, data: { activeTitle: titleKey, title: valid } });
+    } catch (error) {
+        console.error('Set title error:', error);
+        res.status(500).json({ success: false, error: { message: '稱號設定失敗' } });
+    }
 });
 
 export default router;
