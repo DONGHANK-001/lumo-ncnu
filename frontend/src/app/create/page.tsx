@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
@@ -81,6 +81,21 @@ export default function CreateGroupPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showSafetyNotice, setShowSafetyNotice] = useState(false);
+    const [quota, setQuota] = useState<{ limit: number, remaining: number } | null>(null);
+
+    useEffect(() => {
+        const fetchQuota = async () => {
+            if (!user) return;
+            const token = await getToken();
+            const res = await api.getGroupQuota(token!);
+            if (res.success && res.data) {
+                setQuota(res.data);
+            }
+        };
+        fetchQuota();
+    }, [user, getToken]);
+
+    const outOfQuota = quota ? quota.remaining <= 0 : false;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -141,6 +156,20 @@ export default function CreateGroupPage() {
             </Link>
 
             <Typography variant="h4" fontWeight="bold" mb={4}>✨ 發起揪團</Typography>
+
+            {quota && (
+                <Alert
+                    severity={outOfQuota ? "error" : "info"}
+                    sx={{ mb: 4, borderRadius: 3 }}
+                >
+                    <Typography variant="subtitle2" fontWeight="bold">
+                        本週揪團額度：剩下 {quota.remaining} / {quota.limit} 次
+                    </Typography>
+                    <Typography variant="caption">
+                        (基礎 4 次。每參與或發起 2 次揪團 +1 次；連續簽名 2 天 +1 次)
+                    </Typography>
+                </Alert>
+            )}
 
             <Grid container spacing={4}>
                 <Grid size={{ xs: 12, md: 8 }}>
@@ -302,10 +331,10 @@ export default function CreateGroupPage() {
                                 variant="contained"
                                 size="large"
                                 fullWidth
-                                disabled={loading}
+                                disabled={loading || outOfQuota}
                                 sx={{ py: 2, fontSize: '1.1rem' }}
                             >
-                                {loading ? <CircularProgress size={24} /> : '🚀 發起揪團'}
+                                {loading ? <CircularProgress size={24} /> : outOfQuota ? '額度已用盡' : '🚀 發起揪團'}
                             </Button>
                         </Stack>
                     </form>

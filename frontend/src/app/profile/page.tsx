@@ -387,35 +387,20 @@ export default function ProfilePage() {
                                     <Stack direction="row" spacing={3} justifyContent="space-around" sx={{ textAlign: 'center' }}>
                                         <Box>
                                             <Typography variant="h4" color="primary.main" fontWeight="bold">{stats.currentStreak}</Typography>
-                                            <Typography variant="body2" color="text.secondary">🔥 連續天數</Typography>
+                                            <Typography variant="body2" color="text.secondary">🔥 連續登入天數</Typography>
                                             <Typography variant="caption" color="text.secondary">最高 {stats.longestStreak} 天</Typography>
-                                        </Box>
-                                        <Box>
-                                            <Typography variant="h4" color="secondary.main" fontWeight="bold">{stats.weeklyHours}</Typography>
-                                            <Typography variant="body2" color="text.secondary">⏱️ 本週時數</Typography>
-                                            <Typography variant="caption" color="text.secondary">本月積累 {stats.monthlyHours} 懂</Typography>
                                         </Box>
                                         <Box>
                                             <Typography variant="h4" color="warning.main" fontWeight="bold">{stats.totalCalories}</Typography>
                                             <Typography variant="body2" color="text.secondary">🔥 預估燃脂 (大卡)</Typography>
+                                            <Typography variant="caption" color="text.secondary">根據歷史參加揪團試算</Typography>
                                         </Box>
                                     </Stack>
 
                                     <Divider />
 
                                     <Grid container spacing={3}>
-                                        <Grid size={{ xs: 12, md: 6 }}>
-                                            <Typography variant="subtitle2" mb={2} color="text.secondary" textAlign="center">
-                                                一週運動時數分佈
-                                            </Typography>
-                                            <BarChart
-                                                xAxis={[{ scaleType: 'band', data: stats.weeklyData.map((d: any) => d.day) }]}
-                                                series={[{ data: stats.weeklyData.map((d: any) => d.hours), color: '#FE6B8B' }]}
-                                                height={250}
-                                                margin={{ left: 30, right: 10, top: 10, bottom: 30 }}
-                                            />
-                                        </Grid>
-                                        <Grid size={{ xs: 12, md: 6 }}>
+                                        <Grid size={{ xs: 12 }}>
                                             <Typography variant="subtitle2" mb={2} color="text.secondary" textAlign="center">
                                                 運動項目分佈
                                             </Typography>
@@ -565,7 +550,7 @@ export default function ProfilePage() {
                     </Stack>
                 </Grid>
             </Grid>
-            {/* Avatar Editor Modal */}
+
             <Dialog open={avatarDialog} onClose={() => setAvatarDialog(false)} maxWidth="sm" fullWidth>
                 <DialogTitle>選擇您的大頭貼</DialogTitle>
                 <DialogContent>

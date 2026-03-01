@@ -170,6 +170,24 @@ export default function LandingPage() {
         }
     };
 
+    // Fetch Last Month's Top 3 Departments
+    const [lastMonthTopDepts, setLastMonthTopDepts] = useState<any[]>([]);
+    useEffect(() => {
+        const fetchLastMonth = async () => {
+            try {
+                const url = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000'}/leaderboard/departments?period=last_month`;
+                const res = await fetch(url);
+                const json = await res.json();
+                if (json.success && json.data.departments) {
+                    setLastMonthTopDepts(json.data.departments.slice(0, 3));
+                }
+            } catch (e) {
+                console.error('Failed to fetch last month top depts', e);
+            }
+        };
+        fetchLastMonth();
+    }, []);
+
     return (
         <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', color: 'text.primary' }}>
             {/* AppBar */}
@@ -286,6 +304,35 @@ export default function LandingPage() {
                     </Stack>
                 </Container>
             </Box>
+
+            {/* Last Month Top 3 Banner */}
+            {lastMonthTopDepts.length >= 3 && (
+                <Container maxWidth="md" sx={{ mt: -6, mb: 6, position: 'relative', zIndex: 2 }}>
+                    <Card sx={{
+                        borderRadius: 4,
+                        background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+                        color: 'black',
+                        boxShadow: '0 8px 32px rgba(255,165,0,0.3)',
+                    }}>
+                        <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                            <Typography variant="h5" fontWeight="900" gutterBottom>
+                                🏆 上月最強熱血系所 🏆
+                            </Typography>
+                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
+                                <Typography variant="h6" fontWeight="bold">
+                                    🥇 {lastMonthTopDepts[0].department}
+                                </Typography>
+                                <Typography variant="subtitle1" fontWeight="bold" color="rgba(0,0,0,0.7)">
+                                    🥈 {lastMonthTopDepts[1].department}
+                                </Typography>
+                                <Typography variant="subtitle1" fontWeight="bold" color="rgba(0,0,0,0.7)">
+                                    🥉 {lastMonthTopDepts[2].department}
+                                </Typography>
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                </Container>
+            )}
 
             {/* Instagram & Sports Icons */}
             <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -433,6 +480,8 @@ export default function LandingPage() {
                 <DialogContent>
                     <Typography variant="body2" color="text.secondary" paragraph sx={{ mt: 1 }}>
                         遇到 bug、有新功能建議，或有任何想對我們說的話，都歡迎在這邊留言給開發團隊！
+                        <br />
+                        聯絡我們 / 客服信箱：aov11011@gmail.com
                     </Typography>
                     <TextField
                         autoFocus

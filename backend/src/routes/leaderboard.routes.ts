@@ -10,6 +10,30 @@ export const isTrialPeriod = () => {
     return new Date() <= trialEndDate;
 };
 
+// 取得結算時間 (預設每月，第一個月由 2026-03-02 起算)
+const getMonthDateRange = (period: 'current' | 'last_month' = 'current') => {
+    const now = new Date();
+    let start, end;
+
+    if (period === 'current') {
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        if (now.getFullYear() === 2026 && now.getMonth() === 2) {
+            // 2026 年 3 月的起點為 3/2
+            start = new Date('2026-03-02T00:00:00+08:00');
+        }
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    } else {
+        // last_month
+        start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        if (now.getFullYear() === 2026 && now.getMonth() === 3) {
+            // 如果是 4 月想看 3 月的資料，3 月的起點是 3/2
+            start = new Date('2026-03-02T00:00:00+08:00');
+        }
+        end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+    }
+    return { start, end };
+};
+
 const COOL_TITLES = [
     '【傳說】LUMO 霸主',
     '【無雙】極限強者',
@@ -29,7 +53,8 @@ const COOL_TITLES = [
  */
 router.get('/departments', async (req: Request, res: Response) => {
     try {
-        const period = (req.query.period as string) || 'weekly';
+        const period = (req.query.period as string) || 'current';
+        const { start, end } = getMonthDateRange(period as 'current' | 'last_month');
 
         const results = await prisma.$queryRaw<
             { department: string; total_joins: bigint; unique_users: bigint; top_sport: string }[]
@@ -43,9 +68,10 @@ router.get('/departments', async (req: Request, res: Response) => {
             JOIN users u ON u.id = gm."userId"
             JOIN groups g ON g.id = gm."groupId"
             WHERE gm.status = 'JOINED'
+              AND gm."joinedAt" >= ${start}
+              AND gm."joinedAt" <= ${end}
               AND u."department" IS NOT NULL
               AND u."department" != ''
-              ${period === 'weekly' ? prisma.$queryRaw`AND gm."joinedAt" >= date_trunc('week', NOW())` : prisma.$queryRaw``}
             GROUP BY u."department"
             ORDER BY total_joins DESC
             LIMIT 20
@@ -129,10 +155,14 @@ router.get('/users', firebaseAuthMiddleware, async (req: Request, res: Response)
         }
 
         const limit = parseInt(req.query.top as string) || 10;
+        const { start, end } = getMonthDateRange('current');
 
         const members = await prisma.groupMember.groupBy({
             by: ['userId'],
-            where: { status: 'JOINED' },
+            where: {
+                status: 'JOINED',
+                joinedAt: { gte: start, lte: end }
+            },
             _count: { id: true },
             orderBy: { _count: { id: 'desc' } },
             take: limit,

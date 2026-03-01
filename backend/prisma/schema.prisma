@@ -106,6 +106,7 @@ model User {
   comments        GroupComment[]
   feedbacks       Feedback[]
   paymentLogs     PaymentLog[]
+  checkIns        UserCheckIn[]
 
   @@map("users")
 }
@@ -245,4 +246,15 @@ model PaymentLog {
   updatedAt       DateTime      @updatedAt
 
   @@map("payment_logs")
+}
+
+model UserCheckIn {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date // 儲存為純日期 (無時間)，避免時區問題
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date]) // 確保一位使用者每天只有一筆簽到紀錄
+  @@map("user_check_ins")
 }

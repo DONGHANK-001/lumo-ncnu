@@ -124,6 +124,10 @@ class ApiClient {
     }
 
     // Groups
+    getGroupQuota(token: string) {
+        return this.request<{ hostedThisWeek: number; joinedThisWeek: number; currentStreak: number; limit: number; remaining: number; }>('/groups/quota/me', { token });
+    }
+
     getGroups(query?: Record<string, string>) {
         const params = query ? `?${new URLSearchParams(query)}` : '';
         return this.request<{ items: unknown[]; total: number; page: number; hasMore: boolean }>(`/groups${params}`);

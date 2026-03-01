@@ -85,6 +85,91 @@ router.get(
 );
 
 /**
+ * GET /groups/quota/me
+ * 取得使用者的本週揪團額度
+ */
+router.get('/quota/me', firebaseAuthMiddleware, async (req: Request, res: Response) => {
+    try {
+        const user = req.user!;
+        const now = new Date();
+        const startOfWeek = new Date(now);
+        const day = startOfWeek.getDay() || 7;
+        startOfWeek.setHours(0, 0, 0, 0);
+        startOfWeek.setDate(startOfWeek.getDate() - day + 1);
+
+        const hostedThisWeek = await prisma.group.count({
+            where: {
+                createdById: user.id,
+                createdAt: { gte: startOfWeek }
+            }
+        });
+
+        const joinedThisWeek = await prisma.groupMember.count({
+            where: {
+                userId: user.id,
+                status: 'JOINED',
+                joinedAt: { gte: startOfWeek },
+                group: { createdById: { not: user.id } }
+            }
+        });
+
+        const mbs = await prisma.groupMember.findMany({
+            where: {
+                userId: user.id,
+                status: 'JOINED',
+                group: { time: { lt: now } }
+            },
+            include: { group: { select: { time: true } } },
+            orderBy: { group: { time: 'desc' } }
+        });
+
+        const dateSet = new Set<string>();
+        mbs.forEach(mb => dateSet.add(mb.group.time.toISOString().split('T')[0]));
+        const dates = Array.from(dateSet).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+        let currentStreak = 0;
+        if (dates.length > 0) {
+            let prevDate = new Date(dates[0]);
+            const todayStr = now.toISOString().split('T')[0];
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            const isCurrentActive = dates[0] === todayStr || dates[0] === yesterdayStr;
+
+            let tempStreak = 1;
+            for (let i = 1; i < dates.length; i++) {
+                const currDate = new Date(dates[i]);
+                const diffTime = Math.abs(prevDate.getTime() - currDate.getTime());
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays === 1) tempStreak++;
+                else {
+                    if (i === 1 && isCurrentActive) currentStreak = tempStreak;
+                    break;
+                }
+                prevDate = currDate;
+            }
+            if (isCurrentActive && currentStreak === 0) currentStreak = tempStreak;
+            if (dates.length === 1 && isCurrentActive) currentStreak = 1;
+        }
+
+        const baseLimit = 4;
+        const bonusHosted = Math.floor(hostedThisWeek / 2);
+        const bonusJoined = Math.floor(joinedThisWeek / 2);
+        const bonusStreak = Math.floor(currentStreak / 2);
+        const limit = baseLimit + bonusHosted + bonusJoined + bonusStreak;
+        const remaining = Math.max(0, limit - hostedThisWeek);
+
+        res.json({
+            success: true,
+            data: { hostedThisWeek, joinedThisWeek, currentStreak, limit, remaining }
+        });
+    } catch (error) {
+        console.error('Quota Error:', error);
+        res.status(500).json({ success: false, error: { message: 'Failed to calculate quota' } });
+    }
+});
+
+/**
  * POST /groups
  * 建立揪團
  */
@@ -95,6 +180,70 @@ router.post(
     async (req: Request, res: Response) => {
         const user = req.user!;
         const { sportType, title, description, time, location, level, capacity, tags } = req.body;
+
+        // 計算揪團額度檢查
+        const now = new Date();
+        const startOfWeek = new Date(now);
+        const day = startOfWeek.getDay() || 7;
+        startOfWeek.setHours(0, 0, 0, 0);
+        startOfWeek.setDate(startOfWeek.getDate() - day + 1);
+
+        const [hostedThisWeek, joinedThisWeek, mbs] = await Promise.all([
+            prisma.group.count({
+                where: { createdById: user.id, createdAt: { gte: startOfWeek } }
+            }),
+            prisma.groupMember.count({
+                where: {
+                    userId: user.id,
+                    status: 'JOINED',
+                    joinedAt: { gte: startOfWeek },
+                    group: { createdById: { not: user.id } }
+                }
+            }),
+            prisma.groupMember.findMany({
+                where: { userId: user.id, status: 'JOINED', group: { time: { lt: now } } },
+                include: { group: { select: { time: true } } },
+                orderBy: { group: { time: 'desc' } }
+            })
+        ]);
+
+        const dateSet = new Set<string>();
+        mbs.forEach(mb => dateSet.add(mb.group.time.toISOString().split('T')[0]));
+        const dates = Array.from(dateSet).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+        let currentStreak = 0;
+        if (dates.length > 0) {
+            let prevDate = new Date(dates[0]);
+            const todayStr = now.toISOString().split('T')[0];
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            const isCurrentActive = dates[0] === todayStr || dates[0] === yesterdayStr;
+
+            let tempStreak = 1;
+            for (let i = 1; i < dates.length; i++) {
+                const currDate = new Date(dates[i]);
+                const diffTime = Math.abs(prevDate.getTime() - currDate.getTime());
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays === 1) tempStreak++;
+                else {
+                    if (i === 1 && isCurrentActive) currentStreak = tempStreak;
+                    break;
+                }
+                prevDate = currDate;
+            }
+            if (isCurrentActive && currentStreak === 0) currentStreak = tempStreak;
+            if (dates.length === 1 && isCurrentActive) currentStreak = 1;
+        }
+
+        const limit = 4 + Math.floor(hostedThisWeek / 2) + Math.floor(joinedThisWeek / 2) + Math.floor(currentStreak / 2);
+
+        if (hostedThisWeek >= limit) {
+            return res.status(403).json({
+                success: false,
+                error: { message: `本週發起揪團次數已達上限 (${limit}次)。請參與更多揪團或保持連續活躍來解鎖額度！` }
+            });
+        }
 
         const initialStatus = capacity === 1 ? 'FULL' : 'OPEN';
 
