@@ -39,6 +39,21 @@ const MEDAL_ICONS = [
     <MilitaryTech key="bronze" sx={{ color: '#CD7F32', fontSize: 32 }} />,
 ];
 
+// 創始會員 / 活動稱號對照表 (前端顯示用)
+const TITLE_MAP: Record<string, { label: string; icon: string }> = {
+    'pioneer_1': { label: '創始先鋒 #001', icon: '💎' },
+    'pioneer_2': { label: '創始先鋒 #002', icon: '💎' },
+    'pioneer_3': { label: '創始先鋒 #003', icon: '💎' },
+    'pioneer_4': { label: '創始先鋒 #004', icon: '💎' },
+    'pioneer_5': { label: '創始先鋒 #005', icon: '💎' },
+    'pioneer_6': { label: '創始先鋒 #006', icon: '💎' },
+    'pioneer_7': { label: '創始先鋒 #007', icon: '💎' },
+    'pioneer_8': { label: '創始先鋒 #008', icon: '💎' },
+    'pioneer_9': { label: '創創先鋒 #009', icon: '💎' },
+    'pioneer_10': { label: '創始先鋒 #010', icon: '💎' },
+    'wbc_2026': { label: '經典賽應援團 2026', icon: '⚾' },
+};
+
 export default function LeaderboardPage() {
     const { user, isPlusActive, getToken } = useAuth();
 
@@ -75,7 +90,11 @@ export default function LeaderboardPage() {
     const fetchUserLeaderboard = async () => {
         if (!user) return;
         setLoading(true);
+
+        // 免費試用期檢查 (至 2026-04-01)
+        const isTrial = new Date() <= new Date('2026-04-01T23:59:59+08:00');
         setLocked(false);
+
         try {
             const token = await getToken();
             const res = await fetch(`${API_BASE_URL}/leaderboard/users?top=20`, {
@@ -83,8 +102,10 @@ export default function LeaderboardPage() {
             });
             const json = await res.json();
 
+            const isTrial = new Date() <= new Date('2026-04-01T23:59:59+08:00');
+
             if (res.status === 403 || !json.success) {
-                setLocked(true);
+                if (!isTrial) setLocked(true);
             } else {
                 setUserRankings(json.data);
             }
@@ -301,15 +322,23 @@ export default function LeaderboardPage() {
                                                         <Typography variant="subtitle1" fontWeight="bold" color="text.primary">
                                                             {ur.user.nickname || '匿名使用者'}
                                                         </Typography>
-                                                        {ur.title && (
+                                                        {ur.topTitle && (
                                                             <Chip
-                                                                label={ur.title}
+                                                                label={ur.topTitle}
                                                                 size="small"
                                                                 sx={{
                                                                     fontWeight: 'bold',
                                                                     background: 'linear-gradient(45deg, #FFD700 30%, #FFA500 90%)',
                                                                     color: 'white'
                                                                 }}
+                                                            />
+                                                        )}
+                                                        {ur.activeTitle && TITLE_MAP[ur.activeTitle] && (
+                                                            <Chip
+                                                                label={`${TITLE_MAP[ur.activeTitle].icon} ${TITLE_MAP[ur.activeTitle].label}`}
+                                                                size="small"
+                                                                variant="outlined"
+                                                                sx={{ fontWeight: '500' }}
                                                             />
                                                         )}
                                                     </Stack>
