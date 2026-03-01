@@ -138,6 +138,7 @@ export default function ProfilePage() {
                     api.getMyBadges(token).then(res => { if (res.success && res.data) setMyBadges(res.data as any[]); });
                     api.getMyStats(token).then(res => { if (res.success && res.data) setStats(res.data); });
                     api.getMyTitles(token).then(res => {
+                        console.log('[Titles API]', res);
                         if (res.success && res.data) {
                             setMyTitles(res.data.titles || []);
                             setActiveTitleKey(res.data.activeTitle || null);
