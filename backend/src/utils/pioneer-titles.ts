@@ -84,15 +84,11 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
         titles.push(PIONEER_TITLES[rank]);
     }
 
-    // 2. 排行榜稱號 — 查本月個人排行
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    // 2. 排行榜稱號 — 全歷史排行（不限當月）
     const topUsers = await prisma.$queryRaw<{ userId: string }[]>`
         SELECT gm."userId", COUNT(*)::int as cnt
         FROM group_members gm
-        JOIN groups g ON g.id = gm."groupId"
         WHERE gm.status = 'JOINED'
-          AND g.date >= ${startOfMonth}
         GROUP BY gm."userId"
         ORDER BY cnt DESC
         LIMIT 10

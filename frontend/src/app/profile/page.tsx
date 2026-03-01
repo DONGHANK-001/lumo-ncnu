@@ -333,15 +333,15 @@ export default function ProfilePage() {
                                             '&:hover': { opacity: 0.85 },
                                         }}
                                     />
-                                ) : myTitles.length > 0 ? (
+                                ) : (
                                     <Chip
-                                        label="選擇稱號"
+                                        label="🏷️ 無稱號"
                                         size="small"
                                         onClick={() => setTitleDialogOpen(true)}
                                         variant="outlined"
-                                        sx={{ cursor: 'pointer' }}
+                                        sx={{ cursor: 'pointer', opacity: 0.7 }}
                                     />
-                                ) : null;
+                                );
                             })()}
                             <Typography variant="h6" fontWeight="bold">
                                 {form.nickname || '未設定暱稱'}
