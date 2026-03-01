@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma.js';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 import { validateBody } from '../middleware/validation.js';
 import { updateProfileSchema } from '../types/schemas.js';
+import { getPioneerTitle } from '../utils/pioneer-titles.js';
 
 const router = Router();
 
@@ -14,6 +15,8 @@ const router = Router();
  */
 router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) => {
     const user = req.user!;
+
+    const pioneerTitle = await getPioneerTitle(user.id);
 
     res.json({
         success: true,
@@ -34,6 +37,7 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
             onboardingCompleted: user.onboardingCompleted,
             createdAt: user.createdAt,
             avatarUrl: user.avatarUrl,
+            pioneerTitle,
         },
     });
 });

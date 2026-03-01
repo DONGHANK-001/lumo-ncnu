@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
+import { getPioneerTitle } from '../utils/pioneer-titles.js';
 
 const router = Router();
 
@@ -34,7 +35,9 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        res.json({ success: true, data: user });
+        const pioneerTitle = await getPioneerTitle(user.id);
+
+        res.json({ success: true, data: { ...user, pioneerTitle } });
     } catch (error) {
         next(error);
     }

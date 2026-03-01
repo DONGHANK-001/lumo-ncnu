@@ -294,6 +294,18 @@ export default function ProfilePage() {
                             {user.planType === 'PLUS' && (
                                 <Chip label="PLUS 會員" size="small" color="secondary" icon={<Star />} />
                             )}
+                            {user.pioneerTitle && (
+                                <Chip
+                                    label={user.pioneerTitle.label}
+                                    size="small"
+                                    sx={{
+                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                        color: '#fff',
+                                        fontWeight: 'bold',
+                                        fontSize: '0.75rem',
+                                    }}
+                                />
+                            )}
                             <Typography variant="h6" fontWeight="bold">
                                 {form.nickname || '未設定暱稱'}
                             </Typography>

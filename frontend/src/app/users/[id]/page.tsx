@@ -130,6 +130,18 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                     {profile.planType === 'PLUS' && (
                         <Chip label="PLUS 尊爵會員" size="small" color="secondary" icon={<Star />} sx={{ fontWeight: 'bold' }} />
                     )}
+                    {profile.pioneerTitle && (
+                        <Chip
+                            label={profile.pioneerTitle.label}
+                            size="small"
+                            sx={{
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                color: '#fff',
+                                fontWeight: 'bold',
+                                fontSize: '0.75rem',
+                            }}
+                        />
+                    )}
                     <Typography variant="h4" fontWeight="bold">
                         {profile.nickname || '匿名使用者'}
                     </Typography>
