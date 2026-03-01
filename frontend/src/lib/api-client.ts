@@ -239,11 +239,11 @@ class ApiClient {
 
     // Titles
     getMyTitles(token: string) {
-        return this.request<any>('/auth/me/titles', { token });
+        return this.request<any>('/me/titles', { token });
     }
 
     setActiveTitle(token: string, titleKey: string) {
-        return this.request<any>('/auth/me/title', { method: 'PUT', token, body: { titleKey } });
+        return this.request<any>('/me/title', { method: 'PUT', token, body: { titleKey } });
     }
 }
 
