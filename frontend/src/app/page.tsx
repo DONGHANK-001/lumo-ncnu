@@ -306,18 +306,18 @@ export default function LandingPage() {
             </Box>
 
             {/* Last Month Top 3 Banner */}
-            {lastMonthTopDepts.length >= 3 && (
-                <Container maxWidth="md" sx={{ mt: -6, mb: 6, position: 'relative', zIndex: 2 }}>
-                    <Card sx={{
-                        borderRadius: 4,
-                        background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-                        color: 'black',
-                        boxShadow: '0 8px 32px rgba(255,165,0,0.3)',
-                    }}>
-                        <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                            <Typography variant="h5" fontWeight="900" gutterBottom>
-                                🏆 上月最強熱血系所 🏆
-                            </Typography>
+            <Container maxWidth="md" sx={{ mt: -6, mb: 6, position: 'relative', zIndex: 2 }}>
+                <Card sx={{
+                    borderRadius: 4,
+                    background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+                    color: 'black',
+                    boxShadow: '0 8px 32px rgba(255,165,0,0.3)',
+                }}>
+                    <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                        <Typography variant="h5" fontWeight="900" gutterBottom>
+                            🏆 上月最強熱血系所 🏆
+                        </Typography>
+                        {lastMonthTopDepts.length >= 3 ? (
                             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
                                 <Typography variant="h6" fontWeight="bold">
                                     🥇 {lastMonthTopDepts[0].department}
@@ -329,10 +329,14 @@ export default function LandingPage() {
                                     🥉 {lastMonthTopDepts[2].department}
                                 </Typography>
                             </Stack>
-                        </CardContent>
-                    </Card>
-                </Container>
-            )}
+                        ) : (
+                            <Typography variant="subtitle1" sx={{ mt: 1, opacity: 0.7 }}>
+                                暫無資料 — 本月結算後將於下月公佈
+                            </Typography>
+                        )}
+                    </CardContent>
+                </Card>
+            </Container>
 
             {/* WBC 2026 Event Banner — 3/5 限定活動 */}
             {(() => {
