@@ -262,11 +262,9 @@ export default function LeaderboardPage() {
                             <Typography variant="body1" color="text.secondary" paragraph>
                                 只有 PLUS 尊爵會員與試用期會員可以查看活躍玩家的排行榜。
                             </Typography>
-                            {user?.role === 'ADMIN' && (
-                                <Button variant="contained" color="primary" component={Link} href="/subscription" sx={{ mt: 2, borderRadius: 3, px: 4 }}>
-                                    立即升級 PRO
-                                </Button>
-                            )}
+                            <Button variant="contained" color="primary" disabled sx={{ mt: 2, borderRadius: 3, px: 4 }}>
+                                立即升級 PRO（敬請期待，暫不開放）
+                            </Button>
                         </Paper>
                     ) : userRankings.length === 0 ? (
                         <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4 }}>

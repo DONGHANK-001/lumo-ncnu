@@ -338,17 +338,14 @@ export default function LandingPage() {
             <Container maxWidth="lg" sx={{ py: 8 }}>
                 {/* IG Icon & Subscription */}
                 <Box sx={{ textAlign: 'center', mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                    {user?.role === 'ADMIN' && (
-                        <Button
-                            component={Link}
-                            href="/subscription"
-                            variant="contained"
-                            color="secondary"
-                            sx={{ fontWeight: 'bold', borderRadius: 3, px: 3, py: 1 }}
-                        >
-                            👑 升級 PRO
-                        </Button>
-                    )}
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        disabled
+                        sx={{ fontWeight: 'bold', borderRadius: 3, px: 3, py: 1 }}
+                    >
+                        👑 升級 PRO（敬請期待，暫不開放）
+                    </Button>
                     <Button
                         href="https://www.instagram.com/lumo_dailyfit?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                         target="_blank"
