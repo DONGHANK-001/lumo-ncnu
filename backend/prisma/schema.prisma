@@ -92,6 +92,7 @@ model User {
   attendedCount Int     @default(0) // 出席次數
   noShowCount   Int     @default(0) // 缺席次數
   disclaimerAccepted Boolean @default(false) // 免責聲明同意
+  disclaimerAcceptedAt DateTime? // 同意時間
   onboardingCompleted Boolean @default(false) // 引導流程完成
   activeTitle   String?   // 目前展示的稱號 key（例如 pioneer_1, leaderboard_1, wbc_2026）
 

@@ -34,6 +34,7 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
             attendedCount: user.attendedCount,
             noShowCount: user.noShowCount,
             disclaimerAccepted: user.disclaimerAccepted,
+            disclaimerAcceptedAt: user.disclaimerAcceptedAt,
             onboardingCompleted: user.onboardingCompleted,
             createdAt: user.createdAt,
             avatarUrl: user.avatarUrl,
@@ -103,6 +104,7 @@ router.post(
                     studentId,
                     department,
                     disclaimerAccepted: true,
+                    disclaimerAcceptedAt: new Date(),
                     onboardingCompleted: true,
                 },
             });

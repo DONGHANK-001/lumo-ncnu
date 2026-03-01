@@ -22,7 +22,8 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    TextField
+    TextField,
+    Divider
 } from '@mui/material';
 import {
     SportsBasketball,
@@ -47,6 +48,7 @@ import { useState, useEffect } from 'react';
 import { useThemeMode } from '@/theme/ThemeModeContext';
 import { getSocket } from '@/lib/socket';
 import OnboardingDialog from './components/OnboardingDialog';
+import { DISCLAIMER_TEXT } from './components/OnboardingDialog';
 
 const SPORTS = [
     { icon: <SportsBasketball fontSize="large" />, name: '籃球' },
@@ -172,6 +174,7 @@ export default function LandingPage() {
 
     // Fetch Last Month's Top 3 Departments
     const [lastMonthTopDepts, setLastMonthTopDepts] = useState<any[]>([]);
+    const [termsOpen, setTermsOpen] = useState(false);
     useEffect(() => {
         const fetchLastMonth = async () => {
             try {
@@ -580,6 +583,43 @@ export default function LandingPage() {
                     </Button>
                 </DialogActions>
             </Dialog>
+            {/* Terms Dialog */}
+            <Dialog open={termsOpen} onClose={() => setTermsOpen(false)} maxWidth="sm" fullWidth scroll="paper">
+                <DialogTitle sx={{ fontWeight: 'bold' }}>📜 服務條款與免責聲明</DialogTitle>
+                <DialogContent dividers>
+                    <Box sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8, fontSize: '0.85rem' }}>
+                        {DISCLAIMER_TEXT}
+                    </Box>
+                    {user?.disclaimerAcceptedAt && (
+                        <Box sx={{ mt: 3, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                            <Typography variant="body2" color="text.secondary">
+                                ✅ 您已於 <strong>{new Date(user.disclaimerAcceptedAt).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</strong> 同意此條款
+                            </Typography>
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setTermsOpen(false)}>關閉</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Footer */}
+            <Box sx={{ py: 4, textAlign: 'center', borderTop: '1px solid', borderColor: 'divider', mt: 4 }}>
+                <Stack direction="row" spacing={2} justifyContent="center" alignItems="center">
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                        onClick={() => setTermsOpen(true)}
+                    >
+                        📜 服務條款與免責聲明
+                    </Typography>
+                    <Typography variant="body2" color="text.disabled">|</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        © 2026 LUMO NCNU
+                    </Typography>
+                </Stack>
+            </Box>
         </Box>
     );
 }

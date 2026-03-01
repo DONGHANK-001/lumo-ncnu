@@ -48,7 +48,7 @@ const DEPARTMENTS = [
     '其他',
 ];
 
-const DISCLAIMER_TEXT = `LUMO 運動揪團平台使用者免責聲明
+export const DISCLAIMER_TEXT = `LUMO 運動揪團平台使用者免責聲明
 
 一、平台性質與責任範圍
 本平台「LUMO」（以下簡稱「本平台」）僅提供國立暨南國際大學校內使用者之運動揪團媒合服務，不涉及任何運動活動之組織、管理或監督。本平台不對任何因使用本服務所產生之直接或間接損害負擔法律責任。
