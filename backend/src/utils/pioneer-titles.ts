@@ -84,11 +84,21 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
         titles.push(PIONEER_TITLES[rank]);
     }
 
-    // 2. 排行榜稱號 — 全歷史排行（不限當月）
+    // 2. 排行榜稱號 — 查「上個月」結算結果（稱號持續一個月）
+    const now = new Date();
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    // 2026 年 3 月的起點為 3/2
+    const adjustedStart = (lastMonthStart.getFullYear() === 2026 && lastMonthStart.getMonth() === 2)
+        ? new Date('2026-03-02T00:00:00+08:00')
+        : lastMonthStart;
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+
     const topUsers = await prisma.$queryRaw<{ userId: string }[]>`
         SELECT gm."userId", COUNT(*)::int as cnt
         FROM group_members gm
         WHERE gm.status = 'JOINED'
+          AND gm."joinedAt" >= ${adjustedStart}
+          AND gm."joinedAt" <= ${lastMonthEnd}
         GROUP BY gm."userId"
         ORDER BY cnt DESC
         LIMIT 10
