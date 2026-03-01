@@ -20,6 +20,8 @@ export const viewport: Viewport = {
 
 
 
+import { LanguageProvider } from '@/i18n/LanguageContext';
+
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -31,8 +33,10 @@ export default function RootLayout({
                 <ThemeRegistry>
                     <ErrorBoundary>
                         <AuthProvider>
-                            <InAppBrowserOverlay />
-                            {children}
+                            <LanguageProvider>
+                                <InAppBrowserOverlay />
+                                {children}
+                            </LanguageProvider>
                         </AuthProvider>
                     </ErrorBoundary>
                 </ThemeRegistry>

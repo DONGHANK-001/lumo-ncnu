@@ -36,6 +36,7 @@ import {
     DarkMode,
     LightMode,
     Instagram,
+    Search,
     SportsVolleyball,
     Feedback
 } from '@mui/icons-material';
@@ -46,6 +47,7 @@ import { useWakeupBackend } from '@/hooks/useWakeupBackend';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useState, useEffect } from 'react';
 import { useThemeMode } from '@/theme/ThemeModeContext';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { getSocket } from '@/lib/socket';
 import OnboardingDialog from './components/OnboardingDialog';
 import { DISCLAIMER_TEXT } from './components/OnboardingDialog';
@@ -72,6 +74,7 @@ export default function LandingPage() {
     const theme = useTheme();
     const { user, loading, error, signIn, getToken, refreshUser } = useAuth();
     const { mode, toggleMode } = useThemeMode();
+    const { t, language, toggleLanguage } = useLanguage();
     const [showError, setShowError] = useState(false);
 
     // 預先喚醒後端 (Render 冷啟動優化)
@@ -208,7 +211,7 @@ export default function LandingPage() {
                     <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
                         <Stack direction="row" alignItems="center" spacing={1} component={Link} href="/" sx={{ textDecoration: 'none', color: 'inherit' }}>
                             <Typography variant="h6" fontWeight="bold" sx={{ background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`, backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                                LUMO NCNU
+                                {t('appName')}
                             </Typography>
                         </Stack>
 
@@ -218,19 +221,30 @@ export default function LandingPage() {
                                     onClick={toggleMode}
                                     size="small"
                                     sx={{
-                                        mr: 1,
                                         color: 'text.primary',
                                     }}
                                 >
                                     {mode === 'dark' ? <LightMode /> : <DarkMode />}
                                 </IconButton>
                             )}
+                            <IconButton
+                                onClick={toggleLanguage}
+                                size="small"
+                                sx={{
+                                    mr: 1,
+                                    color: 'text.primary',
+                                }}
+                            >
+                                <Typography variant="body2" fontWeight="bold">
+                                    {language === 'zh' ? 'EN' : '中'}
+                                </Typography>
+                            </IconButton>
                             <Button
                                 component={Link}
                                 href="/groups"
                                 sx={{ color: 'text.primary' }}
                             >
-                                揪團列表
+                                {t('groupList')}
                             </Button>
 
                             {loading ? (
@@ -242,10 +256,10 @@ export default function LandingPage() {
                                     variant="outlined"
                                     sx={{ borderRadius: 4 }}
                                 >
-                                    {user.nickname || '我的帳號'}
+                                    {user.nickname || t('myAccount')}
                                 </Button>
                             ) : (
-                                <Button variant="contained" onClick={signIn}>登入</Button>
+                                <Button variant="contained" onClick={signIn}>{t('login')}</Button>
                             )}
                         </Stack>
                     </Toolbar>
@@ -257,12 +271,12 @@ export default function LandingPage() {
                 {/* Background Blobs (Optional: Recreate with Box or keep CSS) */}
                 <Container maxWidth="md" sx={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
                     <Typography variant="h2" gutterBottom component="h1" fontWeight="bold">
-                        找到你的 <br />
-                        <Box component="span" sx={{ color: 'primary.main' }}>運動夥伴</Box>
+                        {t('heroTitle1')} <br />
+                        <Box component="span" sx={{ color: 'primary.main' }}>{t('heroTitle2')}</Box>
                     </Typography>
                     <Typography variant="h6" color="text.secondary" paragraph sx={{ mb: 4 }}>
-                        暨南大學專屬運動配對平台。<br />
-                        揪團、配對、一起動起來！
+                        {t('heroSubtitle1')}<br />
+                        {t('heroSubtitle2')}
                     </Typography>
 
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
@@ -273,7 +287,7 @@ export default function LandingPage() {
                             href="/groups"
                             sx={{ fontSize: '1.2rem', py: 1.5, px: 4 }}
                         >
-                            瀏覽揪團
+                            {t('browseGroups')}
                         </Button>
                         {!user ? (
                             <Button
@@ -282,7 +296,7 @@ export default function LandingPage() {
                                 onClick={signIn}
                                 sx={{ fontSize: '1.2rem', py: 1.5, px: 4 }}
                             >
-                                學生登入
+                                {t('studentLogin')}
                             </Button>
                         ) : (
                             <Button
@@ -292,7 +306,7 @@ export default function LandingPage() {
                                 href="/create"
                                 sx={{ fontSize: '1.2rem', py: 1.5, px: 4 }}
                             >
-                                發起揪團
+                                {t('createGroup')}
                             </Button>
                         )}
                         <Button
@@ -318,7 +332,7 @@ export default function LandingPage() {
                 }}>
                     <CardContent sx={{ textAlign: 'center', py: 3 }}>
                         <Typography variant="h5" fontWeight="900" gutterBottom>
-                            🏆 上月最強熱血系所 🏆
+                            {t('lastMonthHonor')}
                         </Typography>
                         {lastMonthTopDepts.length >= 3 ? (
                             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
@@ -334,7 +348,7 @@ export default function LandingPage() {
                             </Stack>
                         ) : (
                             <Typography variant="subtitle1" sx={{ mt: 1, opacity: 0.7 }}>
-                                暫無資料 — 本月結算後將於下月公佈
+                                {t('noData')}
                             </Typography>
                         )}
                     </CardContent>
@@ -366,7 +380,7 @@ export default function LandingPage() {
                         }}>
                             <CardContent sx={{ textAlign: 'center', py: 4 }}>
                                 <Typography variant="h4" fontWeight="900" gutterBottom>
-                                    ⚾ {isEventDay ? '經典賽開打！' : '經典賽倒數'}
+                                    {isEventDay ? '⚾ 經典賽開打！' : t('wbcCountdown', { days: daysLeft })}
                                 </Typography>
                                 {!isEventDay && (
                                     <Typography variant="h2" fontWeight="900" sx={{
@@ -379,12 +393,12 @@ export default function LandingPage() {
                                     </Typography>
                                 )}
                                 <Typography variant="h6" sx={{ opacity: 0.9, mt: 1 }}>
-                                    🇹🇼 一起為中華隊加油！
+                                    {t('wbcTitle')}
                                 </Typography>
                                 <Typography variant="body2" sx={{ opacity: 0.7, mt: 2 }}>
                                     {isEventDay
                                         ? '🎉 今日揪團成功即可獲得「⚾ 經典賽應援團 2026」限定稱號！'
-                                        : '3/5 當天揪團成功一次，即可獲得限定稱號「⚾ 經典賽應援團 2026」'}
+                                        : t('wbcDetail')}
                                 </Typography>
                                 <Button
                                     variant="contained"
@@ -439,7 +453,7 @@ export default function LandingPage() {
                         追蹤 @lumo_dailyfit
                     </Button>
                 </Box>
-                <Typography variant="h5" fontWeight="bold" textAlign="center" mb={6}>支援運動類型</Typography>
+                <Typography variant="h5" fontWeight="bold" textAlign="center" mb={6}>{t('featuredSports')}</Typography>
                 <Stack direction="row" flexWrap="wrap" justifyContent="center" gap={4}>
                     {SPORTS.map((sport) => (
                         <Paper
@@ -463,11 +477,12 @@ export default function LandingPage() {
 
             {/* Features */}
             <Container maxWidth="lg" sx={{ py: 8 }}>
+                <Typography variant="h4" fontWeight="bold" textAlign="center" mb={6}>{t('howItWorks')}</Typography>
                 <Grid container spacing={4}>
                     {[
-                        { icon: <School fontSize="large" />, title: '校園限定', desc: '僅限暨南學生使用，安全有保障' },
-                        { icon: <Group fontSize="large" />, title: '智慧配對', desc: '根據程度、時間、地點，找到最適合你的夥伴' },
-                        { icon: <Security fontSize="large" />, title: '安全可靠', desc: '嚴格的身份驗證，杜絕校外人士' },
+                        { icon: <Search fontSize="large" />, title: t('step1Title'), desc: t('step1Desc') },
+                        { icon: <Group fontSize="large" />, title: t('step2Title'), desc: t('step2Desc') },
+                        { icon: <DirectionsRun fontSize="large" />, title: t('step3Title'), desc: t('step3Desc') },
                     ].map((feature, idx) => (
                         <Grid size={{ xs: 12, md: 4 }} key={idx}>
                             <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
@@ -600,28 +615,26 @@ export default function LandingPage() {
             </Dialog>
             {/* Terms Dialog */}
             <Dialog open={termsOpen} onClose={() => setTermsOpen(false)} maxWidth="sm" fullWidth scroll="paper">
-                <DialogTitle sx={{ fontWeight: 'bold' }}>📜 服務條款與免責聲明</DialogTitle>
+                <DialogTitle sx={{ fontWeight: 'bold' }}>{t('termsAndDisclaimer')}</DialogTitle>
                 <DialogContent dividers>
                     <Box sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8, fontSize: '0.85rem' }}>
                         {DISCLAIMER_TEXT}
                     </Box>
                     {user?.disclaimerAcceptedAt && (
                         <Box sx={{ mt: 3, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
-                            <Typography variant="body2" color="text.secondary">
-                                ✅ 您已於 <strong>{new Date(user.disclaimerAcceptedAt).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</strong> 同意此條款
-                            </Typography>
+                            <Typography variant="body2" color="text.secondary" dangerouslySetInnerHTML={{ __html: t('agreedOn', { date: new Date(user.disclaimerAcceptedAt).toLocaleString(language === 'zh' ? 'zh-TW' : 'en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) }) }} />
                         </Box>
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setTermsOpen(false)}>關閉</Button>
+                    <Button onClick={() => setTermsOpen(false)}>{t('close')}</Button>
                 </DialogActions>
             </Dialog>
 
             {/* Footer */}
             <Box sx={{ py: 3, textAlign: 'center', borderTop: '1px solid', borderColor: 'divider', mt: 4 }}>
                 <Typography variant="body2" color="text.secondary">
-                    © 2026 LUMO NCNU
+                    {t('copyRight')}
                 </Typography>
             </Box>
         </Box>
