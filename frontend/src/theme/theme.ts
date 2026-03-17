@@ -88,8 +88,8 @@ const darkPalette = {
         contrastText: '#332D41',
     },
     background: {
-        default: '#141218',
-        paper: '#1D1B20',
+        default: '#1E1A2E',
+        paper: '#2B2640',
     },
     error: {
         main: '#F2B8B5',
@@ -141,7 +141,7 @@ export function createAppTheme(mode: PaletteMode): Theme {
                 styleOverrides: {
                     root: {
                         borderRadius: 24,
-                        backgroundColor: mode === 'dark' ? '#1D1B20' : '#FFFFFF',
+                        backgroundColor: mode === 'dark' ? '#2B2640' : '#FFFFFF',
                         backgroundImage: 'none',
                     },
                 },
@@ -150,7 +150,7 @@ export function createAppTheme(mode: PaletteMode): Theme {
                 styleOverrides: {
                     root: {
                         backgroundImage: 'none',
-                        backgroundColor: mode === 'dark' ? '#141218' : '#FFFBFE',
+                        backgroundColor: mode === 'dark' ? '#1E1A2E' : '#F3EEFA',
                         boxShadow: 'none',
                     },
                 },
