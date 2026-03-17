@@ -34,7 +34,7 @@ class ApiClient {
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 秒 timeout
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 秒 timeout
 
                 const response = await fetch(`${this.baseUrl}${endpoint}`, {
                     method,
