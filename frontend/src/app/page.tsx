@@ -53,12 +53,14 @@ import OnboardingDialog from './components/OnboardingDialog';
 import { DISCLAIMER_TEXT } from './components/OnboardingDialog';
 
 const SPORTS = [
-    { icon: <SportsBasketball fontSize="large" />, name: '籃球' },
-    { icon: <DirectionsRun fontSize="large" />, name: '跑步' },
-    { icon: <SportsTennis fontSize="large" />, name: '羽球' }, // Using Tennis icon for Badminton as generic racket sport
-    { icon: <SportsTennis fontSize="large" />, name: '桌球' }, // Placeholder
-    { icon: <FitnessCenter fontSize="large" />, name: '健身' },
-    { icon: <SportsVolleyball fontSize="large" />, name: '排球' },
+    { type: 'BASKETBALL', icon: <SportsBasketball fontSize="large" />, name: '籃球' },
+    { type: 'RUNNING', icon: <DirectionsRun fontSize="large" />, name: '跑步' },
+    { type: 'BADMINTON', icon: <SportsTennis fontSize="large" />, name: '羽球' },
+    { type: 'TABLE_TENNIS', icon: <SportsTennis fontSize="large" />, name: '桌球' },
+    { type: 'GYM', icon: <FitnessCenter fontSize="large" />, name: '健身' },
+    { type: 'VOLLEYBALL', icon: <SportsVolleyball fontSize="large" />, name: '排球' },
+    { type: 'NIGHT_WALK', icon: <NightsStay fontSize="large" />, name: '夜散' },
+    { type: 'DINING', icon: <Restaurant fontSize="large" />, name: '飯搭子' },
 ];
 
 const SPORT_NAMES: Record<string, string> = {
@@ -443,11 +445,13 @@ export default function LandingPage() {
                         追蹤 @lumo_dailyfit
                     </Button>
                 </Box>
-                <Typography variant="h5" fontWeight="bold" textAlign="center" mb={6}>支援運動類型</Typography>
+                <Typography variant="h5" fontWeight="bold" textAlign="center" mb={6}>支援活動類型</Typography>
                 <Stack direction="row" flexWrap="wrap" justifyContent="center" gap={4}>
                     {SPORTS.map((sport) => (
                         <Paper
                             key={sport.name}
+                            component={Link}
+                            href={`/sports/${sport.type}`}
                             elevation={0}
                             sx={{
                                 p: 3,
@@ -455,7 +459,10 @@ export default function LandingPage() {
                                 minWidth: 100,
                                 bgcolor: 'background.paper',
                                 borderRadius: 4,
-                                '&:hover': { transform: 'translateY(-5px)', transition: '0.3s' }
+                                textDecoration: 'none',
+                                color: 'inherit',
+                                cursor: 'pointer',
+                                '&:hover': { transform: 'translateY(-5px)', transition: '0.3s', boxShadow: 3 }
                             }}
                         >
                             <Box sx={{ color: 'primary.main', mb: 1 }}>{sport.icon}</Box>
