@@ -502,14 +502,14 @@ export default function LandingPage() {
                             textDecoration: 'none',
                             borderRadius: 4,
                             background: mode === 'dark'
-                                ? 'linear-gradient(135deg, #1a2e1a 0%, #2d4a1e 100%)'
-                                : 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
+                                ? 'linear-gradient(135deg, #2e1a2e 0%, #4a1e3d 100%)'
+                                : 'linear-gradient(135deg, #FFECF5 0%, #FFD6E8 100%)',
                             transition: 'transform 0.3s',
                             '&:hover': { transform: 'translateY(-4px)' },
                         }}
                     >
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                            <Restaurant sx={{ fontSize: 40, color: '#4CAF50', mb: 1 }} />
+                            <Restaurant sx={{ fontSize: 40, color: '#E91E63', mb: 1 }} />
                             <Typography variant="h6" fontWeight="bold" gutterBottom>
                                 🍽️ 飯搭子
                             </Typography>
