@@ -111,6 +111,7 @@ model User {
   feedbacks       Feedback[]
   paymentLogs     PaymentLog[]
   checkIns        UserCheckIn[]
+  notifications   Notification[]
 
   @@map("users")
 }
@@ -261,4 +262,20 @@ model UserCheckIn {
 
   @@unique([userId, date]) // 確保一位使用者每天只有一筆簽到紀錄
   @@map("user_check_ins")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // REMINDER | JOIN | FULL | CANCELLED | SYSTEM
+  title     String
+  body      String
+  link      String?  // 前端跳轉路徑, e.g. /groups/xxx
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
 }

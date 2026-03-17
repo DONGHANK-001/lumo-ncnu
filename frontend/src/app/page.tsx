@@ -49,6 +49,8 @@ import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useState, useEffect } from 'react';
 import { useThemeMode } from '@/theme/ThemeModeContext';
 import { getSocket } from '@/lib/socket';
+import SafetyNoticeDialog from '@/app/components/SafetyNoticeDialog';
+import NotificationBell from '@/app/components/NotificationBell';
 import OnboardingDialog from './components/OnboardingDialog';
 import { DISCLAIMER_TEXT } from './components/OnboardingDialog';
 
@@ -231,6 +233,7 @@ export default function LandingPage() {
                                     {mode === 'dark' ? <LightMode /> : <DarkMode />}
                                 </IconButton>
                             )}
+                            <NotificationBell />
                             <Button
                                 component={Link}
                                 href="/groups"

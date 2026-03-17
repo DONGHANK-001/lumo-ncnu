@@ -84,3 +84,56 @@ export async function sendJoinGroupEmail({
         console.error('❌ 發送 Email 失敗:', error);
     }
 }
+
+interface SendReminderEmailParams {
+    toEmail: string;
+    userName: string;
+    groupTitle: string;
+    time: string;
+    location: string;
+    groupId: string;
+}
+
+/**
+ * 寄送活動提醒 Email
+ */
+export async function sendReminderEmail({
+    toEmail,
+    userName,
+    groupTitle,
+    time,
+    location,
+    groupId,
+}: SendReminderEmailParams) {
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+        console.warn('⚠️ SMTP 尚未設定，略過發送提醒 Email');
+        return;
+    }
+
+    try {
+        const frontendUrl = process.env.CORS_ORIGINS?.split(',')[0] || 'https://lumo-ncnu.vercel.app';
+
+        await transporter.sendMail({
+            from: `"LUMO 運動平台" <${process.env.SMTP_USER}>`,
+            to: toEmail,
+            subject: `[LUMO] ⏰ 揪團即將開始！`,
+            html: `
+                <h2>嗨 ${userName}，</h2>
+                <p>提醒你，你參加的揪團即將開始！</p>
+                <div style="background-color: #f4f4f4; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <p><strong>活動主題：</strong>${groupTitle}</p>
+                    <p><strong>活動時間：</strong>${time}</p>
+                    <p><strong>活動地點：</strong>${location}</p>
+                </div>
+                <p><a href="${frontendUrl}/groups/${groupId}" style="background-color: #6750A4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; display: inline-block;">查看揪團詳情</a></p>
+                <br>
+                <p>這是一封系統自動發送的信件，請勿直接回覆。</p>
+                <p>祝你運動愉快！<br>LUMO 團隊 敬上</p>
+            `,
+        });
+
+        console.log(`✅ 已發送提醒 Email 給 ${toEmail} (揪團：${groupTitle})`);
+    } catch (error) {
+        console.error('❌ 發送提醒 Email 失敗:', error);
+    }
+}
