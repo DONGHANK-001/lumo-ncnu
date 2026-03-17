@@ -525,6 +525,32 @@ export default function LandingPage() {
                 </Stack>
             </Container>
 
+            {/* Nutrition Guide Card */}
+            <Container maxWidth="sm" sx={{ pb: 4 }}>
+                <Card
+                    component={Link}
+                    href="/nutrition"
+                    sx={{
+                        textDecoration: 'none',
+                        borderRadius: 4,
+                        background: mode === 'dark'
+                            ? 'linear-gradient(135deg, #1a2e1a 0%, #2d4a1e 100%)'
+                            : 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
+                        transition: 'transform 0.3s',
+                        '&:hover': { transform: 'translateY(-4px)' },
+                    }}
+                >
+                    <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                        <Typography variant="h5" fontWeight="bold" gutterBottom>
+                            🍽️ 運動後飲食指南
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            打完球不知道吃什麼？依運動類型推薦最佳恢復餐
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </Container>
+
             {/* Features */}
             <Container maxWidth="lg" sx={{ py: 8 }}>
                 <Grid container spacing={4}>
