@@ -12,8 +12,10 @@ import {
     Divider,
     Card,
     CardContent,
-    useTheme,
+    ThemeProvider,
+    CssBaseline,
 } from '@mui/material';
+import { createAppTheme } from '@/theme/theme';
 import {
     ArrowBack,
     SportsBasketball,
@@ -220,8 +222,7 @@ export default function SportGuidePage() {
     const router = useRouter();
     const type = params.type as string;
     const sport = SPORT_DATA[type];
-    const theme = useTheme();
-    const isDark = theme.palette.mode === 'dark';
+    const darkTheme = createAppTheme('dark');
 
     if (!sport) {
         return (
@@ -235,6 +236,9 @@ export default function SportGuidePage() {
     }
 
     return (
+        <ThemeProvider theme={darkTheme}>
+        <CssBaseline />
+        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
         <Container maxWidth="md" sx={{ py: 4, pb: 8 }}>
             <Button
                 startIcon={<ArrowBack />}
@@ -251,23 +255,20 @@ export default function SportGuidePage() {
                     p: 4,
                     borderRadius: 4,
                     mb: 4,
-                    background: isDark
-                        ? `linear-gradient(135deg, ${sport.color}22 0%, ${sport.color}11 100%)`
-                        : `linear-gradient(135deg, ${sport.color}18 0%, ${sport.color}0D 100%)`,
+                    background: `linear-gradient(135deg, ${sport.color}22 0%, ${sport.color}11 100%)`,
                     textAlign: 'center',
-                    border: isDark ? 'none' : `1px solid ${sport.color}33`,
                 }}
             >
                 <Box sx={{ color: sport.color, mb: 2 }}>{sport.icon}</Box>
-                <Typography variant="h3" fontWeight="bold" gutterBottom sx={{ color: isDark ? 'text.primary' : '#1a1a1a' }}>
+                <Typography variant="h3" fontWeight="bold" gutterBottom>
                     {sport.name}
                 </Typography>
-                <Typography variant="body1" sx={{ color: isDark ? 'text.secondary' : '#444' }}>
+                <Typography variant="body1" color="text.secondary">
                     {sport.description}
                 </Typography>
                 <Stack direction="row" spacing={1} justifyContent="center" flexWrap="wrap" sx={{ mt: 2 }}>
                     {sport.campusSpots.map((spot) => (
-                        <Chip key={spot} label={`📍 ${spot}`} variant="outlined" size="small" sx={{ color: isDark ? undefined : '#333', borderColor: isDark ? undefined : '#999' }} />
+                        <Chip key={spot} label={`📍 ${spot}`} variant="outlined" size="small" />
                     ))}
                 </Stack>
             </Paper>
@@ -346,5 +347,7 @@ export default function SportGuidePage() {
                 </Box>
             </Stack>
         </Container>
+        </Box>
+        </ThemeProvider>
     );
 }
