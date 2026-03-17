@@ -19,6 +19,7 @@ import {
     IconButton
 } from '@mui/material';
 import { ArrowBack, Star, LocalFireDepartment, InfoOutlined } from '@mui/icons-material';
+import CrownBadge from '@/app/components/CrownBadge';
 
 const SPORT_LABELS: Record<string, string> = {
     BASKETBALL: '🏀 籃球',
@@ -142,8 +143,9 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                             }}
                         />
                     )}
-                    <Typography variant="h4" fontWeight="bold">
+                    <Typography variant="h4" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center' }}>
                         {profile.nickname || '匿名使用者'}
+                        <CrownBadge isPlus={profile.planType === 'PLUS'} />
                     </Typography>
 
                     {profile.department && (

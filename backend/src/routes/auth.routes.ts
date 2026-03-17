@@ -18,6 +18,8 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
 
     const pioneerTitle = await getPioneerTitle(user.id);
 
+    const isTrialPeriod = new Date() < new Date('2026-04-01T00:00:00+08:00');
+
     res.json({
         success: true,
         data: {
@@ -29,7 +31,7 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
             department: user.department,
             school: user.school,
             role: user.role,
-            planType: user.planType,
+            planType: isTrialPeriod ? 'PLUS' : user.planType,
             preferences: user.preferences,
             attendedCount: user.attendedCount,
             noShowCount: user.noShowCount,

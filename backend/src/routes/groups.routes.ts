@@ -50,7 +50,7 @@ router.get(
             prisma.group.findMany({
                 where,
                 include: {
-                    createdBy: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true } },
+                    createdBy: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true, planType: true } },
                     _count: { select: { members: true } },
                 },
                 orderBy: { time: 'asc' },
@@ -152,6 +152,14 @@ router.get('/quota/me', firebaseAuthMiddleware, async (req: Request, res: Respon
             if (dates.length === 1 && isCurrentActive) currentStreak = 1;
         }
 
+        const isTrialPeriod = new Date() < new Date('2026-04-01T00:00:00+08:00');
+        if (isTrialPeriod) {
+            return res.json({
+                success: true,
+                data: { hostedThisWeek, joinedThisWeek, currentStreak, limit: 999, remaining: 999 }
+            });
+        }
+
         const baseLimit = 4;
         const bonusHosted = Math.floor(hostedThisWeek / 2);
         const bonusJoined = Math.floor(joinedThisWeek / 2);
@@ -236,13 +244,16 @@ router.post(
             if (dates.length === 1 && isCurrentActive) currentStreak = 1;
         }
 
-        const limit = 4 + Math.floor(hostedThisWeek / 2) + Math.floor(joinedThisWeek / 2) + Math.floor(currentStreak / 2);
+        const isTrialPeriod = new Date() < new Date('2026-04-01T00:00:00+08:00');
+        if (!isTrialPeriod) {
+            const limit = 4 + Math.floor(hostedThisWeek / 2) + Math.floor(joinedThisWeek / 2) + Math.floor(currentStreak / 2);
 
-        if (hostedThisWeek >= limit) {
-            return res.status(403).json({
-                success: false,
-                error: { message: `本週發起揪團次數已達上限 (${limit}次)。請參與更多揪團或保持連續活躍來解鎖額度！` }
-            });
+            if (hostedThisWeek >= limit) {
+                return res.status(403).json({
+                    success: false,
+                    error: { message: `本週發起揪團次數已達上限 (${limit}次)。請參與更多揪團或保持連續活躍來解鎖額度！` }
+                });
+            }
         }
 
         const initialStatus = capacity === 1 ? 'FULL' : 'OPEN';
@@ -291,10 +302,10 @@ router.get('/:id', async (req: Request, res: Response) => {
     const group = await prisma.group.findUnique({
         where: { id },
         include: {
-            createdBy: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true } },
+            createdBy: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true, planType: true } },
             members: {
                 include: {
-                    user: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true } },
+                    user: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true, planType: true } },
                 },
                 orderBy: { joinedAt: 'asc' },
             },
@@ -323,7 +334,7 @@ router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Respo
         where: { id },
         include: {
             members: true,
-            createdBy: { select: { nickname: true, email: true } },
+            createdBy: { select: { nickname: true, email: true, planType: true } },
         },
     });
 

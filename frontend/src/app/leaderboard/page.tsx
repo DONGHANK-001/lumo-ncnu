@@ -5,6 +5,7 @@ import {
     Container, Typography, Box, Card, CardContent, Stack, Chip,
     ToggleButtonGroup, ToggleButton, Avatar, Skeleton, Paper
 } from '@mui/material';
+import CrownBadge, { isTrialPeriod } from '@/app/components/CrownBadge';
 import {
     EmojiEvents, WorkspacePremium, MilitaryTech,
     TrendingUp, Groups, ArrowBack, Lock, Person, AccountBalance
@@ -318,9 +319,10 @@ export default function LeaderboardPage() {
                                                 </Avatar>
 
                                                 <Box flex={1}>
-                                                    <Stack direction="row" alignItems="center" spacing={1}>
-                                                        <Typography variant="subtitle1" fontWeight="bold" color="text.primary">
+                                                    <Stack direction="row" alignItems="center" flexWrap="wrap" gap={1}>
+                                                        <Typography variant="subtitle1" fontWeight="bold" color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
                                                             {ur.user.nickname || '匿名使用者'}
+                                                            <CrownBadge isPlus={isTrialPeriod()} />
                                                         </Typography>
                                                         {ur.topTitle && (
                                                             <Chip

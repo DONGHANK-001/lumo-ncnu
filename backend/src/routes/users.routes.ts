@@ -36,8 +36,16 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
         }
 
         const pioneerTitle = await getPioneerTitle(user.id);
+        const isTrialPeriod = new Date() < new Date('2026-04-01T00:00:00+08:00');
 
-        res.json({ success: true, data: { ...user, pioneerTitle } });
+        res.json({
+            success: true,
+            data: {
+                ...user,
+                planType: isTrialPeriod ? 'PLUS' : user.planType,
+                pioneerTitle,
+            }
+        });
     } catch (error) {
         next(error);
     }

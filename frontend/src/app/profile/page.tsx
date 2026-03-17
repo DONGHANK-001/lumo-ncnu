@@ -36,6 +36,7 @@ import {
     AdminPanelSettings,
     LocalFireDepartment
 } from '@mui/icons-material';
+import CrownBadge from '@/app/components/CrownBadge';
 
 const SPORT_OPTIONS = [
     { value: 'BASKETBALL', label: '🏀 籃球' },
@@ -343,8 +344,9 @@ export default function ProfilePage() {
                                     />
                                 );
                             })()}
-                            <Typography variant="h6" fontWeight="bold">
+                            <Typography variant="h6" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center' }}>
                                 {form.nickname || '未設定暱稱'}
+                                <CrownBadge isPlus={user.planType === 'PLUS'} />
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 {user.email}

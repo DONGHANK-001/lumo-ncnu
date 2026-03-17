@@ -43,6 +43,7 @@ import {
 } from '@mui/icons-material';
 import SafetyNoticeDialog from '../../components/SafetyNoticeDialog';
 import ShareButtons from '../../components/ShareButtons';
+import CrownBadge from '../../components/CrownBadge';
 
 interface GroupDetail {
     id: string;
@@ -557,8 +558,9 @@ export default function GroupDetailPage() {
                                         {(member.user.nickname || member.user.email)[0].toUpperCase()}
                                     </Avatar>
                                     <Box>
-                                        <Typography variant="body1" fontWeight="medium">
+                                        <Typography variant="body1" fontWeight="medium" sx={{ display: 'flex', alignItems: 'center' }}>
                                             {member.user.nickname || member.user.email.split('@')[0]}
+                                            <CrownBadge isPlus={member.user.planType === 'PLUS'} />
                                             {member.user.id === group.createdBy.id && (
                                                 <Typography component="span" variant="caption" color="primary" sx={{ ml: 1, fontWeight: 'bold' }}>
                                                     發起人
