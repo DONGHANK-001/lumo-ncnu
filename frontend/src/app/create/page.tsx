@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
@@ -85,7 +85,7 @@ const SOCIAL_TAG_OPTIONS = [
 
 const CAPACITY_PRESETS = [2, 4, 6, 8, 10, 20];
 
-export default function CreateGroupPage() {
+function CreateGroupPageInner() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { user, getToken, signIn } = useAuth();
@@ -461,5 +461,13 @@ export default function CreateGroupPage() {
                 onCancel={() => setShowSafetyNotice(false)}
             />
         </Container>
+    );
+}
+
+export default function CreateGroupPage() {
+    return (
+        <Suspense>
+            <CreateGroupPageInner />
+        </Suspense>
     );
 }
