@@ -153,6 +153,10 @@ class ApiClient {
         return this.request(`/groups/${id}/waitlist`, { method: 'POST', token });
     }
 
+    cancelGroup(token: string, id: string) {
+        return this.request(`/groups/${id}/cancel`, { method: 'POST', token });
+    }
+
     // Group Comments
     getGroupComments(id: string) {
         return this.request<any[]>(`/groups/${id}/comments`);

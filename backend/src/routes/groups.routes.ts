@@ -466,6 +466,50 @@ router.post('/:id/leave', firebaseAuthMiddleware, async (req: Request, res: Resp
 });
 
 /**
+ * POST /groups/:id/cancel
+ * 取消揪團（僅發起人）
+ */
+router.post('/:id/cancel', firebaseAuthMiddleware, async (req: Request, res: Response) => {
+    const user = req.user!;
+    const { id } = req.params;
+
+    const group = await prisma.group.findUnique({
+        where: { id },
+        include: { members: true },
+    });
+
+    if (!group) {
+        throw new ApiError(404, 'GROUP_NOT_FOUND', '找不到此揪團');
+    }
+
+    if (group.createdById !== user.id) {
+        throw new ApiError(403, 'FORBIDDEN', '只有揪團發起人可以取消揪團');
+    }
+
+    if (group.status === 'CANCELLED') {
+        throw new ApiError(400, 'ALREADY_CANCELLED', '此揪團已被取消');
+    }
+
+    await prisma.$transaction([
+        prisma.group.update({
+            where: { id },
+            data: { status: 'CANCELLED' },
+        }),
+        prisma.groupMember.updateMany({
+            where: { groupId: id, status: { in: ['JOINED', 'WAITLIST'] } },
+            data: { status: 'LEFT' },
+        }),
+    ]);
+
+    getIO().emit('group_cancelled', { id });
+
+    res.json({
+        success: true,
+        data: { message: '揪團已取消' },
+    });
+});
+
+/**
  * POST /groups/:id/waitlist
  * 候補揪團（僅 PLUS）
  */

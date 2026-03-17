@@ -8,6 +8,9 @@ export const SportType = {
     BADMINTON: 'BADMINTON',
     TABLE_TENNIS: 'TABLE_TENNIS',
     GYM: 'GYM',
+    VOLLEYBALL: 'VOLLEYBALL',
+    NIGHT_WALK: 'NIGHT_WALK',
+    DINING: 'DINING',
 } as const;
 
 export type SportType = (typeof SportType)[keyof typeof SportType];

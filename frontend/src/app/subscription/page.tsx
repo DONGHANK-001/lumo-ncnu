@@ -10,10 +10,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Link from 'next/link';
 
 const PLANS = [
-    { type: 'WEEKLY', name: '試用方案', price: 19, period: '週', features: ['解除發起揪團上限', '專屬 PLUS 徽章'] },
-    { type: 'MONTHLY', name: '月租方案', price: 60, period: '月', features: ['包含試用方案功能', '無限查看參與者聯絡資訊'] },
-    { type: 'QUARTERLY', name: '超值季卡', price: 150, period: '季', features: ['包含月租方案功能', '解鎖智慧配對進階條件'] },
-    { type: 'LIFETIME', name: '終身黑金卡', price: 399, period: '永久', features: ['未來所有新功能免費', '終身專屬特權服務'] }
+    { type: 'BIWEEKLY', name: '體驗方案', price: 19, period: '兩週', features: ['解除發起揪團上限', '專屬 PLUS 徽章'] },
+    { type: 'MONTHLY', name: '月租方案', price: 30, period: '月', features: ['包含體驗方案功能', '無限查看參與者聯絡資訊'] },
+    { type: 'QUARTERLY', name: '超值季卡', price: 80, period: '季', features: ['包含月租方案功能', '解鎖智慧配對進階條件'] },
+    { type: 'LIFETIME', name: '終身黑金卡', price: 199, period: '永久', features: ['未來所有新功能免費', '終身專屬特權服務'] }
 ];
 
 export default function SubscriptionPage() {

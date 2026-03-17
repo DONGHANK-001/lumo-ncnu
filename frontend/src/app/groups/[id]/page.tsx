@@ -24,7 +24,12 @@ import {
     Divider,
     TextField,
     IconButton,
-    Snackbar
+    Snackbar,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions
 } from '@mui/material';
 import {
     CalendarToday,
@@ -74,6 +79,8 @@ const SPORT_NAMES: Record<string, string> = {
     TABLE_TENNIS: '桌球',
     GYM: '健身',
     VOLLEYBALL: '排球',
+    NIGHT_WALK: '夜散',
+    DINING: '飯搭子',
 };
 
 const LEVEL_NAMES: Record<string, string> = {
@@ -101,6 +108,7 @@ export default function GroupDetailPage() {
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
     const [attendanceRecords, setAttendanceRecords] = useState<Record<string, boolean | null>>({});
     const [showSafetyNotice, setShowSafetyNotice] = useState(false);
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
     useEffect(() => {
         fetchGroup();
@@ -259,6 +267,23 @@ export default function GroupDetailPage() {
             console.error('Share failed', err);
             // Ignore user cancellation errors
         }
+    };
+
+    const handleCancelGroup = async () => {
+        setShowCancelConfirm(false);
+        setActionLoading(true);
+        setError(null);
+
+        const token = await getToken();
+        const response = await api.cancelGroup(token!, id);
+
+        if (response.success) {
+            setSnackbarMessage('揪團已取消');
+            await fetchGroup();
+        } else {
+            setError(response.error?.message || '取消失敗');
+        }
+        setActionLoading(false);
     };
 
     const handleAttendanceChange = (userId: string, isAttended: boolean | null) => {
@@ -474,13 +499,24 @@ export default function GroupDetailPage() {
                         <Chip label="您在候補名單中" color="warning" variant="outlined" />
                     )}
 
-                    {isCreator && (
-                        <Chip label="您是揪團發起人" color="primary" variant="outlined" />
+                    {isCreator && group.status !== 'CANCELLED' && (
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={() => setShowCancelConfirm(true)}
+                            disabled={actionLoading}
+                        >
+                            {actionLoading ? '處理中...' : '取消揪團'}
+                        </Button>
                     )}
 
-                    <Button startIcon={<Security />} component={Link} href="/safety" color="inherit">
-                        安全提醒
-                    </Button>
+                    {isCreator && group.status === 'CANCELLED' && (
+                        <Chip label="此揪團已取消" color="error" variant="outlined" />
+                    )}
+
+                    {isCreator && group.status !== 'CANCELLED' && (
+                        <Chip label="您是揪團發起人" color="primary" variant="outlined" />
+                    )}
                 </Stack>
             </Paper>
 
@@ -696,6 +732,20 @@ export default function GroupDetailPage() {
                 onConfirm={confirmJoin}
                 onCancel={() => setShowSafetyNotice(false)}
             />
+            <Dialog open={showCancelConfirm} onClose={() => setShowCancelConfirm(false)}>
+                <DialogTitle>確定要取消揪團嗎？</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        取消後所有成員將被移除，此操作無法復原。
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setShowCancelConfirm(false)}>返回</Button>
+                    <Button onClick={handleCancelGroup} color="error" variant="contained">
+                        確定取消
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 }

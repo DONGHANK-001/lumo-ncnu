@@ -35,7 +35,9 @@ import {
     DirectionsRun,
     SportsTennis,
     FitnessCenter,
-    SportsVolleyball
+    SportsVolleyball,
+    NightsStay,
+    Restaurant
 } from '@mui/icons-material';
 import SafetyNoticeDialog from '../components/SafetyNoticeDialog';
 
@@ -46,7 +48,12 @@ const SPORT_OPTIONS = [
     { value: 'TABLE_TENNIS', label: '桌球', icon: <SportsTennis /> },
     { value: 'GYM', label: '健身', icon: <FitnessCenter /> },
     { value: 'VOLLEYBALL', label: '排球', icon: <SportsVolleyball /> },
+    { value: 'NIGHT_WALK', label: '夜散', icon: <NightsStay /> },
+    { value: 'DINING', label: '飯搭子', icon: <Restaurant /> },
 ];
+
+// 不需要程度要求的活動類型
+const NO_LEVEL_TYPES = ['NIGHT_WALK', 'DINING'];
 
 const LEVEL_OPTIONS = [
     { value: 'ANY', label: '不限程度' },
@@ -55,7 +62,8 @@ const LEVEL_OPTIONS = [
     { value: 'ADVANCED', label: '進階' },
 ];
 
-const TAG_OPTIONS = [
+// 運動類標籤
+const SPORT_TAG_OPTIONS = [
     '女性友善',
     '男性友善',
     '性別友善',
@@ -63,6 +71,19 @@ const TAG_OPTIONS = [
     '輕鬆打',
     '休閒流汗',
 ];
+
+// 社交類標籤（夜散、飯搭子用）
+const SOCIAL_TAG_OPTIONS = [
+    '安靜散步',
+    '邊走邊聊',
+    '安靜吃飯',
+    '想聊天交朋友',
+    '女性友善',
+    '男性友善',
+    '性別友善',
+];
+
+const CAPACITY_PRESETS = [2, 4, 6, 8, 10, 20];
 
 export default function CreateGroupPage() {
     const router = useRouter();
@@ -177,11 +198,21 @@ export default function CreateGroupPage() {
                         <Stack spacing={4}>
                             {/* Sport Type */}
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
-                                <Typography variant="h6" gutterBottom mb={2}>運動類型</Typography>
+                                <Typography variant="h6" gutterBottom mb={2}>活動類型</Typography>
                                 <ToggleButtonGroup
                                     value={form.sportType}
                                     exclusive
-                                    onChange={(_, newVal) => newVal && setForm({ ...form, sportType: newVal })}
+                                    onChange={(_, newVal) => {
+                                        if (!newVal) return;
+                                        const wasSocial = NO_LEVEL_TYPES.includes(form.sportType);
+                                        const isSocial = NO_LEVEL_TYPES.includes(newVal);
+                                        setForm({
+                                            ...form,
+                                            sportType: newVal,
+                                            tags: wasSocial !== isSocial ? [] : form.tags,
+                                            level: isSocial ? 'ANY' : form.level,
+                                        });
+                                    }}
                                     aria-label="sport type"
                                     fullWidth
                                     sx={{
@@ -234,7 +265,7 @@ export default function CreateGroupPage() {
                                     />
                                     <Autocomplete
                                         multiple
-                                        options={TAG_OPTIONS}
+                                        options={NO_LEVEL_TYPES.includes(form.sportType) ? SOCIAL_TAG_OPTIONS : SPORT_TAG_OPTIONS}
                                         value={form.tags}
                                         onChange={(_, newValue) => setForm({ ...form, tags: newValue })}
                                         renderTags={(value: readonly string[], getTagProps) =>
@@ -256,8 +287,8 @@ export default function CreateGroupPage() {
                                             <TextField
                                                 {...params}
                                                 variant="outlined"
-                                                label="友善標籤 (可選多個)"
-                                                placeholder="加入標籤讓球友更安心"
+                                                label={NO_LEVEL_TYPES.includes(form.sportType) ? '社交偏好 (可選多個)' : '友善標籤 (可選多個)'}
+                                                placeholder={NO_LEVEL_TYPES.includes(form.sportType) ? '選擇你的社交偏好' : '加入標籤讓球友更安心'}
                                             />
                                         )}
                                     />
@@ -297,28 +328,45 @@ export default function CreateGroupPage() {
                             {/* Requirements */}
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
                                 <Stack spacing={3}>
-                                    <TextField
-                                        select
-                                        label="程度要求"
-                                        fullWidth
-                                        value={form.level}
-                                        onChange={(e) => setForm({ ...form, level: e.target.value })}
-                                    >
-                                        {LEVEL_OPTIONS.map((option) => (
-                                            <MenuItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </MenuItem>
-                                        ))}
-                                    </TextField>
+                                    {!NO_LEVEL_TYPES.includes(form.sportType) && (
+                                        <TextField
+                                            select
+                                            label="程度要求"
+                                            fullWidth
+                                            value={form.level}
+                                            onChange={(e) => setForm({ ...form, level: e.target.value })}
+                                        >
+                                            {LEVEL_OPTIONS.map((option) => (
+                                                <MenuItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    )}
 
-                                    <TextField
-                                        label="人數上限 (含自己)"
-                                        type="number"
-                                        fullWidth
-                                        InputProps={{ inputProps: { min: 2, max: 50 } }}
-                                        value={form.capacity}
-                                        onChange={(e) => setForm({ ...form, capacity: parseInt(e.target.value) || 4 })}
-                                    />
+                                    <Box>
+                                        <Typography variant="body2" color="text.secondary" mb={1}>快速選擇人數</Typography>
+                                        <Stack direction="row" flexWrap="wrap" gap={1} mb={2}>
+                                            {CAPACITY_PRESETS.map((n) => (
+                                                <Chip
+                                                    key={n}
+                                                    label={`${n} 人`}
+                                                    onClick={() => setForm({ ...form, capacity: n })}
+                                                    color={form.capacity === n ? 'primary' : 'default'}
+                                                    variant={form.capacity === n ? 'filled' : 'outlined'}
+                                                    sx={{ cursor: 'pointer' }}
+                                                />
+                                            ))}
+                                        </Stack>
+                                        <TextField
+                                            label="自訂人數上限 (含自己)"
+                                            type="number"
+                                            fullWidth
+                                            InputProps={{ inputProps: { min: 2, max: 50 } }}
+                                            value={form.capacity}
+                                            onChange={(e) => setForm({ ...form, capacity: parseInt(e.target.value) || 4 })}
+                                        />
+                                    </Box>
                                 </Stack>
                             </Paper>
 

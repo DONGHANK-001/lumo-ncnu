@@ -113,7 +113,7 @@ const lightPalette = {
         contrastText: '#FFFFFF',
     },
     background: {
-        default: '#FFFBFE',
+        default: '#F3EEFA',
         paper: '#FFFFFF',
     },
     text: {
