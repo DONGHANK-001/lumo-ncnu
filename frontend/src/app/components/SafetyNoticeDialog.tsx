@@ -81,6 +81,22 @@ export default function SafetyNoticeDialog({ open, onConfirm, onCancel }: Safety
                             </Typography>
                         </Box>
                     </Box>
+
+                    <Divider />
+
+                    <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+                        <Security color="error" sx={{ mt: 0.3 }} />
+                        <Box>
+                            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                                校內限定條款
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                本平台所有揪團活動地點<Typography component="span" fontWeight="bold" color="error.main">僅限校園範圍內</Typography>。
+                                若使用者自行前往校外從事任何活動，概與本平台無涉，本平台不承擔任何法律責任。
+                                依據中華民國民法第 184 條及消費者保護法相關規定，使用者應自行評估風險並為其行為負完全責任。
+                            </Typography>
+                        </Box>
+                    </Box>
                 </Stack>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>

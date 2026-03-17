@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
@@ -87,10 +87,12 @@ const CAPACITY_PRESETS = [2, 4, 6, 8, 10, 20];
 
 export default function CreateGroupPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { user, getToken, signIn } = useAuth();
+    const initialType = searchParams.get('type') || 'BASKETBALL';
 
     const [form, setForm] = useState({
-        sportType: 'BASKETBALL',
+        sportType: initialType,
         title: '',
         description: '',
         time: '',
@@ -307,20 +309,44 @@ export default function CreateGroupPage() {
                                         value={form.time}
                                         onChange={(e) => setForm({ ...form, time: e.target.value })}
                                     />
-                                    <TextField
-                                        label="地點"
-                                        required
-                                        fullWidth
+                                    <Autocomplete
+                                        freeSolo
+                                        options={[
+                                            '\u66a8\u5927\u9ad4\u80b2\u9928',
+                                            '\u66a8\u5927\u64cd\u5834',
+                                            '\u66a8\u5927\u7c43\u7403\u5834',
+                                            '\u66a8\u5927\u6392\u7403\u5834',
+                                            '\u66a8\u5927\u7fbd\u7403\u5834',
+                                            '\u66a8\u5927\u5065\u8eab\u623f',
+                                            '\u66a8\u5927\u5b78\u9918\u5802',
+                                            '\u66a8\u5927\u5716\u66f8\u9928',
+                                            '\u66a8\u5927\u884c\u653f\u5927\u6a13\u524d\u5ee3\u5834',
+                                            '\u66a8\u5927\u904a\u6ce3\u6c60',
+                                            '\u66a8\u5927\u5b78\u751f\u6d3b\u5713\u5340',
+                                            '\u66a8\u5927\u5b78\u751f\u5b99\u820d',
+                                            '\u66a8\u5927\u6d3b\u52d5\u4e2d\u5fc3',
+                                            '\u66a8\u5927\u53f0\u96fb\u5927\u6a13\u65c1',
+                                        ]}
                                         value={form.location}
-                                        onChange={(e) => setForm({ ...form, location: e.target.value })}
-                                        placeholder="例如：暨大體育館、操場"
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <Place color="action" />
-                                                </InputAdornment>
-                                            ),
-                                        }}
+                                        onInputChange={(_, newVal) => setForm({ ...form, location: newVal })}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="\u5730\u9ede\uff08\u9650\u6821\u5167\uff09"
+                                                required
+                                                fullWidth
+                                                placeholder="\u4f8b\u5982\uff1a\u66a8\u5927\u9ad4\u80b2\u9928\u3001\u64cd\u5834\u3001\u5b78\u9918\u5802..."
+                                                helperText="\u2139\ufe0f \u63ea\u5718\u5730\u9ede\u50c5\u9650\u6821\u5167\uff0c\u5e73\u53f0\u4e0d\u8ca0\u8cac\u6821\u5916\u6d3b\u52d5"
+                                                InputProps={{
+                                                    ...params.InputProps,
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <Place color="action" />
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
+                                            />
+                                        )}
                                     />
                                 </Stack>
                             </Paper>

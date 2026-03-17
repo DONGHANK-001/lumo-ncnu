@@ -37,7 +37,9 @@ import {
     LightMode,
     Instagram,
     SportsVolleyball,
-    Feedback
+    Feedback,
+    NightsStay,
+    Restaurant
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
@@ -66,6 +68,8 @@ const SPORT_NAMES: Record<string, string> = {
     TABLE_TENNIS: '桌球',
     GYM: '健身',
     VOLLEYBALL: '排球',
+    NIGHT_WALK: '夜散',
+    DINING: '飯搭子',
 };
 
 export default function LandingPage() {
@@ -199,7 +203,7 @@ export default function LandingPage() {
                 elevation={0}
                 sx={{
                     backdropFilter: 'blur(10px)',
-                    bgcolor: mode === 'dark' ? 'rgba(20, 18, 24, 0.9)' : 'rgba(255, 251, 254, 0.95)',
+                    bgcolor: mode === 'dark' ? 'rgba(30, 26, 46, 0.9)' : 'rgba(243, 238, 250, 0.95)',
                     color: 'text.primary',
                     borderBottom: mode === 'light' ? '1px solid rgba(0,0,0,0.08)' : 'none',
                 }}
@@ -458,6 +462,59 @@ export default function LandingPage() {
                             <Typography variant="body1" fontWeight="medium">{sport.name}</Typography>
                         </Paper>
                     ))}
+                </Stack>
+            </Container>
+
+            {/* 社交活動專區 */}
+            <Container maxWidth="lg" sx={{ py: 4 }}>
+                <Typography variant="h5" fontWeight="bold" textAlign="center" mb={4}>✨ 社交活動</Typography>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} justifyContent="center">
+                    <Card
+                        component={Link}
+                        href="/create?type=NIGHT_WALK"
+                        sx={{
+                            flex: 1,
+                            maxWidth: 360,
+                            textDecoration: 'none',
+                            borderRadius: 4,
+                            background: mode === 'dark'
+                                ? 'linear-gradient(135deg, #1a1a3e 0%, #2d1b69 100%)'
+                                : 'linear-gradient(135deg, #e8d5f5 0%, #d1c4e9 100%)',
+                            transition: 'transform 0.3s',
+                            '&:hover': { transform: 'translateY(-6px)' },
+                        }}
+                    >
+                        <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                            <NightsStay sx={{ fontSize: 48, color: mode === 'dark' ? '#bb86fc' : '#6750A4', mb: 2 }} />
+                            <Typography variant="h5" fontWeight="bold" gutterBottom>🌙 揪團夜散</Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                晚上想出來走走？找個伴一起散步聊天或安靜放空
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                    <Card
+                        component={Link}
+                        href="/create?type=DINING"
+                        sx={{
+                            flex: 1,
+                            maxWidth: 360,
+                            textDecoration: 'none',
+                            borderRadius: 4,
+                            background: mode === 'dark'
+                                ? 'linear-gradient(135deg, #1a3330 0%, #1b5e20 100%)'
+                                : 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
+                            transition: 'transform 0.3s',
+                            '&:hover': { transform: 'translateY(-6px)' },
+                        }}
+                    >
+                        <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                            <Restaurant sx={{ fontSize: 48, color: mode === 'dark' ? '#81c784' : '#2e7d32', mb: 2 }} />
+                            <Typography variant="h5" fontWeight="bold" gutterBottom>🍜 飯搭子</Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                一個人吃飯太孤單？找人一起吃吧！
+                            </Typography>
+                        </CardContent>
+                    </Card>
                 </Stack>
             </Container>
 
