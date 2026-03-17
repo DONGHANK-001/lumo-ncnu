@@ -41,9 +41,9 @@ import {
     ChatBubbleOutline,
     Share as ShareIcon
 } from '@mui/icons-material';
-import SafetyNoticeDialog from '../../components/SafetyNoticeDialog';
-import ShareButtons from '../../components/ShareButtons';
-import CrownBadge from '../../components/CrownBadge';
+import SafetyNoticeDialog from '@/app/components/SafetyNoticeDialog';
+import ShareButtons from '@/app/components/ShareButtons';
+import CrownBadge from '@/app/components/CrownBadge';
 
 interface GroupDetail {
     id: string;

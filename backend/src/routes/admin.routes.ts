@@ -129,7 +129,10 @@ router.post('/groups/cleanup', async (_req: Request, res: Response) => {
  * 管理員儀表板統計
  */
 router.get('/stats', async (_req: Request, res: Response) => {
-    const [totalGroups, activeGroups, totalUsers, expiredGroups] = await Promise.all([
+    // 基數 44：2026-03-17 資料庫重置前的歷史用戶數
+    const HISTORICAL_USER_BASE = 44;
+
+    const [totalGroups, activeGroups, dbUserCount, expiredGroups] = await Promise.all([
         prisma.group.count(),
         prisma.group.count({ where: { status: { in: ['OPEN', 'FULL'] } } }),
         prisma.user.count(),
@@ -140,6 +143,8 @@ router.get('/stats', async (_req: Request, res: Response) => {
             },
         }),
     ]);
+
+    const totalUsers = HISTORICAL_USER_BASE + dbUserCount;
 
     res.json({
         success: true,

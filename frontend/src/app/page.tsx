@@ -468,7 +468,58 @@ export default function LandingPage() {
                 </Stack>
             </Container>
 
-
+            {/* 社交活動專區 */}
+            <Container maxWidth="sm" sx={{ pb: 4 }}>
+                <Typography variant="h5" fontWeight="bold" textAlign="center" mb={3}>社交活動專區</Typography>
+                <Stack spacing={3}>
+                    <Card
+                        component={Link}
+                        href="/sports/NIGHT_WALK"
+                        sx={{
+                            textDecoration: 'none',
+                            borderRadius: 4,
+                            background: mode === 'dark'
+                                ? 'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)'
+                                : 'linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%)',
+                            transition: 'transform 0.3s',
+                            '&:hover': { transform: 'translateY(-4px)' },
+                        }}
+                    >
+                        <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                            <NightsStay sx={{ fontSize: 40, color: '#7C4DFF', mb: 1 }} />
+                            <Typography variant="h6" fontWeight="bold" gutterBottom>
+                                🌙 夜散
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                星空下走走聊聊，暨大最療癒的校園散步活動
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                    <Card
+                        component={Link}
+                        href="/sports/DINING"
+                        sx={{
+                            textDecoration: 'none',
+                            borderRadius: 4,
+                            background: mode === 'dark'
+                                ? 'linear-gradient(135deg, #1a2e1a 0%, #2d4a1e 100%)'
+                                : 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
+                            transition: 'transform 0.3s',
+                            '&:hover': { transform: 'translateY(-4px)' },
+                        }}
+                    >
+                        <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                            <Restaurant sx={{ fontSize: 40, color: '#4CAF50', mb: 1 }} />
+                            <Typography variant="h6" fontWeight="bold" gutterBottom>
+                                🍽️ 飯搭子
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                找人一起吃飯！有伴就更好吃
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Stack>
+            </Container>
 
             {/* Nutrition Guide Card */}
             <Container maxWidth="sm" sx={{ pb: 4 }}>
