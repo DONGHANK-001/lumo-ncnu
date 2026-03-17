@@ -28,6 +28,7 @@ import {
     EmojiEvents,
     MenuBook,
     Lightbulb,
+    LocalDining,
 } from '@mui/icons-material';
 import Link from 'next/link';
 
@@ -40,6 +41,7 @@ interface SportInfo {
     tips: string[];
     equipment: string[];
     campusSpots: string[];
+    nutrition?: { food: string; reason: string }[];
 }
 
 const SPORT_DATA: Record<string, SportInfo> = {
@@ -64,6 +66,12 @@ const SPORT_DATA: Record<string, SportInfo> = {
         ],
         equipment: ['籃球（室內用皮球或室外用橡膠球）', '球鞋', '毛巾和水壺'],
         campusSpots: ['暨大體育館（室內）', '暨大籃球場（戶外）'],
+        nutrition: [
+            { food: '🍗 雞胸肉 + 糙米飯', reason: '高蛋白修復肌肉 + 碳水補充糖原' },
+            { food: '🥛 巧克力牛奶', reason: '碳水蛋白比 3:1，研究證實最佳恢復飲品' },
+            { food: '🥚 水煮蛋 2-3 顆 + 地瓜', reason: '完整蛋白質 + 優質碳水化合物' },
+            { food: '🐟 鮭魚便當', reason: 'Omega-3 幫助消炎，加速肌肉恢復' },
+        ],
     },
     RUNNING: {
         name: '跑步',
@@ -85,6 +93,12 @@ const SPORT_DATA: Record<string, SportInfo> = {
         ],
         equipment: ['跑鞋（最重要！）', '排汗衣物', '水壺', '運動手錶（選配）'],
         campusSpots: ['暨大操場', '環校步道', '暨大行政大樓前廣場'],
+        nutrition: [
+            { food: '🥗 雞肉沙拉 + 全麥麵包', reason: '清爽不膩，蛋白質碳水兼備' },
+            { food: '🍜 清湯麵 + 蛋 + 青菜', reason: '補充水分和電解質 + 營養均衡' },
+            { food: '🍠 地瓜 + 茶葉蛋', reason: '方便取得的恢復餐，碳水蛋白兼顧' },
+            { food: '🥛 豆漿 + 饅頭', reason: '植物蛋白 + 碳水，素食者首選' },
+        ],
     },
     BADMINTON: {
         name: '羽球',
@@ -107,6 +121,12 @@ const SPORT_DATA: Record<string, SportInfo> = {
         ],
         equipment: ['羽球拍', '羽毛球（建議準備多顆）', '運動鞋（止滑底）', '護腕（選配）'],
         campusSpots: ['暨大體育館（室內場地）', '暨大羽球場'],
+        nutrition: [
+            { food: '🍱 滷雞腿 + 白飯 + 燙青菜', reason: '經典恢復餐，蛋白質碳水一次到位' },
+            { food: '🥩 牛肉麵', reason: '鐵質 + 蛋白質，適合大量出汗後補充' },
+            { food: '🥚 蛋餅 + 豆漿', reason: '方便早餐款，適合晨練後快速恢復' },
+            { food: '🍌 香蕉 + 堅果一把', reason: '補鉀防抽筋 + 健康脂肪修復細胞' },
+        ],
     },
     TABLE_TENNIS: {
         name: '桌球',
@@ -129,6 +149,12 @@ const SPORT_DATA: Record<string, SportInfo> = {
         ],
         equipment: ['桌球拍（自備品質較好）', '桌球（三星球較耐打）'],
         campusSpots: ['暨大活動中心', '暨大學生活圈區'],
+        nutrition: [
+            { food: '🍜 乾拌麵 + 荷包蛋', reason: '簡單好吃，低強度運動後剛剛好' },
+            { food: '🍙 飯糰 + 味噌湯', reason: '便利商店組合，方便又快速' },
+            { food: '🥗 輕食沙拉', reason: '低強度運動後不需要太重的餐點' },
+            { food: '🍎 水果 + 優格', reason: '抗氧化 + 腸道健康，維持專注力' },
+        ],
     },
     GYM: {
         name: '健身',
@@ -151,6 +177,12 @@ const SPORT_DATA: Record<string, SportInfo> = {
         ],
         equipment: ['運動鞋', '毛巾', '水壺', '護腕/護膝（選配）'],
         campusSpots: ['暨大健身房'],
+        nutrition: [
+            { food: '🥛 乳清蛋白奶昔 + 香蕉', reason: '最快速的蛋白質補充，重訓後黃金 30 分鐘' },
+            { food: '🍗 雞胸肉 200g + 糙米 1 碗', reason: '經典增肌餐，高蛋白低脂肪' },
+            { food: '🐟 鮪魚罐頭 + 全麥吐司 + 酪梨', reason: '健康脂肪 + 蛋白質 + 碳水三合一' },
+            { food: '🥚 蛋白 5 顆 + 全蛋 1 顆 + 地瓜', reason: '精算蛋白質的進階增肌組合' },
+        ],
     },
     VOLLEYBALL: {
         name: '排球',
@@ -173,6 +205,12 @@ const SPORT_DATA: Record<string, SportInfo> = {
         ],
         equipment: ['排球', '運動鞋', '護膝（建議）'],
         campusSpots: ['暨大排球場'],
+        nutrition: [
+            { food: '🍱 排骨便當', reason: '熱量充足，蛋白質碳水一次到位' },
+            { food: '🍛 咖哩雞肉飯', reason: '薑黃有天然消炎效果，加速恢復' },
+            { food: '🍜 餛飩湯 + 滷蛋', reason: '溫暖湯品幫助肌肉放鬆恢復' },
+            { food: '🥩 牛排 + 馬鈴薯', reason: '鐵質 + 蛋白質 + 碳水的完整補給' },
+        ],
     },
     NIGHT_WALK: {
         name: '夜散',
@@ -332,6 +370,33 @@ export default function SportGuidePage() {
                         </Stack>
                     </CardContent>
                 </Card>
+
+                {/* Nutrition */}
+                {sport.nutrition && sport.nutrition.length > 0 && (
+                    <Card sx={{ borderRadius: 4, border: `1px solid ${sport.color}33` }}>
+                        <CardContent sx={{ p: 3 }}>
+                            <Stack direction="row" spacing={1} alignItems="center" mb={2}>
+                                <LocalDining sx={{ color: sport.color }} />
+                                <Typography variant="h5" fontWeight="bold">🍽️ 運動後飲食指南</Typography>
+                            </Stack>
+                            <Divider sx={{ mb: 2 }} />
+                            <Stack spacing={2}>
+                                {sport.nutrition.map((item, i) => (
+                                    <Card key={i} variant="outlined" sx={{
+                                        borderRadius: 2,
+                                        background: `${sport.color}0a`,
+                                        borderColor: `${sport.color}22`,
+                                    }}>
+                                        <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                                            <Typography variant="subtitle1" fontWeight="bold">{item.food}</Typography>
+                                            <Typography variant="body2" color="text.secondary">{item.reason}</Typography>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* CTA */}
                 <Box sx={{ textAlign: 'center', pt: 2 }}>
