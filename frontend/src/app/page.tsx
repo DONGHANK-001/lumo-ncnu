@@ -508,14 +508,14 @@ export default function LandingPage() {
                             textDecoration: 'none',
                             borderRadius: 4,
                             background: mode === 'dark'
-                                ? 'linear-gradient(135deg, #3d2b1a 0%, #5c3a1e 100%)'
-                                : 'linear-gradient(135deg, #fde8d0 0%, #fbceb1 100%)',
+                                ? 'linear-gradient(135deg, #3d1a2e 0%, #5c1e3a 100%)'
+                                : 'linear-gradient(135deg, #FFECF5 0%, #f8d7e8 100%)',
                             transition: 'transform 0.3s',
                             '&:hover': { transform: 'translateY(-6px)' },
                         }}
                     >
                         <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                            <Restaurant sx={{ fontSize: 48, color: mode === 'dark' ? '#fbceb1' : '#c06014', mb: 2 }} />
+                            <Restaurant sx={{ fontSize: 48, color: mode === 'dark' ? '#f8bbd0' : '#c2185b', mb: 2 }} />
                             <Typography variant="h5" fontWeight="bold" gutterBottom>🍜 飯搭子</Typography>
                             <Typography variant="body2" color="text.secondary">
                                 一個人吃飯太孤單？找人一起吃吧！
