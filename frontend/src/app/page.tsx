@@ -49,8 +49,6 @@ import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useState, useEffect } from 'react';
 import { useThemeMode } from '@/theme/ThemeModeContext';
 import { getSocket } from '@/lib/socket';
-import SafetyNoticeDialog from '@/app/components/SafetyNoticeDialog';
-import NotificationBell from '@/app/components/NotificationBell';
 import OnboardingDialog from './components/OnboardingDialog';
 import { DISCLAIMER_TEXT } from './components/OnboardingDialog';
 
@@ -61,8 +59,6 @@ const SPORTS = [
     { type: 'TABLE_TENNIS', icon: <SportsTennis fontSize="large" />, name: '桌球' },
     { type: 'GYM', icon: <FitnessCenter fontSize="large" />, name: '健身' },
     { type: 'VOLLEYBALL', icon: <SportsVolleyball fontSize="large" />, name: '排球' },
-    { type: 'NIGHT_WALK', icon: <NightsStay fontSize="large" />, name: '夜散' },
-    { type: 'DINING', icon: <Restaurant fontSize="large" />, name: '飯搭子' },
 ];
 
 const SPORT_NAMES: Record<string, string> = {
@@ -72,8 +68,6 @@ const SPORT_NAMES: Record<string, string> = {
     TABLE_TENNIS: '桌球',
     GYM: '健身',
     VOLLEYBALL: '排球',
-    NIGHT_WALK: '夜散',
-    DINING: '飯搭子',
 };
 
 export default function LandingPage() {
@@ -233,7 +227,6 @@ export default function LandingPage() {
                                     {mode === 'dark' ? <LightMode /> : <DarkMode />}
                                 </IconButton>
                             )}
-                            <NotificationBell />
                             <Button
                                 component={Link}
                                 href="/groups"
@@ -475,58 +468,7 @@ export default function LandingPage() {
                 </Stack>
             </Container>
 
-            {/* 社交活動專區 */}
-            <Container maxWidth="lg" sx={{ py: 4 }}>
-                <Typography variant="h5" fontWeight="bold" textAlign="center" mb={4}>✨ 社交活動</Typography>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} justifyContent="center">
-                    <Card
-                        component={Link}
-                        href="/create?type=NIGHT_WALK"
-                        sx={{
-                            flex: 1,
-                            maxWidth: 360,
-                            textDecoration: 'none',
-                            borderRadius: 4,
-                            background: mode === 'dark'
-                                ? 'linear-gradient(135deg, #1a1a3e 0%, #2d1b69 100%)'
-                                : 'linear-gradient(135deg, #e8d5f5 0%, #d1c4e9 100%)',
-                            transition: 'transform 0.3s',
-                            '&:hover': { transform: 'translateY(-6px)' },
-                        }}
-                    >
-                        <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                            <NightsStay sx={{ fontSize: 48, color: mode === 'dark' ? '#bb86fc' : '#6750A4', mb: 2 }} />
-                            <Typography variant="h5" fontWeight="bold" gutterBottom>🌙 揪團夜散</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                晚上想出來走走？找個伴一起散步聊天或安靜放空
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                    <Card
-                        component={Link}
-                        href="/create?type=DINING"
-                        sx={{
-                            flex: 1,
-                            maxWidth: 360,
-                            textDecoration: 'none',
-                            borderRadius: 4,
-                            background: mode === 'dark'
-                                ? 'linear-gradient(135deg, #3d1a2e 0%, #5c1e3a 100%)'
-                                : 'linear-gradient(135deg, #FFECF5 0%, #f8d7e8 100%)',
-                            transition: 'transform 0.3s',
-                            '&:hover': { transform: 'translateY(-6px)' },
-                        }}
-                    >
-                        <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                            <Restaurant sx={{ fontSize: 48, color: mode === 'dark' ? '#f8bbd0' : '#c2185b', mb: 2 }} />
-                            <Typography variant="h5" fontWeight="bold" gutterBottom>🍜 飯搭子</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                一個人吃飯太孤單？找人一起吃吧！
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                </Stack>
-            </Container>
+
 
             {/* Nutrition Guide Card */}
             <Container maxWidth="sm" sx={{ pb: 4 }}>

@@ -57,9 +57,9 @@ interface GroupDetail {
     currentCount: number;
     status: string;
     tags: string[];
-    createdBy: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; };
+    createdBy: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; planType?: string };
     members: Array<{
-        user: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; };
+        user: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; planType?: string };
         status: string;
         joinedAt: string;
         isAttended: boolean | null;
@@ -80,8 +80,6 @@ const SPORT_NAMES: Record<string, string> = {
     TABLE_TENNIS: '桌球',
     GYM: '健身',
     VOLLEYBALL: '排球',
-    NIGHT_WALK: '夜散',
-    DINING: '飯搭子',
 };
 
 const LEVEL_NAMES: Record<string, string> = {

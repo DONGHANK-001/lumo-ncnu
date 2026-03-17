@@ -48,12 +48,10 @@ const SPORT_OPTIONS = [
     { value: 'TABLE_TENNIS', label: '桌球', icon: <SportsTennis /> },
     { value: 'GYM', label: '健身', icon: <FitnessCenter /> },
     { value: 'VOLLEYBALL', label: '排球', icon: <SportsVolleyball /> },
-    { value: 'NIGHT_WALK', label: '夜散', icon: <NightsStay /> },
-    { value: 'DINING', label: '飯搭子', icon: <Restaurant /> },
 ];
 
 // 不需要程度要求的活動類型
-const NO_LEVEL_TYPES = ['NIGHT_WALK', 'DINING'];
+const NO_LEVEL_TYPES: string[] = [];
 
 const LEVEL_OPTIONS = [
     { value: 'ANY', label: '不限程度' },
@@ -70,17 +68,6 @@ const SPORT_TAG_OPTIONS = [
     '新手友善',
     '輕鬆打',
     '休閒流汗',
-];
-
-// 社交類標籤（夜散、飯搭子用）
-const SOCIAL_TAG_OPTIONS = [
-    '安靜散步',
-    '邊走邊聊',
-    '安靜吃飯',
-    '想聊天交朋友',
-    '女性友善',
-    '男性友善',
-    '性別友善',
 ];
 
 const CAPACITY_PRESETS = [2, 4, 6, 8, 10, 20];
@@ -267,7 +254,7 @@ function CreateGroupPageInner() {
                                     />
                                     <Autocomplete
                                         multiple
-                                        options={NO_LEVEL_TYPES.includes(form.sportType) ? SOCIAL_TAG_OPTIONS : SPORT_TAG_OPTIONS}
+                                        options={SPORT_TAG_OPTIONS}
                                         value={form.tags}
                                         onChange={(_, newValue) => setForm({ ...form, tags: newValue })}
                                         renderTags={(value: readonly string[], getTagProps) =>
@@ -289,8 +276,8 @@ function CreateGroupPageInner() {
                                             <TextField
                                                 {...params}
                                                 variant="outlined"
-                                                label={NO_LEVEL_TYPES.includes(form.sportType) ? '社交偏好 (可選多個)' : '友善標籤 (可選多個)'}
-                                                placeholder={NO_LEVEL_TYPES.includes(form.sportType) ? '選擇你的社交偏好' : '加入標籤讓球友更安心'}
+                                                label='友善標籤 (可選多個)'
+                                                placeholder='加入標籤讓球友更安心'
                                             />
                                         )}
                                     />
@@ -354,21 +341,19 @@ function CreateGroupPageInner() {
                             {/* Requirements */}
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
                                 <Stack spacing={3}>
-                                    {!NO_LEVEL_TYPES.includes(form.sportType) && (
-                                        <TextField
-                                            select
-                                            label="程度要求"
-                                            fullWidth
-                                            value={form.level}
-                                            onChange={(e) => setForm({ ...form, level: e.target.value })}
-                                        >
+                                    <TextField
+                                        select
+                                        label="程度要求"
+                                        fullWidth
+                                        value={form.level}
+                                        onChange={(e) => setForm({ ...form, level: e.target.value })}
+                                    >
                                             {LEVEL_OPTIONS.map((option) => (
                                                 <MenuItem key={option.value} value={option.value}>
                                                     {option.label}
                                                 </MenuItem>
                                             ))}
                                         </TextField>
-                                    )}
 
                                     <Box>
                                         <Typography variant="body2" color="text.secondary" mb={1}>快速選擇人數</Typography>

@@ -14,11 +14,9 @@ import feedbackRoutes from './routes/feedback.routes.js';
 import matchRoutes from './routes/match.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import usersRoutes from './routes/users.routes.js';
-import notificationsRoutes from './routes/notifications.routes.js';
 import http from 'http';
 import { initSocket } from './socket.js';
 import { startCleanupJob } from './lib/cleanup.job.js';
-import { startReminderJob } from './lib/notification.job.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -111,7 +109,6 @@ app.use('/feedback', feedbackRoutes);       // /feedback
 app.use('/match', matchRoutes);             // /match/partners
 app.use('/payment', paymentRoutes);         // /payment/checkout, /payment/callback
 app.use('/users', usersRoutes);     // /users/:id, /users/me/avatar
-app.use('/notifications', notificationsRoutes); // /notifications, /notifications/unread-count
 
 // ============================================
 // Error Handling
@@ -144,7 +141,6 @@ server.listen(PORT, () => {
     // 啟動定時清理任務
     try {
         startCleanupJob();
-        startReminderJob();
     } catch (err) {
         console.error('❌ Cleanup job start failed:', err);
     }

@@ -34,7 +34,7 @@ class ApiClient {
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 秒 timeout
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 秒 timeout
 
                 const response = await fetch(`${this.baseUrl}${endpoint}`, {
                     method,
@@ -248,23 +248,6 @@ class ApiClient {
 
     setActiveTitle(token: string, titleKey: string) {
         return this.request<any>('/me/title', { method: 'PUT', token, body: { titleKey } });
-    }
-
-    // Notifications
-    getNotifications(token: string, page = 1) {
-        return this.request<any>(`/notifications?page=${page}`, { token });
-    }
-
-    getUnreadCount(token: string) {
-        return this.request<any>('/notifications/unread-count', { token });
-    }
-
-    markNotificationRead(token: string, id: string) {
-        return this.request<any>(`/notifications/${id}/read`, { method: 'PUT', token });
-    }
-
-    markAllNotificationsRead(token: string) {
-        return this.request<any>('/notifications/read-all', { method: 'PUT', token });
     }
 }
 

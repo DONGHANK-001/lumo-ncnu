@@ -10,7 +10,6 @@ import { ApiError } from '../middleware/error-handler.js';
 import { Prisma } from '@prisma/client';
 import { sendJoinGroupEmail } from '../lib/mailer.js';
 import { getIO } from '../socket.js';
-import { createNotification } from '../lib/notification.job.js';
 
 const router = Router();
 
@@ -392,17 +391,6 @@ router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Respo
             time: group.time.toISOString(),
             isFull: isFull,
         }).catch((err: unknown) => console.error('Email send failed:', err));
-
-        // In-app 通知
-        createNotification({
-            userId: group.createdById,
-            type: isFull ? 'FULL' : 'JOIN',
-            title: isFull ? `🎉 你的揪團人數已滿！` : `👋 有人加入了你的揪團`,
-            body: isFull
-                ? `「${group.title}」已經滿員了，記得準時到場！`
-                : `${user.nickname || '新成員'} 加入了「${group.title}」`,
-            link: `/groups/${id}`,
-        }).catch(console.error);
     }
 
     res.json({
