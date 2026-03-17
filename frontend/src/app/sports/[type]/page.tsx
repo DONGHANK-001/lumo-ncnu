@@ -12,6 +12,7 @@ import {
     Divider,
     Card,
     CardContent,
+    useTheme,
 } from '@mui/material';
 import {
     ArrowBack,
@@ -219,6 +220,8 @@ export default function SportGuidePage() {
     const router = useRouter();
     const type = params.type as string;
     const sport = SPORT_DATA[type];
+    const theme = useTheme();
+    const isDark = theme.palette.mode === 'dark';
 
     if (!sport) {
         return (
@@ -248,20 +251,23 @@ export default function SportGuidePage() {
                     p: 4,
                     borderRadius: 4,
                     mb: 4,
-                    background: `linear-gradient(135deg, ${sport.color}22 0%, ${sport.color}11 100%)`,
+                    background: isDark
+                        ? `linear-gradient(135deg, ${sport.color}22 0%, ${sport.color}11 100%)`
+                        : `linear-gradient(135deg, ${sport.color}18 0%, ${sport.color}0D 100%)`,
                     textAlign: 'center',
+                    border: isDark ? 'none' : `1px solid ${sport.color}33`,
                 }}
             >
                 <Box sx={{ color: sport.color, mb: 2 }}>{sport.icon}</Box>
-                <Typography variant="h3" fontWeight="bold" gutterBottom>
+                <Typography variant="h3" fontWeight="bold" gutterBottom sx={{ color: isDark ? 'text.primary' : '#1a1a1a' }}>
                     {sport.name}
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
+                <Typography variant="body1" sx={{ color: isDark ? 'text.secondary' : '#444' }}>
                     {sport.description}
                 </Typography>
-                <Stack direction="row" spacing={1} justifyContent="center" sx={{ mt: 2 }}>
+                <Stack direction="row" spacing={1} justifyContent="center" flexWrap="wrap" sx={{ mt: 2 }}>
                     {sport.campusSpots.map((spot) => (
-                        <Chip key={spot} label={`📍 ${spot}`} variant="outlined" size="small" />
+                        <Chip key={spot} label={`📍 ${spot}`} variant="outlined" size="small" sx={{ color: isDark ? undefined : '#333', borderColor: isDark ? undefined : '#999' }} />
                     ))}
                 </Stack>
             </Paper>
