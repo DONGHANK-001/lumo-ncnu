@@ -68,6 +68,8 @@ const SPORT_NAMES: Record<string, string> = {
     TABLE_TENNIS: '桌球',
     GYM: '健身',
     VOLLEYBALL: '排球',
+    NIGHT_WALK: '夜散',
+    DINING: '飯搭子',
 };
 
 export default function LandingPage() {

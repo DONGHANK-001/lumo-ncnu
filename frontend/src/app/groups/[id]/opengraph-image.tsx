@@ -17,6 +17,8 @@ const SPORT_NAMES: Record<string, string> = {
     TABLE_TENNIS: '桌球',
     GYM: '健身',
     VOLLEYBALL: '排球',
+    NIGHT_WALK: '夜散',
+    DINING: '飯搭子',
 };
 
 const SPORT_EMOJIS: Record<string, string> = {
@@ -26,6 +28,8 @@ const SPORT_EMOJIS: Record<string, string> = {
     TABLE_TENNIS: '🏓',
     GYM: '💪',
     VOLLEYBALL: '🏐',
+    NIGHT_WALK: '🌙',
+    DINING: '🍽️',
 };
 
 export default async function Image({ params }: { params: { id: string } }) {

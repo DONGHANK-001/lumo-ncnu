@@ -48,10 +48,12 @@ const SPORT_OPTIONS = [
     { value: 'TABLE_TENNIS', label: '桌球', icon: <SportsTennis /> },
     { value: 'GYM', label: '健身', icon: <FitnessCenter /> },
     { value: 'VOLLEYBALL', label: '排球', icon: <SportsVolleyball /> },
+    { value: 'NIGHT_WALK', label: '夜散', icon: <NightsStay /> },
+    { value: 'DINING', label: '飯搭子', icon: <Restaurant /> },
 ];
 
 // 不需要程度要求的活動類型
-const NO_LEVEL_TYPES: string[] = [];
+const NO_LEVEL_TYPES: string[] = ['NIGHT_WALK', 'DINING'];
 
 const LEVEL_OPTIONS = [
     { value: 'ANY', label: '不限程度' },
@@ -69,6 +71,12 @@ const SPORT_TAG_OPTIONS = [
     '輕鬆打',
     '休閒流汗',
 ];
+
+// 社交活動標籤
+const SOCIAL_TAG_OPTIONS: Record<string, string[]> = {
+    NIGHT_WALK: ['純散步不聊天', '邊走邊聊', '看星星', '運動後散步', '安靜放空'],
+    DINING: ['純吃飯不聊天', '邊吃邊聊', '想交朋友', '找飯友', 'AA制'],
+};
 
 const CAPACITY_PRESETS = [2, 4, 6, 8, 10, 20];
 
@@ -341,6 +349,7 @@ function CreateGroupPageInner() {
                             {/* Requirements */}
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
                                 <Stack spacing={3}>
+                                    {!NO_LEVEL_TYPES.includes(form.sportType) && (
                                     <TextField
                                         select
                                         label="程度要求"
@@ -354,6 +363,31 @@ function CreateGroupPageInner() {
                                                 </MenuItem>
                                             ))}
                                         </TextField>
+                                    )}
+
+                                    {/* 標籤選擇 */}
+                                    <Box>
+                                        <Typography variant="body2" color="text.secondary" mb={1}>
+                                            {SOCIAL_TAG_OPTIONS[form.sportType] ? '活動風格標籤' : '標籤（選填）'}
+                                        </Typography>
+                                        <Stack direction="row" flexWrap="wrap" gap={1}>
+                                            {(SOCIAL_TAG_OPTIONS[form.sportType] || SPORT_TAG_OPTIONS).map((tag) => (
+                                                <Chip
+                                                    key={tag}
+                                                    label={tag}
+                                                    onClick={() => {
+                                                        const tags = form.tags.includes(tag)
+                                                            ? form.tags.filter(t => t !== tag)
+                                                            : [...form.tags, tag];
+                                                        setForm({ ...form, tags });
+                                                    }}
+                                                    color={form.tags.includes(tag) ? 'primary' : 'default'}
+                                                    variant={form.tags.includes(tag) ? 'filled' : 'outlined'}
+                                                    sx={{ cursor: 'pointer' }}
+                                                />
+                                            ))}
+                                        </Stack>
+                                    </Box>
 
                                     <Box>
                                         <Typography variant="body2" color="text.secondary" mb={1}>快速選擇人數</Typography>
