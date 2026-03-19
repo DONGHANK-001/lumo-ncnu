@@ -74,6 +74,17 @@ enum PaymentStatus {
   FAILED
 }
 
+enum NotificationType {
+  GROUP_JOIN
+  GROUP_LEAVE
+  GROUP_FULL
+  GROUP_CANCELLED
+  GROUP_REMINDER
+  WAITLIST_PROMOTED
+  BADGE_UNLOCKED
+  SYSTEM
+}
+
 // ============================================
 // Models
 // ============================================
@@ -111,6 +122,8 @@ model User {
   feedbacks       Feedback[]
   paymentLogs     PaymentLog[]
   checkIns        UserCheckIn[]
+  notifications   Notification[]
+  badges          UserBadge[]
 
   @@map("users")
 }
@@ -261,4 +274,45 @@ model UserCheckIn {
 
   @@unique([userId, date]) // 確保一位使用者每天只有一筆簽到紀錄
   @@map("user_check_ins")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  data      Json?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model Badge {
+  id          String      @id @default(uuid())
+  code        String      @unique
+  name        String
+  description String?
+  icon        String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  users       UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId    String
+  badge      Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  unlockedAt DateTime @default(now())
+
+  @@unique([userId, badgeId])
+  @@map("user_badges")
 }

@@ -16,6 +16,14 @@ export const initSocket = (server: HttpServer) => {
     io.on('connection', (socket) => {
         console.log(`[Socket.io] Client connected: ${socket.id}`);
 
+        // 使用者登入後加入專屬 room，用於接收個人通知
+        socket.on('join_user_room', (userId: string) => {
+            if (userId && typeof userId === 'string') {
+                socket.join(`user:${userId}`);
+                console.log(`[Socket.io] User ${userId} joined room`);
+            }
+        });
+
         socket.on('disconnect', () => {
             console.log(`[Socket.io] Client disconnected: ${socket.id}`);
         });

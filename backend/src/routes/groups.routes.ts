@@ -10,6 +10,7 @@ import { ApiError } from '../middleware/error-handler.js';
 import { Prisma } from '@prisma/client';
 import { sendJoinGroupEmail } from '../lib/mailer.js';
 import { getIO } from '../socket.js';
+import { createNotification, notifyGroupMembers } from '../lib/notification.service.js';
 
 const router = Router();
 
@@ -391,6 +392,15 @@ router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Respo
             time: group.time.toISOString(),
             isFull: isFull,
         }).catch((err: unknown) => console.error('Email send failed:', err));
+
+        // 站內通知發起人
+        createNotification({
+            userId: group.createdById,
+            type: 'GROUP_JOIN',
+            title: '有人加入了你的揪團！',
+            body: `${user.nickname || '新成員'} 加入了「${group.title}」`,
+            data: { groupId: id },
+        }).catch((err: unknown) => console.error('Notification failed:', err));
     }
 
     res.json({
@@ -462,7 +472,25 @@ router.post('/:id/leave', firebaseAuthMiddleware, async (req: Request, res: Resp
                 },
             }),
         ]);
+
+        // 通知候補者遞補成功
+        createNotification({
+            userId: waitlistMember.userId,
+            type: 'WAITLIST_PROMOTED',
+            title: '候補成功！🎉',
+            body: `你已自動遞補加入「${group.title}」`,
+            data: { groupId: id },
+        }).catch((err: unknown) => console.error('Notification failed:', err));
     }
+
+    // 通知發起人有人退出
+    createNotification({
+        userId: group.createdById,
+        type: 'GROUP_LEAVE',
+        title: '有人退出了你的揪團',
+        body: `${user.nickname || '成員'} 退出了「${group.title}」`,
+        data: { groupId: id },
+    }).catch((err: unknown) => console.error('Notification failed:', err));
 
     getIO().emit('group_updated', {
         id,
@@ -513,6 +541,14 @@ router.post('/:id/cancel', firebaseAuthMiddleware, async (req: Request, res: Res
     ]);
 
     getIO().emit('group_cancelled', { id });
+
+    // 通知所有成員揪團已取消
+    notifyGroupMembers(id, user.id, {
+        type: 'GROUP_CANCELLED',
+        title: '揪團已取消',
+        body: `「${group.title}」已被發起人取消`,
+        data: { groupId: id },
+    }).catch((err: unknown) => console.error('Notification failed:', err));
 
     res.json({
         success: true,

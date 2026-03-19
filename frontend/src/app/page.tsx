@@ -24,7 +24,8 @@ import {
     DialogActions,
     TextField,
     Divider,
-    Skeleton
+    Skeleton,
+    Badge
 } from '@mui/material';
 import {
     SportsBasketball,
@@ -40,7 +41,8 @@ import {
     SportsVolleyball,
     Feedback,
     NightsStay,
-    Restaurant
+    Restaurant,
+    Notifications as NotificationsIcon
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
@@ -52,6 +54,7 @@ import { useThemeMode } from '@/theme/ThemeModeContext';
 import { getSocket } from '@/lib/socket';
 import OnboardingDialog from './components/OnboardingDialog';
 import { DISCLAIMER_TEXT } from './components/OnboardingDialog';
+import { useNotifications } from '@/hooks/useNotifications';
 
 const SPORTS = [
     { type: 'BASKETBALL', icon: <SportsBasketball fontSize="large" />, name: '籃球' },
@@ -94,6 +97,9 @@ export default function LandingPage() {
 
     // Onboarding Dialog
     const [showOnboarding, setShowOnboarding] = useState(false);
+
+    // Notifications
+    const { unreadCount } = useNotifications();
 
     useEffect(() => {
         if (user && !user.onboardingCompleted) {
@@ -230,6 +236,19 @@ export default function LandingPage() {
                                     aria-label={mode === 'dark' ? '切換成混迷洛日加亮模式' : '切換成混迷洛漂亮模式'}
                                 >
                                     {mode === 'dark' ? <LightMode /> : <DarkMode />}
+                                </IconButton>
+                            )}
+                            {user && (
+                                <IconButton
+                                    component={Link}
+                                    href="/notifications"
+                                    size="small"
+                                    sx={{ color: 'text.primary' }}
+                                    aria-label="通知"
+                                >
+                                    <Badge badgeContent={unreadCount} color="error" max={99}>
+                                        <NotificationsIcon />
+                                    </Badge>
                                 </IconButton>
                             )}
                             <Button

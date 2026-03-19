@@ -14,6 +14,7 @@ import feedbackRoutes from './routes/feedback.routes.js';
 import matchRoutes from './routes/match.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import usersRoutes from './routes/users.routes.js';
+import notificationRoutes from './routes/notification.routes.js';
 import http from 'http';
 import { initSocket } from './socket.js';
 import { startCleanupJob } from './lib/cleanup.job.js';
@@ -109,6 +110,7 @@ app.use('/feedback', feedbackRoutes);       // /feedback
 app.use('/match', matchRoutes);             // /match/partners
 app.use('/payment', paymentRoutes);         // /payment/checkout, /payment/callback
 app.use('/users', usersRoutes);     // /users/:id, /users/me/avatar
+app.use('/notifications', notificationRoutes); // /notifications, /notifications/unread-count
 
 // ============================================
 // Error Handling

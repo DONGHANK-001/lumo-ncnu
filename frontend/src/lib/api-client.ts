@@ -249,6 +249,23 @@ class ApiClient {
     setActiveTitle(token: string, titleKey: string) {
         return this.request<any>('/me/title', { method: 'PUT', token, body: { titleKey } });
     }
+
+    // Notifications
+    getNotifications(token: string, page = 1) {
+        return this.request<{ items: any[]; total: number; unreadCount: number; page: number; pageSize: number }>(`/notifications?page=${page}`, { token });
+    }
+
+    getUnreadCount(token: string) {
+        return this.request<{ count: number }>('/notifications/unread-count', { token });
+    }
+
+    markNotificationRead(token: string, id: string) {
+        return this.request<{ message: string }>(`/notifications/${id}/read`, { method: 'PUT', token });
+    }
+
+    markAllNotificationsRead(token: string) {
+        return this.request<{ message: string }>('/notifications/read-all', { method: 'PUT', token });
+    }
 }
 
 export const api = new ApiClient(API_BASE_URL);
