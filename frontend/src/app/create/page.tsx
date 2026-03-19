@@ -217,14 +217,15 @@ function CreateGroupPageInner() {
                                         flexWrap: 'wrap',
                                         gap: 1,
                                         '& .MuiToggleButton-root': {
-                                            border: '1px solid rgba(255, 255, 255, 0.12) !important',
-                                            borderRadius: '12px !important',
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                            borderRadius: '12px',
                                             flex: '1 0 30%',
                                             py: 2
                                         },
                                         '& .Mui-selected': {
-                                            bgcolor: 'primary.main !important',
-                                            color: 'primary.contrastText !important'
+                                            bgcolor: 'primary.main',
+                                            color: 'primary.contrastText'
                                         }
                                     }}
                                 >
