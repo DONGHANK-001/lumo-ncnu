@@ -68,8 +68,8 @@ const SPORT_NAMES: Record<string, string> = {
     TABLE_TENNIS: '桌球',
     GYM: '健身',
     VOLLEYBALL: '排球',
-    NIGHT_WALK: '夜散',
-    DINING: '飯搭子',
+    NIGHT_WALK: '晚風漫遊',
+    DINING: '飯飯之交',
 };
 
 export default function LandingPage() {
@@ -490,7 +490,7 @@ export default function LandingPage() {
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <NightsStay sx={{ fontSize: 40, color: '#7C4DFF', mb: 1 }} />
                             <Typography variant="h6" fontWeight="bold" gutterBottom>
-                                🌙 夜散
+                                🌙 晚風漫遊
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 星空下走走聊聊，暨大最療癒的校園散步活動
@@ -513,7 +513,7 @@ export default function LandingPage() {
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <Restaurant sx={{ fontSize: 40, color: '#E91E63', mb: 1 }} />
                             <Typography variant="h6" fontWeight="bold" gutterBottom>
-                                🍽️ 飯搭子
+                                🍽️ 飯飯之交
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 找人一起吃飯！有伴就更好吃

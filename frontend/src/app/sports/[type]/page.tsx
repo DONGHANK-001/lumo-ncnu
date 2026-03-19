@@ -213,10 +213,10 @@ const SPORT_DATA: Record<string, SportInfo> = {
         ],
     },
     NIGHT_WALK: {
-        name: '夜散',
+        name: '晚風漫遊',
         icon: <NightsStay sx={{ fontSize: 60 }} />,
         color: '#7C4DFF',
-        description: '校園夜散是暨大學生最療癒的活動之一，星空下走走聊聊或安靜放空都很棒。',
+        description: '校園晚風漫遊是暨大學生最療癒的活動之一，星空下走走聊聊或安靜放空都很棒。',
         rules: [
             '請結伴同行，勿單獨行動',
             '走在有照明的路段，注意安全',
@@ -234,7 +234,7 @@ const SPORT_DATA: Record<string, SportInfo> = {
         campusSpots: ['環校步道', '暨大行政大樓前廣場', '暨大操場', '暨大圖書館周邊'],
     },
     DINING: {
-        name: '飯搭子',
+        name: '飯飯之交',
         icon: <Restaurant sx={{ fontSize: 60 }} />,
         color: '#4CAF50',
         description: '找人一起吃飯！不管是學餘堂、宿舍周邊還是台電大樓旁的小吃，有伴就更好吃。',
@@ -245,7 +245,7 @@ const SPORT_DATA: Record<string, SportInfo> = {
             '校外用餐時的安全由個人自行負責',
         ],
         tips: [
-            '建立標籤（安靜吃飯/想聊天交朋友）可以找到志趣相投的飯搭子',
+            '建立標籤（安靜吃飯/想聊天交朋友）可以找到志趣相投的飯友',
             '學餘堂用餐尖峰時段是 11:30-12:30，可以提早或晚一點去',
             '有特殊飲食需求（素食、不吃辣）記得在揪團說明裡寫清楚',
             '人多的話可以一起叫外送，省運費',

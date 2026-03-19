@@ -48,8 +48,8 @@ const SPORT_OPTIONS = [
     { value: 'TABLE_TENNIS', label: '桌球', icon: <SportsTennis /> },
     { value: 'GYM', label: '健身', icon: <FitnessCenter /> },
     { value: 'VOLLEYBALL', label: '排球', icon: <SportsVolleyball /> },
-    { value: 'NIGHT_WALK', label: '夜散', icon: <NightsStay /> },
-    { value: 'DINING', label: '飯搭子', icon: <Restaurant /> },
+    { value: 'NIGHT_WALK', label: '晚風漫遊', icon: <NightsStay /> },
+    { value: 'DINING', label: '飯飯之交', icon: <Restaurant /> },
 ];
 
 // 不需要程度要求的活動類型

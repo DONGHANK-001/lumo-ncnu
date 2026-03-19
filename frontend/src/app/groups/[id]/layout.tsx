@@ -9,8 +9,8 @@ const SPORT_NAMES: Record<string, string> = {
     TABLE_TENNIS: '桌球',
     GYM: '健身',
     VOLLEYBALL: '排球',
-    NIGHT_WALK: '夜散',
-    DINING: '飯搭子',
+    NIGHT_WALK: '晚風漫遊',
+    DINING: '飯飯之交',
 };
 
 // 這是 Next.js 14 的產生動態 metadata 方法
