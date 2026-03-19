@@ -53,7 +53,7 @@ export default async function Image({ params }: { params: { id: string } }) {
             (
                 <div
                     style={{
-                        background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
+                        background: 'linear-gradient(to right, #D0BCFF, #CCC2DC)',
                         width: '100%',
                         height: '100%',
                         display: 'flex',
@@ -81,10 +81,10 @@ export default async function Image({ params }: { params: { id: string } }) {
                             <div
                                 style={{
                                     display: 'flex',
-                                    color: '#4f46e5',
+                                    color: '#381E72',
                                     fontWeight: 'bold',
                                     fontSize: '32px',
-                                    backgroundColor: '#e0e7ff',
+                                    backgroundColor: '#EADDFF',
                                     padding: '8px 24px',
                                     borderRadius: '9999px',
                                 }}
@@ -110,12 +110,12 @@ export default async function Image({ params }: { params: { id: string } }) {
 
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', marginTop: 'auto' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                                <span style={{ color: '#6b7280', fontSize: '24px', fontWeight: 'bold' }}>時間</span>
-                                <span style={{ color: '#1f2937', fontSize: '36px', fontWeight: 'bold' }}>{timeStr}</span>
+                                <span style={{ color: '#6B7280', fontSize: '24px', fontWeight: 'bold' }}>時間</span>
+                                <span style={{ color: '#1F2937', fontSize: '36px', fontWeight: 'bold' }}>{timeStr}</span>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                                <span style={{ color: '#6b7280', fontSize: '24px', fontWeight: 'bold' }}>地點</span>
-                                <span style={{ color: '#1f2937', fontSize: '36px', fontWeight: 'bold', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location}</span>
+                                <span style={{ color: '#6B7280', fontSize: '24px', fontWeight: 'bold' }}>地點</span>
+                                <span style={{ color: '#1F2937', fontSize: '36px', fontWeight: 'bold', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{group.location}</span>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                                 <span style={{ color: '#6b7280', fontSize: '24px', fontWeight: 'bold' }}>狀態</span>

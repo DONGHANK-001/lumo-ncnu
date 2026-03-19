@@ -203,9 +203,10 @@ export default function LandingPage() {
                 elevation={0}
                 sx={{
                     backdropFilter: 'blur(10px)',
-                    bgcolor: mode === 'dark' ? 'rgba(30, 26, 46, 0.9)' : 'rgba(243, 238, 250, 0.95)',
+                    bgcolor: 'background.paper',
                     color: 'text.primary',
-                    borderBottom: mode === 'light' ? '1px solid rgba(0,0,0,0.08)' : 'none',
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
                 }}
             >
                 <Container maxWidth="lg">
@@ -316,9 +317,9 @@ export default function LandingPage() {
             <Container maxWidth="md" sx={{ mt: -6, mb: 6, position: 'relative', zIndex: 2 }}>
                 <Card sx={{
                     borderRadius: 4,
-                    background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-                    color: 'black',
-                    boxShadow: '0 8px 32px rgba(255,165,0,0.3)',
+                    background: `linear-gradient(135deg, ${theme.palette.warning.main} 0%, ${theme.palette.warning.light} 100%)`,
+                    color: theme.palette.warning.contrastText || 'black',
+                    boxShadow: `0 8px 32px ${theme.palette.mode === 'dark' ? 'rgba(255, 165, 0, 0.2)' : 'rgba(255, 165, 0, 0.3)'}`,
                 }}>
                     <CardContent sx={{ textAlign: 'center', py: 3 }}>
                         <Typography variant="h5" fontWeight="900" gutterBottom>
@@ -361,10 +362,10 @@ export default function LandingPage() {
                         <Card sx={{
                             borderRadius: 4,
                             background: isEventDay
-                                ? 'linear-gradient(135deg, #e53e3e 0%, #1a365d 50%, #e53e3e 100%)'
-                                : 'linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%)',
+                                ? `linear-gradient(135deg, ${theme.palette.error.main} 0%, ${theme.palette.primary.dark} 50%, ${theme.palette.error.main} 100%)`
+                                : `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
                             color: 'white',
-                            boxShadow: '0 8px 32px rgba(26,54,93,0.4)',
+                            boxShadow: `0 8px 32px ${theme.palette.mode === 'dark' ? 'rgba(79, 55, 139, 0.4)' : 'rgba(26, 54, 93, 0.4)'}`,
                             overflow: 'hidden',
                             position: 'relative',
                         }}>
@@ -481,14 +482,14 @@ export default function LandingPage() {
                             textDecoration: 'none',
                             borderRadius: 4,
                             background: mode === 'dark'
-                                ? 'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)'
-                                : 'linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%)',
+                                ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.secondary.dark} 100%)`
+                                : `linear-gradient(135deg, ${theme.palette.secondary.light} 0%, ${theme.palette.secondary.main} 100%)`,
                             transition: 'transform 0.3s',
                             '&:hover': { transform: 'translateY(-4px)' },
                         }}
                     >
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                            <NightsStay sx={{ fontSize: 40, color: '#7C4DFF', mb: 1 }} />
+                            <NightsStay sx={{ fontSize: 40, color: theme.palette.secondary.main, mb: 1 }} />
                             <Typography variant="h6" fontWeight="bold" gutterBottom>
                                 🌙 晚風漫遊
                             </Typography>
@@ -504,14 +505,14 @@ export default function LandingPage() {
                             textDecoration: 'none',
                             borderRadius: 4,
                             background: mode === 'dark'
-                                ? 'linear-gradient(135deg, #2e1a2e 0%, #4a1e3d 100%)'
-                                : 'linear-gradient(135deg, #FFECF5 0%, #FFD6E8 100%)',
+                                ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.error.dark} 100%)`
+                                : `linear-gradient(135deg, ${theme.palette.error.light} 0%, ${theme.palette.error.main} 100%)`,
                             transition: 'transform 0.3s',
                             '&:hover': { transform: 'translateY(-4px)' },
                         }}
                     >
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                            <Restaurant sx={{ fontSize: 40, color: '#E91E63', mb: 1 }} />
+                            <Restaurant sx={{ fontSize: 40, color: theme.palette.error.main, mb: 1 }} />
                             <Typography variant="h6" fontWeight="bold" gutterBottom>
                                 🍽️ 飯飯之交
                             </Typography>
