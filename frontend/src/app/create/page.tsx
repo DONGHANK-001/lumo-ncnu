@@ -68,8 +68,8 @@ const getTagsForSport = (sportType: string): string[] => {
         TABLE_TENNIS: ['女性友善', '男性友善', '性別友善', '新手友善', '輕鬆打', '激烈競爭'],
         GYM: ['女性友善', '男性友善', '性別友善', '新手友善', '輕量訓練', '高強度訓練'],
         VOLLEYBALL: ['女性友善', '男性友善', '性別友善', '新手友善', '球風溫和', '激烈對抗'],
-        NIGHT_WALK: ['女性友善', '性別友善', '新手友善', '輕鬆散步', '社交聚聚', '風景欣賞'],
-        DINING: ['女性友善', '性別友善', '新手友善', '美食愛好者', '社交聚聚', '探店推薦'],
+        NIGHT_WALK: ['純散步不聊天', '邊走邊聊', '看星星', '運動後散步', '安靜放空'],
+        DINING: ['純吃飯不聊天', '邊吃邊聊', '想交朋友', '找飯友', 'AA制'],
     };
     return sportTagMap[sportType] || ['女性友善', '性別友善', '新手友善'];
 };
@@ -408,6 +408,11 @@ export default function CreateGroupPage() {
                                             />
                                         )}
                                     />
+                                    <Alert severity="info" sx={{ borderRadius: 2 }} icon={<Place sx={{ mr: 1 }} />}>
+                                        <Typography variant="caption">
+                                            拱圈地點僅限於暨大校內，平台不負責校外活動
+                                        </Typography>
+                                    </Alert>
                                 </Stack>
                             </Paper>
 
@@ -428,8 +433,30 @@ export default function CreateGroupPage() {
                                         ))}
                                     </TextField>
 
+                                    <Box>
+                                        <Typography variant="subtitle2" fontWeight="bold" mb={2}>
+                                            快速選擇人數
+                                        </Typography>
+                                        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                                            {[2, 4, 6, 8, 10, 20].map((num) => (
+                                                <Button
+                                                    key={num}
+                                                    variant={form.capacity === num ? 'contained' : 'outlined'}
+                                                    size="small"
+                                                    onClick={() => handleCapacityChange(num)}
+                                                    sx={{ minWidth: 60 }}
+                                                >
+                                                    {num} 人
+                                                </Button>
+                                            ))}
+                                        </Stack>
+                                    </Box>
+
+                                    <Typography variant="overline" color="text.secondary" sx={{ mt: 2, mb: 1 }}>
+                                        自訂人數上限 (含自己)
+                                    </Typography>
                                     <TextField
-                                        label="人數上限 (含自己) *"
+                                        label="人數上限 *"
                                         type="number"
                                         required
                                         fullWidth
