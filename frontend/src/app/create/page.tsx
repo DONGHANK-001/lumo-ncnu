@@ -59,6 +59,21 @@ const LEVEL_OPTIONS = [
     { value: 'ADVANCED', label: '進階' },
 ];
 
+// 根據運動類型取得對應的標籤
+const getTagsForSport = (sportType: string): string[] => {
+    const sportTagMap: Record<string, string[]> = {
+        BASKETBALL: ['女性友善', '男性友善', '性別友善', '新手友善', '輕鬆打', '激烈競爭'],
+        RUNNING: ['女性友善', '性別友善', '新手友善', '輕鬆跑', '競速挑戰'],
+        BADMINTON: ['女性友善', '男性友善', '性別友善', '新手友善', '輕鬆打', '激烈競爭'],
+        TABLE_TENNIS: ['女性友善', '男性友善', '性別友善', '新手友善', '輕鬆打', '激烈競爭'],
+        GYM: ['女性友善', '男性友善', '性別友善', '新手友善', '輕量訓練', '高強度訓練'],
+        VOLLEYBALL: ['女性友善', '男性友善', '性別友善', '新手友善', '球風溫和', '激烈對抗'],
+        NIGHT_WALK: ['女性友善', '性別友善', '新手友善', '輕鬆散步', '社交聚聚', '風景欣賞'],
+        DINING: ['女性友善', '性別友善', '新手友善', '美食愛好者', '社交聚聚', '探店推薦'],
+    };
+    return sportTagMap[sportType] || ['女性友善', '性別友善', '新手友善'];
+};
+
 const TAG_OPTIONS = [
     '女性友善',
     '男性友善',
@@ -248,7 +263,7 @@ export default function CreateGroupPage() {
                                 <ToggleButtonGroup
                                     value={form.sportType}
                                     exclusive
-                                    onChange={(_, newVal) => newVal && setForm({ ...form, sportType: newVal })}
+                                    onChange={(_, newVal) => newVal && setForm({ ...form, sportType: newVal, tags: [] })}
                                     aria-label="選擇運動類型"
                                     fullWidth
                                     sx={{
@@ -306,7 +321,7 @@ export default function CreateGroupPage() {
                                     />
                                     <Autocomplete
                                         multiple
-                                        options={TAG_OPTIONS}
+                                        options={getTagsForSport(form.sportType)}
                                         value={form.tags}
                                         onChange={(_, newValue) => setForm({ ...form, tags: newValue })}
                                         renderTags={(value: readonly string[], getTagProps) =>
