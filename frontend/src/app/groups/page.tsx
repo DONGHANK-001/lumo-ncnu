@@ -26,7 +26,9 @@ import {
     Switch,
     Fab,
     IconButton,
-    InputAdornment
+    InputAdornment,
+    Skeleton,
+    Paper
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -230,26 +232,55 @@ export default function GroupsPage() {
 
             {/* Groups Grid */}
             {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-                    <CircularProgress />
-                </Box>
+                <Grid container spacing={3}>
+                    {[...Array(6)].map((_, i) => (
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
+                            <Card sx={{ height: '100%', borderRadius: 3 }}>
+                                <CardContent>
+                                    <Stack spacing={2}>
+                                        <Stack direction="row" justifyContent="space-between">
+                                            <Skeleton variant="rounded" width={80} height={24} />
+                                            <Skeleton variant="rounded" width={60} height={24} />
+                                        </Stack>
+                                        <Skeleton variant="text" width="100%" height={28} />
+                                        <Stack spacing={1}>
+                                            <Skeleton variant="text" width="100%" height={16} />
+                                            <Skeleton variant="text" width="100%" height={16} />
+                                            <Skeleton variant="text" width="80%" height={16} />
+                                        </Stack>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
             ) : groups.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 8 }}>
-                    <Typography variant="h2" sx={{ mb: 2 }}>🏃</Typography>
-                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4 }}>
+                    <Typography variant="h3" sx={{ mb: 2 }}>🏃</Typography>
+                    <Typography variant="h6" fontWeight="bold" gutterBottom>
                         目前沒有符合條件的揪團
                     </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                        試試調整篩選條件或成為第一個發起揪團的人！
+                    </Typography>
                     {user && (
-                        <Button
-                            variant="contained"
-                            component={Link}
-                            href="/create"
-                            sx={{ mt: 2 }}
-                        >
-                            成為第一個發起揪團的人！
-                        </Button>
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
+                            <Button
+                                variant="contained"
+                                component={Link}
+                                href="/create"
+                            >
+                                發起揪團
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                onClick={() => setFilters({ sportType: '', level: '', hasSlot: false })}
+                            >
+                                重置篩選
+                            </Button>
+                        </Stack>
                     )}
-                </Box>
+                </Paper>
             ) : (
                 <Grid container spacing={3}>
                     {groups.map((group) => (

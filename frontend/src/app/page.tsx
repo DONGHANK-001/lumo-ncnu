@@ -23,7 +23,8 @@ import {
     DialogContent,
     DialogActions,
     TextField,
-    Divider
+    Divider,
+    Skeleton
 } from '@mui/material';
 import {
     SportsBasketball,
@@ -241,7 +242,7 @@ export default function LandingPage() {
                             </Button>
 
                             {loading ? (
-                                <Box sx={{ width: 80, height: 36, bgcolor: 'action.hover', borderRadius: 2 }} />
+                                <Skeleton variant="text" width={100} height={36} sx={{ borderRadius: 2 }} />
                             ) : user ? (
                                 <Button
                                     component={Link}

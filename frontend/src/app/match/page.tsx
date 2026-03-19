@@ -14,7 +14,8 @@ import {
     CircularProgress,
     Alert,
     Button,
-    Paper
+    Paper,
+    Skeleton
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api-client';
@@ -66,9 +67,47 @@ export default function MatchPage() {
 
     if (authLoading || loading) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-                <CircularProgress />
-            </Box>
+            <Container maxWidth="md" sx={{ py: 4 }}>
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    component={Link}
+                    href="/"
+                    sx={{ mb: 3, color: 'text.secondary' }}
+                >
+                    返回首頁
+                </Button>
+
+                <Typography variant="h4" fontWeight="bold" gutterBottom>
+                    🤖 智慧配對
+                </Typography>
+                <Typography variant="body1" color="text.secondary" paragraph>
+                    根據程度、時間、地點，找到最適合你的夥伴！
+                </Typography>
+
+                <Grid container spacing={3} sx={{ mt: 1 }}>
+                    {[...Array(6)].map((_, i) => (
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
+                            <Card sx={{ height: '100%', borderRadius: 4 }}>
+                                <CardContent>
+                                    <Stack spacing={2}>
+                                        <Stack direction="row" spacing={2} alignItems="center">
+                                            <Skeleton variant="circular" width={56} height={56} />
+                                            <Stack spacing={1} sx={{ flex: 1 }}>
+                                                <Skeleton variant="text" width="100%" height={20} />
+                                                <Skeleton variant="text" width="60%" height={16} />
+                                            </Stack>
+                                        </Stack>
+                                        <Stack direction="row" gap={1}>
+                                            <Skeleton variant="rounded" width={80} height={24} />
+                                            <Skeleton variant="rounded" width={80} height={24} />
+                                        </Stack>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Container>
         );
     }
 
@@ -108,18 +147,27 @@ export default function MatchPage() {
             )}
 
             {partners.length === 0 ? (
-                <Paper sx={{ p: 4, textAlign: 'center', borderRadius: 4 }}>
-                    <Typography variant="h6" color="text.secondary" gutterBottom>
-                        目前還沒有推薦的球友
+                <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, bgcolor: 'action.hover' }}>
+                    <Typography variant="h2" sx={{ mb: 2 }}>🔍</Typography>
+                    <Typography variant="h6" fontWeight="bold" gutterBottom>
+                        還沒有推薦的運動夥伴
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        您可以至「個人檔案」充實您的喜好設定，更容易遇到志同道合的人！
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 4, maxWidth: 400, mx: 'auto' }}>
+                        以下方式可提升配對成功率：
                     </Typography>
-                    <Link href="/profile" passHref>
-                        <Button variant="contained" sx={{ mt: 2 }}>
-                            前往設定偏好
+                    <Stack component="ul" sx={{ textAlign: 'left', display: 'inline-block', listStyle: 'none', p: 0, mb: 4 }}>
+                        <Typography component="li" variant="body2" sx={{ mb: 1 }}>✅ 完善個人檔案（技能等級、偏好運動）</Typography>
+                        <Typography component="li" variant="body2" sx={{ mb: 1 }}>✅ 參與更多揪團活動</Typography>
+                        <Typography component="li" variant="body2">✅ 邀請朋友一起加入平台</Typography>
+                    </Stack>
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
+                        <Button variant="contained" component={Link} href="/profile">
+                            完善檔案 →
                         </Button>
-                    </Link>
+                        <Button variant="outlined" component={Link} href="/groups">
+                            瀏覽揪團
+                        </Button>
+                    </Stack>
                 </Paper>
             ) : (
                 <Grid container spacing={3}>
