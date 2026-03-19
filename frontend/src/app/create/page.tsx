@@ -82,6 +82,7 @@ export default function CreateGroupPage() {
     const [error, setError] = useState<string | null>(null);
     const [showSafetyNotice, setShowSafetyNotice] = useState(false);
     const [quota, setQuota] = useState<{ limit: number, remaining: number } | null>(null);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         const fetchQuota = async () => {
@@ -97,6 +98,61 @@ export default function CreateGroupPage() {
 
     const outOfQuota = quota ? quota.remaining <= 0 : false;
 
+    // 驗證函數
+    const validateTitle = (title: string): string => {
+        if (!title.trim()) return '揪團標題為必填';
+        if (title.length > 50) return '標題不超過 50 字';
+        return '';
+    };
+
+    const validateTime = (time: string): string => {
+        if (!time) return '時間為必填';
+        if (new Date(time) <= new Date()) return '請選擇未來時間';
+        return '';
+    };
+
+    const validateLocation = (location: string): string => {
+        if (!location.trim()) return '位置為必填';
+        return '';
+    };
+
+    const validateCapacity = (capacity: number): string => {
+        if (capacity < 2) return '人數至少 2 人';
+        if (capacity > 50) return '人數最多 50 人';
+        return '';
+    };
+
+    const validateForm = (): boolean => {
+        const newErrors: Record<string, string> = {};
+        newErrors.title = validateTitle(form.title);
+        newErrors.time = validateTime(form.time);
+        newErrors.location = validateLocation(form.location);
+        newErrors.capacity = validateCapacity(form.capacity);
+        
+        setErrors(newErrors);
+        return !Object.values(newErrors).some(e => e);
+    };
+
+    const handleTitleChange = (val: string) => {
+        setForm({ ...form, title: val });
+        if (errors.title) setErrors({ ...errors, title: validateTitle(val) });
+    };
+
+    const handleTimeChange = (val: string) => {
+        setForm({ ...form, time: val });
+        if (errors.time) setErrors({ ...errors, time: validateTime(val) });
+    };
+
+    const handleLocationChange = (val: string) => {
+        setForm({ ...form, location: val });
+        if (errors.location) setErrors({ ...errors, location: validateLocation(val) });
+    };
+
+    const handleCapacityChange = (val: number) => {
+        setForm({ ...form, capacity: val });
+        if (errors.capacity) setErrors({ ...errors, capacity: validateCapacity(val) });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -104,6 +160,12 @@ export default function CreateGroupPage() {
             setError('請先登入');
             return;
         }
+
+        if (!validateForm()) {
+            setError('請修正表單錯誤');
+            return;
+        }
+
         // 彈出安全須知
         setShowSafetyNotice(true);
     };
@@ -150,6 +212,7 @@ export default function CreateGroupPage() {
                 <Button
                     startIcon={<ArrowBack />}
                     sx={{ mb: 2, color: 'text.secondary' }}
+                    aria-label="返回揪團列表"
                 >
                     返回列表
                 </Button>
@@ -182,7 +245,7 @@ export default function CreateGroupPage() {
                                     value={form.sportType}
                                     exclusive
                                     onChange={(_, newVal) => newVal && setForm({ ...form, sportType: newVal })}
-                                    aria-label="sport type"
+                                    aria-label="選擇運動類型"
                                     fullWidth
                                     sx={{
                                         display: 'flex',
@@ -216,13 +279,17 @@ export default function CreateGroupPage() {
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
                                 <Stack spacing={3}>
                                     <TextField
-                                        label="揪團標題"
+                                        label="揪團標題 *"
                                         required
                                         fullWidth
                                         value={form.title}
-                                        onChange={(e) => setForm({ ...form, title: e.target.value })}
+                                        onChange={(e) => handleTitleChange(e.target.value)}
+                                        onBlur={() => setErrors({ ...errors, title: validateTitle(form.title) })}
                                         placeholder="例如：週五晚上來打球！"
                                         variant="outlined"
+                                        error={!!errors.title}
+                                        helperText={errors.title || '50 字以內'}
+                                        aria-describedby="title-helper"
                                     />
                                     <TextField
                                         label="說明 (選填)"
@@ -269,13 +336,17 @@ export default function CreateGroupPage() {
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
                                 <Stack spacing={3}>
                                     <TextField
-                                        label="時間"
+                                        label="時間 *"
                                         type="datetime-local"
                                         required
                                         fullWidth
                                         InputLabelProps={{ shrink: true }}
                                         value={form.time}
-                                        onChange={(e) => setForm({ ...form, time: e.target.value })}
+                                        onChange={(e) => handleTimeChange(e.target.value)}
+                                        onBlur={() => setErrors({ ...errors, time: validateTime(form.time) })}
+                                        error={!!errors.time}
+                                        helperText={errors.time}
+                                        aria-describedby="time-helper"
                                     />
                                     <Autocomplete
                                         freeSolo={true}
@@ -296,11 +367,17 @@ export default function CreateGroupPage() {
                                             '暨大綜合大樓',
                                         ]}
                                         value={form.location}
-                                        onInputChange={(_event, newVal) => setForm({ ...form, location: newVal })}
+                                        onInputChange={(_event, newVal) => handleLocationChange(newVal)}
+                                        onBlur={() => setErrors({ ...errors, location: validateLocation(form.location) })}
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
+                                                label="位置 *"
+                                                required
                                                 placeholder="例如：暨大體育館、操場"
+                                                error={!!errors.location}
+                                                helperText={errors.location}
+                                                aria-describedby="location-helper"
                                                 InputProps={{
                                                     ...params.InputProps,
                                                     startAdornment: (
@@ -333,12 +410,17 @@ export default function CreateGroupPage() {
                                     </TextField>
 
                                     <TextField
-                                        label="人數上限 (含自己)"
+                                        label="人數上限 (含自己) *"
                                         type="number"
+                                        required
                                         fullWidth
                                         InputProps={{ inputProps: { min: 2, max: 50 } }}
                                         value={form.capacity}
-                                        onChange={(e) => setForm({ ...form, capacity: parseInt(e.target.value) || 4 })}
+                                        onChange={(e) => handleCapacityChange(parseInt(e.target.value) || 4)}
+                                        onBlur={() => setErrors({ ...errors, capacity: validateCapacity(form.capacity) })}
+                                        error={!!errors.capacity}
+                                        helperText={errors.capacity || '2-50 人'}
+                                        aria-describedby="capacity-helper"
                                     />
                                 </Stack>
                             </Paper>

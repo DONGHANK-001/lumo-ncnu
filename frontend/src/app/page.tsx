@@ -226,6 +226,7 @@ export default function LandingPage() {
                                         mr: 1,
                                         color: 'text.primary',
                                     }}
+                                    aria-label={mode === 'dark' ? '切換成混迷洛日加亮模式' : '切換成混迷洛漂亮模式'}
                                 >
                                     {mode === 'dark' ? <LightMode /> : <DarkMode />}
                                 </IconButton>
@@ -234,6 +235,7 @@ export default function LandingPage() {
                                 component={Link}
                                 href="/groups"
                                 sx={{ color: 'text.primary' }}
+                                aria-label="查看揪團列表"
                             >
                                 揪團列表
                             </Button>
