@@ -35,7 +35,9 @@ import {
     DirectionsRun,
     SportsTennis,
     FitnessCenter,
-    SportsVolleyball
+    SportsVolleyball,
+    NightsStay,
+    Restaurant
 } from '@mui/icons-material';
 import SafetyNoticeDialog from '../components/SafetyNoticeDialog';
 
@@ -46,6 +48,8 @@ const SPORT_OPTIONS = [
     { value: 'TABLE_TENNIS', label: '桌球', icon: <SportsTennis /> },
     { value: 'GYM', label: '健身', icon: <FitnessCenter /> },
     { value: 'VOLLEYBALL', label: '排球', icon: <SportsVolleyball /> },
+    { value: 'NIGHT_WALK', label: '晚風漫遊', icon: <NightsStay /> },
+    { value: 'DINING', label: '飯飯之交', icon: <Restaurant /> },
 ];
 
 const LEVEL_OPTIONS = [
