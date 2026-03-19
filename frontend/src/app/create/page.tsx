@@ -321,7 +321,7 @@ function CreateGroupPageInner() {
                                             '暨大學生活圈區',
                                             '暨大學生宿舍',
                                             '暨大活動中心',
-                                            '暨大台電大樓旁',
+                                            '暁大綜合大樓',
                                         ]}
                                         value={form.location}
                                         onInputChange={(_, newVal) => setForm({ ...form, location: newVal })}
