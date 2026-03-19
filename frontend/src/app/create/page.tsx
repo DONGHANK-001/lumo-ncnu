@@ -262,7 +262,7 @@ function CreateGroupPageInner() {
                                     />
                                     <Autocomplete
                                         multiple
-                                        options={SPORT_TAG_OPTIONS}
+                                        options={SOCIAL_TAG_OPTIONS[form.sportType] || SPORT_TAG_OPTIONS}
                                         value={form.tags}
                                         onChange={(_, newValue) => setForm({ ...form, tags: newValue })}
                                         renderTags={(value: readonly string[], getTagProps) =>
@@ -285,7 +285,7 @@ function CreateGroupPageInner() {
                                                 {...params}
                                                 variant="outlined"
                                                 label='友善標籤 (可選多個)'
-                                                placeholder='加入標籤讓球友更安心'
+                                                placeholder={SOCIAL_TAG_OPTIONS[form.sportType] ? '選擇活動風格' : '加入標籤讓球友更安心'}
                                             />
                                         )}
                                     />
@@ -365,29 +365,6 @@ function CreateGroupPageInner() {
                                         </TextField>
                                     )}
 
-                                    {/* 標籤選擇 */}
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary" mb={1}>
-                                            {SOCIAL_TAG_OPTIONS[form.sportType] ? '活動風格標籤' : '標籤（選填）'}
-                                        </Typography>
-                                        <Stack direction="row" flexWrap="wrap" gap={1}>
-                                            {(SOCIAL_TAG_OPTIONS[form.sportType] || SPORT_TAG_OPTIONS).map((tag) => (
-                                                <Chip
-                                                    key={tag}
-                                                    label={tag}
-                                                    onClick={() => {
-                                                        const tags = form.tags.includes(tag)
-                                                            ? form.tags.filter(t => t !== tag)
-                                                            : [...form.tags, tag];
-                                                        setForm({ ...form, tags });
-                                                    }}
-                                                    color={form.tags.includes(tag) ? 'primary' : 'default'}
-                                                    variant={form.tags.includes(tag) ? 'filled' : 'outlined'}
-                                                    sx={{ cursor: 'pointer' }}
-                                                />
-                                            ))}
-                                        </Stack>
-                                    </Box>
 
                                     <Box>
                                         <Typography variant="body2" color="text.secondary" mb={1}>快速選擇人數</Typography>
