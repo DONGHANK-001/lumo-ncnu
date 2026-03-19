@@ -277,14 +277,8 @@ export default function CreateGroupPage() {
                                         value={form.time}
                                         onChange={(e) => setForm({ ...form, time: e.target.value })}
                                     />
-<<<<<<< HEAD
-                                    <TextField
-                                        label="地點"
-                                        required
-                                        fullWidth
-=======
                                     <Autocomplete
-                                        freeSolo
+                                        freeSolo={true}
                                         options={[
                                             '暨大體育館',
                                             '暨大操場',
@@ -299,19 +293,24 @@ export default function CreateGroupPage() {
                                             '暨大學生活圈區',
                                             '暨大學生宿舍',
                                             '暨大活動中心',
-                                            '暁大綜合大樓',
+                                            '暨大綜合大樓',
                                         ]}
->>>>>>> 0fed434 (fix: 更新飯飯之交顏色和地點，移除暨大台電大樓)
                                         value={form.location}
-                                        onChange={(e) => setForm({ ...form, location: e.target.value })}
-                                        placeholder="例如：暨大體育館、操場"
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <Place color="action" />
-                                                </InputAdornment>
-                                            ),
-                                        }}
+                                        onInputChange={(_event, newVal) => setForm({ ...form, location: newVal })}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                placeholder="例如：暨大體育館、操場"
+                                                InputProps={{
+                                                    ...params.InputProps,
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <Place color="action" />
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
+                                            />
+                                        )}
                                     />
                                 </Stack>
                             </Paper>
