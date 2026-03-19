@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,9 +35,7 @@ import {
     DirectionsRun,
     SportsTennis,
     FitnessCenter,
-    SportsVolleyball,
-    NightsStay,
-    Restaurant
+    SportsVolleyball
 } from '@mui/icons-material';
 import SafetyNoticeDialog from '../components/SafetyNoticeDialog';
 
@@ -48,12 +46,7 @@ const SPORT_OPTIONS = [
     { value: 'TABLE_TENNIS', label: '桌球', icon: <SportsTennis /> },
     { value: 'GYM', label: '健身', icon: <FitnessCenter /> },
     { value: 'VOLLEYBALL', label: '排球', icon: <SportsVolleyball /> },
-    { value: 'NIGHT_WALK', label: '晚風漫遊', icon: <NightsStay /> },
-    { value: 'DINING', label: '飯飯之交', icon: <Restaurant /> },
 ];
-
-// 不需要程度要求的活動類型
-const NO_LEVEL_TYPES: string[] = ['NIGHT_WALK', 'DINING'];
 
 const LEVEL_OPTIONS = [
     { value: 'ANY', label: '不限程度' },
@@ -62,8 +55,7 @@ const LEVEL_OPTIONS = [
     { value: 'ADVANCED', label: '進階' },
 ];
 
-// 運動類標籤
-const SPORT_TAG_OPTIONS = [
+const TAG_OPTIONS = [
     '女性友善',
     '男性友善',
     '性別友善',
@@ -72,22 +64,12 @@ const SPORT_TAG_OPTIONS = [
     '休閒流汗',
 ];
 
-// 社交活動標籤
-const SOCIAL_TAG_OPTIONS: Record<string, string[]> = {
-    NIGHT_WALK: ['純散步不聊天', '邊走邊聊', '看星星', '運動後散步', '安靜放空'],
-    DINING: ['純吃飯不聊天', '邊吃邊聊', '想交朋友', '找飯友', 'AA制'],
-};
-
-const CAPACITY_PRESETS = [2, 4, 6, 8, 10, 20];
-
-function CreateGroupPageInner() {
+export default function CreateGroupPage() {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const { user, getToken, signIn } = useAuth();
-    const initialType = searchParams.get('type') || 'BASKETBALL';
 
     const [form, setForm] = useState({
-        sportType: initialType,
+        sportType: 'BASKETBALL',
         title: '',
         description: '',
         time: '',
@@ -195,21 +177,11 @@ function CreateGroupPageInner() {
                         <Stack spacing={4}>
                             {/* Sport Type */}
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
-                                <Typography variant="h6" gutterBottom mb={2}>活動類型</Typography>
+                                <Typography variant="h6" gutterBottom mb={2}>運動類型</Typography>
                                 <ToggleButtonGroup
                                     value={form.sportType}
                                     exclusive
-                                    onChange={(_, newVal) => {
-                                        if (!newVal) return;
-                                        const wasSocial = NO_LEVEL_TYPES.includes(form.sportType);
-                                        const isSocial = NO_LEVEL_TYPES.includes(newVal);
-                                        setForm({
-                                            ...form,
-                                            sportType: newVal,
-                                            tags: wasSocial !== isSocial ? [] : form.tags,
-                                            level: isSocial ? 'ANY' : form.level,
-                                        });
-                                    }}
+                                    onChange={(_, newVal) => newVal && setForm({ ...form, sportType: newVal })}
                                     aria-label="sport type"
                                     fullWidth
                                     sx={{
@@ -263,7 +235,7 @@ function CreateGroupPageInner() {
                                     />
                                     <Autocomplete
                                         multiple
-                                        options={SOCIAL_TAG_OPTIONS[form.sportType] || SPORT_TAG_OPTIONS}
+                                        options={TAG_OPTIONS}
                                         value={form.tags}
                                         onChange={(_, newValue) => setForm({ ...form, tags: newValue })}
                                         renderTags={(value: readonly string[], getTagProps) =>
@@ -285,8 +257,8 @@ function CreateGroupPageInner() {
                                             <TextField
                                                 {...params}
                                                 variant="outlined"
-                                                label='友善標籤 (可選多個)'
-                                                placeholder={SOCIAL_TAG_OPTIONS[form.sportType] ? '選擇活動風格' : '加入標籤讓球友更安心'}
+                                                label="友善標籤 (可選多個)"
+                                                placeholder="加入標籤讓球友更安心"
                                             />
                                         )}
                                     />
@@ -305,6 +277,12 @@ function CreateGroupPageInner() {
                                         value={form.time}
                                         onChange={(e) => setForm({ ...form, time: e.target.value })}
                                     />
+<<<<<<< HEAD
+                                    <TextField
+                                        label="地點"
+                                        required
+                                        fullWidth
+=======
                                     <Autocomplete
                                         freeSolo
                                         options={[
@@ -321,28 +299,19 @@ function CreateGroupPageInner() {
                                             '暨大學生活圈區',
                                             '暨大學生宿舍',
                                             '暨大活動中心',
-                                            '暨大台電大樓旁',
+                                            '暁大綜合大樓',
                                         ]}
+>>>>>>> 0fed434 (fix: 更新飯飯之交顏色和地點，移除暨大台電大樓)
                                         value={form.location}
-                                        onInputChange={(_, newVal) => setForm({ ...form, location: newVal })}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="地點（限校內）"
-                                                required
-                                                fullWidth
-                                                placeholder="例如：暨大體育館、操場、學餘堂..."
-                                                helperText="ℹ️ 揪團地點僅限校內，平台不負責校外活動"
-                                                InputProps={{
-                                                    ...params.InputProps,
-                                                    startAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <Place color="action" />
-                                                        </InputAdornment>
-                                                    ),
-                                                }}
-                                            />
-                                        )}
+                                        onChange={(e) => setForm({ ...form, location: e.target.value })}
+                                        placeholder="例如：暨大體育館、操場"
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <Place color="action" />
+                                                </InputAdornment>
+                                            ),
+                                        }}
                                     />
                                 </Stack>
                             </Paper>
@@ -350,7 +319,6 @@ function CreateGroupPageInner() {
                             {/* Requirements */}
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
                                 <Stack spacing={3}>
-                                    {!NO_LEVEL_TYPES.includes(form.sportType) && (
                                     <TextField
                                         select
                                         label="程度要求"
@@ -358,38 +326,21 @@ function CreateGroupPageInner() {
                                         value={form.level}
                                         onChange={(e) => setForm({ ...form, level: e.target.value })}
                                     >
-                                            {LEVEL_OPTIONS.map((option) => (
-                                                <MenuItem key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
-                                    )}
+                                        {LEVEL_OPTIONS.map((option) => (
+                                            <MenuItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
 
-
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary" mb={1}>快速選擇人數</Typography>
-                                        <Stack direction="row" flexWrap="wrap" gap={1} mb={2}>
-                                            {CAPACITY_PRESETS.map((n) => (
-                                                <Chip
-                                                    key={n}
-                                                    label={`${n} 人`}
-                                                    onClick={() => setForm({ ...form, capacity: n })}
-                                                    color={form.capacity === n ? 'primary' : 'default'}
-                                                    variant={form.capacity === n ? 'filled' : 'outlined'}
-                                                    sx={{ cursor: 'pointer' }}
-                                                />
-                                            ))}
-                                        </Stack>
-                                        <TextField
-                                            label="自訂人數上限 (含自己)"
-                                            type="number"
-                                            fullWidth
-                                            InputProps={{ inputProps: { min: 2, max: 50 } }}
-                                            value={form.capacity}
-                                            onChange={(e) => setForm({ ...form, capacity: parseInt(e.target.value) || 4 })}
-                                        />
-                                    </Box>
+                                    <TextField
+                                        label="人數上限 (含自己)"
+                                        type="number"
+                                        fullWidth
+                                        InputProps={{ inputProps: { min: 2, max: 50 } }}
+                                        value={form.capacity}
+                                        onChange={(e) => setForm({ ...form, capacity: parseInt(e.target.value) || 4 })}
+                                    />
                                 </Stack>
                             </Paper>
 
@@ -458,13 +409,5 @@ function CreateGroupPageInner() {
                 onCancel={() => setShowSafetyNotice(false)}
             />
         </Container>
-    );
-}
-
-export default function CreateGroupPage() {
-    return (
-        <Suspense>
-            <CreateGroupPageInner />
-        </Suspense>
     );
 }
