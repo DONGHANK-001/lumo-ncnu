@@ -407,7 +407,7 @@ export default function SportGuidePage() {
                         href={`/create?type=${type}`}
                         sx={{ borderRadius: 3, px: 6, py: 1.5, fontSize: '1.1rem' }}
                     >
-                        立即揪團打{sport.name}！
+                        {type === 'NIGHT_WALK' ? '立即漫步校園！' : type === 'DINING' ? '立即結識飯飯之交！' : `立即揪團打${sport.name}！`}
                     </Button>
                 </Box>
             </Stack>
