@@ -634,6 +634,22 @@ export default function LandingPage() {
                 getToken={getToken}
             />
 
+            {/* Updates FAB */}
+            <Fab
+                color="info"
+                aria-label="updates"
+                component={Link}
+                href="/updates"
+                sx={{
+                    position: 'fixed',
+                    bottom: 152,
+                    right: 24,
+                    zIndex: 1000,
+                }}
+            >
+                <Typography fontSize="1.4rem">📋</Typography>
+            </Fab>
+
             {/* Terms FAB */}
             <Fab
                 color="secondary"
