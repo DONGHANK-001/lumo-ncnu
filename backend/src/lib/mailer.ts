@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { mailerLogger } from './logger.js';
 
 const transporter = nodemailer.createTransport({
     // 預設支援 Gmail 等多種服務器，可根據環境變數自行調整
@@ -34,7 +35,7 @@ export async function sendJoinGroupEmail({
     isFull,
 }: SendJoinGroupEmailParams) {
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-        console.warn('⚠️ SMTP 尚未設定，略過發送 Email 通知。請設定 SMTP_USER 及 SMTP_PASS');
+        mailerLogger.warn('SMTP not configured, skipping email notification');
         return;
     }
 
@@ -79,8 +80,8 @@ export async function sendJoinGroupEmail({
             html: htmlContext,
         });
 
-        console.log(`✅ 已發送 Email 通知給 ${toEmail} (揪團：${groupTitle})`);
+        mailerLogger.info({ to: toEmail, groupTitle }, 'Email notification sent');
     } catch (error) {
-        console.error('❌ 發送 Email 失敗:', error);
+        mailerLogger.error({ err: error, to: toEmail, groupTitle }, 'Email send failed');
     }
 }

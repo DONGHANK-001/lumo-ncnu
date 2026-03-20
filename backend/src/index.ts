@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import pinoHttp from 'pino-http';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import authRoutes from './routes/auth.routes.js';
 import groupsRoutes from './routes/groups.routes.js';
@@ -18,6 +19,7 @@ import notificationRoutes from './routes/notification.routes.js';
 import http from 'http';
 import { initSocket } from './socket.js';
 import { startCleanupJob } from './lib/cleanup.job.js';
+import { logger } from './lib/logger.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -56,14 +58,14 @@ app.use(cors(corsOptions));
 // Helmet for security headers (放在 CORS 之後)
 app.use(helmet());
 
-// Simple Request Logger
-app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    res.on('finish', () => {
-        console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} -> ${res.statusCode}`);
-    });
-    next();
-});
+// Structured Request Logger (pino-http)
+app.use(pinoHttp({
+    logger,
+    autoLogging: { ignore: (req) => (req.url === '/health') },
+    customProps: (req) => ({
+        userId: (req as express.Request).user?.id,
+    }),
+}));
 
 // Body parsing
 app.use(express.json({ limit: '10kb' }));
@@ -128,26 +130,24 @@ app.use(errorHandler);
 // Process Error Handling (Render 偵錯用)
 // ============================================
 process.on('uncaughtException', (err) => {
-    console.error('❌ UNCAUGHT EXCEPTION:', err);
-    // 在 Render 環境，如果不結束進程，可能會導致狀態異常，但我們先嘗試記錄
+    logger.fatal({ err }, 'Uncaught exception');
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('❌ UNHANDLED REJECTION at:', promise, 'reason:', reason);
+    logger.fatal({ reason, promise }, 'Unhandled rejection');
 });
 
 server.listen(PORT, () => {
-    console.log(`🚀 API Server running on http://localhost:${PORT}`);
-    console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+    logger.info({ port: PORT, env: process.env.NODE_ENV || 'development' }, 'API Server started');
 
     // 啟動定時清理任務
     try {
         startCleanupJob();
     } catch (err) {
-        console.error('❌ Cleanup job start failed:', err);
+        logger.error({ err }, 'Cleanup job start failed');
     }
 }).on('error', (err) => {
-    console.error('❌ Server listen error:', err);
+    logger.fatal({ err }, 'Server listen error');
 });
 
 export default app;

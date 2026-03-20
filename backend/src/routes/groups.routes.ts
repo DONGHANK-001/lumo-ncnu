@@ -173,7 +173,7 @@ router.get('/quota/me', firebaseAuthMiddleware, async (req: Request, res: Respon
             data: { hostedThisWeek, joinedThisWeek, currentStreak, limit, remaining }
         });
     } catch (error) {
-        console.error('Quota Error:', error);
+        req.log.error({ err: error }, 'Quota calculation error');
         res.status(500).json({ success: false, error: { message: 'Failed to calculate quota' } });
     }
 });
@@ -391,7 +391,7 @@ router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Respo
             sportType: group.sportType,
             time: group.time.toISOString(),
             isFull: isFull,
-        }).catch((err: unknown) => console.error('Email send failed:', err));
+        }).catch((err: unknown) => req.log.error({ err }, 'Email send failed'));
 
         // 站內通知發起人
         createNotification({
@@ -400,7 +400,7 @@ router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Respo
             title: '有人加入了你的揪團！',
             body: `${user.nickname || '新成員'} 加入了「${group.title}」`,
             data: { groupId: id },
-        }).catch((err: unknown) => console.error('Notification failed:', err));
+        }).catch((err: unknown) => req.log.error({ err }, 'Join notification failed'));
     }
 
     res.json({
@@ -480,7 +480,7 @@ router.post('/:id/leave', firebaseAuthMiddleware, async (req: Request, res: Resp
             title: '候補成功！🎉',
             body: `你已自動遞補加入「${group.title}」`,
             data: { groupId: id },
-        }).catch((err: unknown) => console.error('Notification failed:', err));
+        }).catch((err: unknown) => req.log.error({ err }, 'Waitlist promotion notification failed'));
     }
 
     // 通知發起人有人退出
@@ -490,7 +490,7 @@ router.post('/:id/leave', firebaseAuthMiddleware, async (req: Request, res: Resp
         title: '有人退出了你的揪團',
         body: `${user.nickname || '成員'} 退出了「${group.title}」`,
         data: { groupId: id },
-    }).catch((err: unknown) => console.error('Notification failed:', err));
+    }).catch((err: unknown) => req.log.error({ err }, 'Leave notification failed'));
 
     getIO().to('groups').to(`group:${id}`).emit('group_updated', {
         id,
@@ -548,7 +548,7 @@ router.post('/:id/cancel', firebaseAuthMiddleware, async (req: Request, res: Res
         title: '揪團已取消',
         body: `「${group.title}」已被發起人取消`,
         data: { groupId: id },
-    }).catch((err: unknown) => console.error('Notification failed:', err));
+    }).catch((err: unknown) => req.log.error({ err }, 'Cancel notification failed'));
 
     res.json({
         success: true,

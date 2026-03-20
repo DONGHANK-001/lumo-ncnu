@@ -1,6 +1,7 @@
 import { prisma } from './prisma.js';
 import { getIO } from '../socket.js';
 import { NotificationType, Prisma } from '@prisma/client';
+import { notificationLogger } from './logger.js';
 
 interface CreateNotificationParams {
     userId: string;
@@ -28,7 +29,7 @@ export async function createNotification({ userId, type, title, body, data }: Cr
     try {
         getIO().to(`user:${userId}`).emit('notification', notification);
     } catch (err) {
-        console.error('[Notification] Socket.io emit failed:', err);
+        notificationLogger.error({ err, userId }, 'Socket.io emit failed');
     }
 
     return notification;

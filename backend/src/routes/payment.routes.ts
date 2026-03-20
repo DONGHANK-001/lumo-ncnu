@@ -73,7 +73,7 @@ router.post('/checkout', firebaseAuthMiddleware, async (req, res) => {
         // 將完整參數回傳給前端，由前端建構 HTML Form 送出
         res.json({ success: true, data: ecpayParams });
     } catch (error: any) {
-        console.error('Checkout error:', error);
+        req.log.error({ err: error }, 'Checkout error');
         res.status(500).json({ success: false, error: { message: error.message || '結帳失敗' } });
     }
 });
@@ -97,7 +97,7 @@ router.post('/callback', async (req, res) => {
         const calculatedMac = generateCheckMacValue(validParams);
 
         if (receivedMac !== calculatedMac) {
-            console.error('ECPay MAC Validation Failed!', { receivedMac, calculatedMac });
+            req.log.error({ receivedMac, calculatedMac }, 'ECPay MAC validation failed');
             return res.status(400).send('0|ErrorMessage'); // 回傳錯誤讓綠界知道
         }
 
@@ -166,7 +166,7 @@ router.post('/callback', async (req, res) => {
         // 一定要回傳 1|OK 讓綠界知道收到
         res.send('1|OK');
     } catch (error) {
-        console.error('Callback error:', error);
+        req.log.error({ err: error }, 'Payment callback error');
         res.status(500).send('0|ErrorMessage');
     }
 });

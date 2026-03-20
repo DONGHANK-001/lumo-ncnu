@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
+import { logger } from '../lib/logger.js';
 
 const router = Router();
 
@@ -15,7 +16,7 @@ router.get('/', async (_req: Request, res: Response) => {
         `;
         res.json({ success: true, data: badges });
     } catch (error) {
-        console.error('Badges list error:', error);
+        logger.error({ err: error }, 'Badges list error');
         res.status(500).json({
             success: false,
             error: { code: 'SERVER_ERROR', message: '勳章載入失敗' },
@@ -41,7 +42,7 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
 
         res.json({ success: true, data: userBadges });
     } catch (error) {
-        console.error('User badges error:', error);
+        req.log.error({ err: error }, 'User badges error');
         res.status(500).json({
             success: false,
             error: { code: 'SERVER_ERROR', message: '勳章載入失敗' },
@@ -136,7 +137,7 @@ router.post('/check', firebaseAuthMiddleware, async (req: Request, res: Response
 
         res.json({ success: true, data: { newlyUnlocked: unlockedBadges } });
     } catch (error) {
-        console.error('Badge check error:', error);
+        req.log.error({ err: error }, 'Badge check error');
         res.status(500).json({
             success: false,
             error: { code: 'SERVER_ERROR', message: '勳章檢查失敗' },

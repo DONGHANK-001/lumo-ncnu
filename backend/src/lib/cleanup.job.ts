@@ -1,5 +1,6 @@
 import { prisma } from './prisma.js';
 import { createNotification } from './notification.service.js';
+import { cleanupLogger, attendanceLogger, reminderLogger } from './logger.js';
 
 /**
  * 清理過期揪團
@@ -17,7 +18,7 @@ export async function cleanupExpiredGroups(): Promise<number> {
     });
 
     if (result.count > 0) {
-        console.log(`[Cleanup] 已將 ${result.count} 個過期揪團標記為完成`);
+        cleanupLogger.info({ count: result.count }, 'Marked expired groups as completed');
     }
 
     return result.count;
@@ -76,7 +77,7 @@ export async function autoFinalizeAttendance(): Promise<number> {
     }
 
     if (updatedCount > 0) {
-        console.log(`[Attendance] 已自動結算 ${updatedCount} 筆出席紀錄（跨 ${groups.length} 個揪團）`);
+        attendanceLogger.info({ updatedCount, groupCount: groups.length }, 'Auto-finalized attendance records');
     }
 
     return updatedCount;
@@ -124,13 +125,13 @@ export async function sendGroupReminders(): Promise<number> {
                 title: '揪團即將開始！⏰',
                 body: `「${group.title}」將在 30 分鐘內開始，地點：${group.location}`,
                 data: { groupId: group.id },
-            }).catch((err) => console.error('[Reminder] Notification failed:', err));
+            }).catch((err) => reminderLogger.error({ err, groupId: group.id }, 'Notification send failed'));
             sentCount++;
         }
     }
 
     if (sentCount > 0) {
-        console.log(`[Reminder] 已發送 ${sentCount} 則揪團提醒通知`);
+        reminderLogger.info({ sentCount }, 'Group reminder notifications sent');
     }
 
     return sentCount;
@@ -147,27 +148,27 @@ export function startCleanupJob(): void {
     const REMINDER_INTERVAL = 10 * 60 * 1000; // 10 分鐘
     const ATTENDANCE_INTERVAL = 6 * 60 * 60 * 1000; // 6 小時
 
-    console.log('[Cleanup] 定時清理任務已啟動 (每 12 小時執行)');
-    console.log('[Reminder] 揪團提醒任務已啟動 (每 10 分鐘執行)');
-    console.log('[Attendance] 出席自動結算任務已啟動 (每 6 小時執行)');
+    cleanupLogger.info('Cleanup job started (every 12h)');
+    reminderLogger.info('Reminder job started (every 10min)');
+    attendanceLogger.info('Attendance finalization job started (every 6h)');
 
     // 啟動時先執行一次
-    cleanupExpiredGroups().catch(console.error);
-    sendGroupReminders().catch(console.error);
-    autoFinalizeAttendance().catch(console.error);
+    cleanupExpiredGroups().catch(err => cleanupLogger.error({ err }, 'Initial cleanup failed'));
+    sendGroupReminders().catch(err => reminderLogger.error({ err }, 'Initial reminders failed'));
+    autoFinalizeAttendance().catch(err => attendanceLogger.error({ err }, 'Initial attendance finalization failed'));
 
     // 每 12 小時執行清理
     setInterval(() => {
-        cleanupExpiredGroups().catch(console.error);
+        cleanupExpiredGroups().catch(err => cleanupLogger.error({ err }, 'Cleanup failed'));
     }, CLEANUP_INTERVAL);
 
     // 每 10 分鐘執行提醒
     setInterval(() => {
-        sendGroupReminders().catch(console.error);
+        sendGroupReminders().catch(err => reminderLogger.error({ err }, 'Reminders failed'));
     }, REMINDER_INTERVAL);
 
     // 每 6 小時自動結算出席
     setInterval(() => {
-        autoFinalizeAttendance().catch(console.error);
+        autoFinalizeAttendance().catch(err => attendanceLogger.error({ err }, 'Attendance finalization failed'));
     }, ATTENDANCE_INTERVAL);
 }

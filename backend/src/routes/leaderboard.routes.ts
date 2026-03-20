@@ -83,7 +83,7 @@ router.get('/departments', async (req: Request, res: Response) => {
 
         res.json({ success: true, data: { period, departments } });
     } catch (error) {
-        console.error('Leaderboard error:', error);
+        req.log.error({ err: error }, 'Leaderboard error');
         // Fallback: 用 ORM 查詢
         try {
             const members = await prisma.groupMember.findMany({
@@ -124,7 +124,7 @@ router.get('/departments', async (req: Request, res: Response) => {
 
             res.json({ success: true, data: { period: 'all', departments } });
         } catch (fallbackError) {
-            console.error('Leaderboard fallback error:', fallbackError);
+            req.log.error({ err: fallbackError }, 'Leaderboard fallback error');
             res.status(500).json({
                 success: false,
                 error: { code: 'SERVER_ERROR', message: '排行榜載入失敗' },
@@ -193,7 +193,7 @@ router.get('/users', firebaseAuthMiddleware, async (req: Request, res: Response)
 
         res.json({ success: true, data: rankings });
     } catch (error) {
-        console.error('User leaderboard error:', error);
+        req.log.error({ err: error }, 'User leaderboard error');
         res.status(500).json({
             success: false,
             error: { code: 'SERVER_ERROR', message: '排行榜載入失敗' },

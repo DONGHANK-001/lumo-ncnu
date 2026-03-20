@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { firebaseAuth } from '../lib/firebase-admin.js';
 import { prisma } from '../lib/prisma.js';
+import { logger } from '../lib/logger.js';
 import type { User } from '@prisma/client';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 
@@ -85,7 +86,7 @@ export async function firebaseAuthMiddleware(
         req.user = user;
         next();
     } catch (error) {
-        console.error('Auth error:', error);
+        logger.warn({ err: error }, 'Auth token verification failed');
         res.status(401).json({
             success: false,
             error: { code: 'INVALID_TOKEN', message: 'Token 無效或已過期' },
@@ -123,7 +124,7 @@ export async function optionalAuthMiddleware(
         }
     } catch (err) {
         // 靜默失敗，繼續請求
-        console.warn('Optional Auth Failed:', err);
+        logger.debug({ err }, 'Optional auth failed');
     }
 
     next();

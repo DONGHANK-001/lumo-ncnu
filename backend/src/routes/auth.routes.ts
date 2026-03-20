@@ -296,7 +296,7 @@ router.get('/me/titles', firebaseAuthMiddleware, async (req: Request, res: Respo
         const activeTitle = rows[0]?.activeTitle || (titles.length > 0 ? titles[0].key : null);
         res.json({ success: true, data: { titles, activeTitle } });
     } catch (error) {
-        console.error('Titles error:', error);
+        req.log.error({ err: error }, 'Titles error');
         res.status(500).json({ success: false, error: { message: '稱號載入失敗' } });
     }
 });
@@ -329,7 +329,7 @@ router.put('/me/title', firebaseAuthMiddleware, async (req: Request, res: Respon
 
         res.json({ success: true, data: { activeTitle: titleKey, title: valid } });
     } catch (error) {
-        console.error('Set title error:', error);
+        req.log.error({ err: error }, 'Set title error');
         res.status(500).json({ success: false, error: { message: '稱號設定失敗' } });
     }
 });

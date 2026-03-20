@@ -1,5 +1,6 @@
 import { Server as HttpServer } from 'http';
 import { Server } from 'socket.io';
+import { socketLogger } from './lib/logger.js';
 
 let io: Server;
 
@@ -14,13 +15,13 @@ export const initSocket = (server: HttpServer) => {
     });
 
     io.on('connection', (socket) => {
-        console.log(`[Socket.io] Client connected: ${socket.id}`);
+        socketLogger.debug({ socketId: socket.id }, 'Client connected');
 
         // 使用者登入後加入專屬 room，用於接收個人通知
         socket.on('join_user_room', (userId: string) => {
             if (userId && typeof userId === 'string') {
                 socket.join(`user:${userId}`);
-                console.log(`[Socket.io] User ${userId} joined room`);
+                socketLogger.debug({ userId }, 'User joined room');
             }
         });
 
@@ -38,7 +39,7 @@ export const initSocket = (server: HttpServer) => {
         });
 
         socket.on('disconnect', () => {
-            console.log(`[Socket.io] Client disconnected: ${socket.id}`);
+            socketLogger.debug({ socketId: socket.id }, 'Client disconnected');
         });
     });
 
