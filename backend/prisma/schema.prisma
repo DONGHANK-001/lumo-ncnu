@@ -157,6 +157,8 @@ model Group {
   @@index([sportType])
   @@index([time])
   @@index([status])
+  @@index([status, time])
+  @@index([sportType, status, time])
   @@map("groups")
 }
 

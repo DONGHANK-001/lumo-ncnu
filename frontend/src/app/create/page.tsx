@@ -70,15 +70,6 @@ const getTagsForSport = (sportType: string): string[] => {
     return sportTagMap[sportType] || ['女性友善', '性別友善', '新手友善'];
 };
 
-const TAG_OPTIONS = [
-    '女性友善',
-    '男性友善',
-    '性別友善',
-    '新手友善',
-    '輕鬆打',
-    '休閒流汗',
-];
-
 export default function CreateGroupPage() {
     const router = useRouter();
     const { user, getToken, signIn } = useAuth();
