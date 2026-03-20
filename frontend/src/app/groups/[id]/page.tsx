@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { api } from '@/lib/api-client';
 import { getSocket, joinRoom, leaveRoom } from '@/lib/socket';
 import { useAuth } from '@/hooks/useAuth';
+import { SPORT_NAMES, LEVEL_NAMES } from '@/lib/constants';
 import {
     Box,
     Container,
@@ -72,24 +73,6 @@ interface CommentDetail {
     createdAt: string;
     user: { id: string; nickname: string | null; email: string };
 }
-
-const SPORT_NAMES: Record<string, string> = {
-    BASKETBALL: '籃球',
-    RUNNING: '跑步',
-    BADMINTON: '羽球',
-    TABLE_TENNIS: '桌球',
-    GYM: '健身',
-    VOLLEYBALL: '排球',
-    NIGHT_WALK: '晚風漫遊',
-    DINING: '飯飯之交',
-};
-
-const LEVEL_NAMES: Record<string, string> = {
-    BEGINNER: '初學者',
-    INTERMEDIATE: '中級',
-    ADVANCED: '進階',
-    ANY: '不限',
-};
 
 export default function GroupDetailPage() {
     const router = useRouter();

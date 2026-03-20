@@ -40,6 +40,7 @@ import {
     Restaurant
 } from '@mui/icons-material';
 import SafetyNoticeDialog from '../components/SafetyNoticeDialog';
+import { LEVEL_OPTIONS } from '@/lib/constants';
 
 const SPORT_OPTIONS = [
     { value: 'BASKETBALL', label: '籃球', icon: <SportsBasketball /> },
@@ -50,13 +51,6 @@ const SPORT_OPTIONS = [
     { value: 'VOLLEYBALL', label: '排球', icon: <SportsVolleyball /> },
     { value: 'NIGHT_WALK', label: '晚風漫遊', icon: <NightsStay /> },
     { value: 'DINING', label: '飯飯之交', icon: <Restaurant /> },
-];
-
-const LEVEL_OPTIONS = [
-    { value: 'ANY', label: '不限程度' },
-    { value: 'BEGINNER', label: '初學者' },
-    { value: 'INTERMEDIATE', label: '中級' },
-    { value: 'ADVANCED', label: '進階' },
 ];
 
 // 根據運動類型取得對應的標籤

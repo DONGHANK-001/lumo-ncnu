@@ -1,26 +1,12 @@
 import { z } from 'zod';
+import { SportType, SkillLevel } from './index.js';
 
 // ============================================
-// Enums
+// Zod Schemas (derived from shared enums)
 // ============================================
 
-export const SportType = {
-    BASKETBALL: 'BASKETBALL',
-    RUNNING: 'RUNNING',
-    BADMINTON: 'BADMINTON',
-    TABLE_TENNIS: 'TABLE_TENNIS',
-    GYM: 'GYM',
-    VOLLEYBALL: 'VOLLEYBALL',
-    NIGHT_WALK: 'NIGHT_WALK',
-    DINING: 'DINING',
-} as const;
-
-export const SkillLevel = {
-    BEGINNER: 'BEGINNER',
-    INTERMEDIATE: 'INTERMEDIATE',
-    ADVANCED: 'ADVANCED',
-    ANY: 'ANY',
-} as const;
+const sportTypeValues = Object.values(SportType) as [string, ...string[]];
+const skillLevelValues = Object.values(SkillLevel) as [string, ...string[]];
 
 export const ReportTargetType = {
     USER: 'USER',
@@ -31,23 +17,9 @@ export const ReportTargetType = {
 // User Schemas
 // ============================================
 
-export const sportTypeSchema = z.enum([
-    'BASKETBALL',
-    'RUNNING',
-    'BADMINTON',
-    'TABLE_TENNIS',
-    'GYM',
-    'VOLLEYBALL',
-    'NIGHT_WALK',
-    'DINING',
-]);
+export const sportTypeSchema = z.enum(sportTypeValues);
 
-export const skillLevelSchema = z.enum([
-    'BEGINNER',
-    'INTERMEDIATE',
-    'ADVANCED',
-    'ANY',
-]);
+export const skillLevelSchema = z.enum(skillLevelValues);
 
 export const userPreferencesSchema = z.object({
     sports: z.array(sportTypeSchema),

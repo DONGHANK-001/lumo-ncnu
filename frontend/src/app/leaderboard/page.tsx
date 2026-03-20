@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import CrownBadge from '@/app/components/CrownBadge';
 import { isTrialPeriod } from '@/lib/trial-period';
+import { SPORT_NAMES, SPORT_EMOJIS } from '@/lib/constants';
 import {
     EmojiEvents, WorkspacePremium, MilitaryTech,
     TrendingUp, Groups, ArrowBack, Lock, Person, AccountBalance
@@ -25,14 +26,9 @@ interface DeptRanking {
     topSport?: string;
 }
 
-const SPORT_MAP: Record<string, { label: string; icon: string }> = {
-    BASKETBALL: { label: '籃球', icon: '🏀' },
-    RUNNING: { label: '跑步', icon: '🏃‍♂️' },
-    BADMINTON: { label: '羽球', icon: '🏸' },
-    TABLE_TENNIS: { label: '桌球', icon: '🏓' },
-    GYM: { label: '健身', icon: '🏋️' },
-    VOLLEYBALL: { label: '排球', icon: '🏐' },
-};
+const SPORT_MAP: Record<string, { label: string; icon: string }> = Object.fromEntries(
+    Object.entries(SPORT_NAMES).map(([key, label]) => [key, { label, icon: SPORT_EMOJIS[key] || '🏅' }])
+);
 
 const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
 const MEDAL_ICONS = [

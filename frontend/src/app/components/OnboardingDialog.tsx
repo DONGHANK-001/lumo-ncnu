@@ -22,31 +22,7 @@ import {
 } from '@mui/material';
 import { Instagram } from '@mui/icons-material';
 import { api } from '@/lib/api-client';
-
-const DEPARTMENTS = [
-    '資訊管理學系',
-    '資訊工程學系',
-    '土木工程學系',
-    '電機工程學系',
-    '應用化學系',
-    '應用材料及光電工程學系',
-    '國際企業學系',
-    '財務金融學系',
-    '經濟學系',
-    '觀光休閒與餐旅管理學系',
-    '社會政策與社會工作學系',
-    '公共行政與政策學系',
-    '教育政策與行政學系',
-    '國際文教與比較教育學系',
-    '諮商心理與人力資源發展學系',
-    '中國語文學系',
-    '外國語文學系',
-    '歷史學系',
-    '東南亞學系',
-    '體育室',
-    '通識教育中心',
-    '其他',
-];
+import { DEPARTMENTS } from '@/lib/constants';
 
 export const DISCLAIMER_TEXT = `LUMO 運動揪團平台使用者免責聲明
 

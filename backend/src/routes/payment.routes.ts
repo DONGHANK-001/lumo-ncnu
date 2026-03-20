@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 import { generateCheckMacValue, MERCHANT_ID } from '../utils/ecpay.js';
+import { PLAN_PRICING } from '../utils/constants.js';
 
 const router = Router();
 
@@ -26,32 +27,13 @@ router.post('/checkout', firebaseAuthMiddleware, async (req, res) => {
         let amount = 0;
         let planName = '';
 
-        switch (planType) {
-            case 'WEEKLY':
-                amount = 19;
-                planName = '一週';
-                break;
-            case 'MONTHLY':
-                amount = 60;
-                planName = '一個月';
-                break;
-            case 'QUARTERLY':
-                amount = 150;
-                planName = '一季';
-                break;
-            case 'LIFETIME':
-                amount = 399;
-                planName = '永久';
-                break;
-            default:
-                // Fallback for previous PLUS plan type or invalid types
-                if (planType === 'PLUS') {
-                    amount = 60;
-                    planName = '一個月';
-                } else {
-                    return res.status(400).json({ success: false, error: { message: '無效的方案' } });
-                }
+        const planKey = planType === 'PLUS' ? 'MONTHLY' : planType;
+        const plan = PLAN_PRICING[planKey];
+        if (!plan) {
+            return res.status(400).json({ success: false, error: { message: '無效的方案' } });
         }
+        amount = plan.amount;
+        planName = plan.name;
 
         // 產生訂單編號 (必須唯一，綠界規定不得重複，長度小於20字元)
         const merchantOrderNo = `LUMO${Date.now()}${Math.floor(Math.random() * 100)}`;

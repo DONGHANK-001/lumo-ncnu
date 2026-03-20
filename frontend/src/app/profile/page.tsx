@@ -37,39 +37,11 @@ import {
     LocalFireDepartment
 } from '@mui/icons-material';
 import CrownBadge from '@/app/components/CrownBadge';
+import { SPORT_NAMES, SPORT_EMOJIS, LEVEL_OPTIONS, TIME_OPTIONS, LOCATION_OPTIONS } from '@/lib/constants';
 
-const SPORT_OPTIONS = [
-    { value: 'BASKETBALL', label: '🏀 籃球' },
-    { value: 'RUNNING', label: '🏃 跑步' },
-    { value: 'BADMINTON', label: '🏸 羽球' },
-    { value: 'TABLE_TENNIS', label: '🏓 桌球' },
-    { value: 'GYM', label: '💪 健身' },
-    { value: 'VOLLEYBALL', label: '🏐 排球' },
-];
-
-const LEVEL_OPTIONS = [
-    { value: 'BEGINNER', label: '初學者' },
-    { value: 'INTERMEDIATE', label: '中級' },
-    { value: 'ADVANCED', label: '進階' },
-    { value: 'ANY', label: '不限' },
-];
-
-const TIME_OPTIONS = [
-    '平日早上',
-    '平日中午',
-    '平日晚上',
-    '週末早上',
-    '週末下午',
-    '週末晚上',
-];
-
-const LOCATION_OPTIONS = [
-    '體育館',
-    '操場',
-    '健身房',
-    '籃球場',
-    '羽球場',
-];
+const SPORT_OPTIONS = Object.entries(SPORT_NAMES)
+    .filter(([key]) => !['NIGHT_WALK', 'DINING'].includes(key))
+    .map(([value, label]) => ({ value, label: `${SPORT_EMOJIS[value] || ''} ${label}` }));
 
 export default function ProfilePage() {
     const router = useRouter();

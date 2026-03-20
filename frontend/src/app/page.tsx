@@ -55,6 +55,7 @@ import { getSocket, joinRoom, leaveRoom } from '@/lib/socket';
 import OnboardingDialog from './components/OnboardingDialog';
 import { DISCLAIMER_TEXT } from './components/OnboardingDialog';
 import { useNotifications } from '@/hooks/useNotifications';
+import { SPORT_NAMES } from '@/lib/constants';
 
 const SPORTS = [
     { type: 'BASKETBALL', icon: <SportsBasketball fontSize="large" />, name: '籃球' },
@@ -64,17 +65,6 @@ const SPORTS = [
     { type: 'GYM', icon: <FitnessCenter fontSize="large" />, name: '健身' },
     { type: 'VOLLEYBALL', icon: <SportsVolleyball fontSize="large" />, name: '排球' },
 ];
-
-const SPORT_NAMES: Record<string, string> = {
-    BASKETBALL: '籃球',
-    RUNNING: '跑步',
-    BADMINTON: '羽球',
-    TABLE_TENNIS: '桌球',
-    GYM: '健身',
-    VOLLEYBALL: '排球',
-    NIGHT_WALK: '晚風漫遊',
-    DINING: '飯飯之交',
-};
 
 export default function LandingPage() {
     const theme = useTheme();
