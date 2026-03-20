@@ -49,6 +49,7 @@ const SPORT_OPTIONS = [
     { value: 'TABLE_TENNIS', label: '桌球', icon: <SportsTennis /> },
     { value: 'GYM', label: '健身', icon: <FitnessCenter /> },
     { value: 'VOLLEYBALL', label: '排球', icon: <SportsVolleyball /> },
+    { value: 'TENNIS', label: '網球', icon: <SportsTennis /> },
     { value: 'NIGHT_WALK', label: '晚風漫遊', icon: <NightsStay /> },
     { value: 'DINING', label: '飯飯之交', icon: <Restaurant /> },
 ];
@@ -62,6 +63,7 @@ const getTagsForSport = (sportType: string): string[] => {
         TABLE_TENNIS: ['女性友善', '男性友善', '性別友善', '新手友善', '輕鬆打', '激烈競爭'],
         GYM: ['女性友善', '男性友善', '性別友善', '新手友善', '輕量訓練', '高強度訓練'],
         VOLLEYBALL: ['女性友善', '男性友善', '性別友善', '新手友善', '球風溫和', '激烈對抗'],
+        TENNIS: ['女性友善', '男性友善', '性別友善', '新手友善', '輕鬆打', '激烈競爭'],
         NIGHT_WALK: ['純散步不聊天', '邊走邊聊', '看星星', '運動後散步', '安靜放空'],
         DINING: ['純吃飯不聊天', '邊吃邊聊', '想交朋友', '找飯友', 'AA制'],
     };
