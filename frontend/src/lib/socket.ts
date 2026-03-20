@@ -26,3 +26,11 @@ export const getSocket = (): Socket => {
 
     return socket;
 };
+
+export const joinRoom = (room: string) => {
+    getSocket().emit('join_room', room);
+};
+
+export const leaveRoom = (room: string) => {
+    getSocket().emit('leave_room', room);
+};

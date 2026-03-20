@@ -283,7 +283,7 @@ router.post(
             },
         });
 
-        getIO().emit('group_created', group);
+        getIO().to('groups').emit('group_created', group);
 
         res.status(201).json({
             success: true,
@@ -373,11 +373,12 @@ router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Respo
         }),
     ]);
 
-    getIO().emit('group_updated', {
+    const updatedPayload = {
         id,
         currentCount: group.currentCount + 1,
         status: group.currentCount + 1 >= group.capacity ? 'FULL' : 'OPEN',
-    });
+    };
+    getIO().to('groups').to(`group:${id}`).emit('group_updated', updatedPayload);
 
     // 發送 Email 通知給發起人
     if (group.createdBy.email !== user.email) {
@@ -491,7 +492,7 @@ router.post('/:id/leave', firebaseAuthMiddleware, async (req: Request, res: Resp
         data: { groupId: id },
     }).catch((err: unknown) => console.error('Notification failed:', err));
 
-    getIO().emit('group_updated', {
+    getIO().to('groups').to(`group:${id}`).emit('group_updated', {
         id,
         currentCount: newCount,
         status: newStatus,
@@ -539,7 +540,7 @@ router.post('/:id/cancel', firebaseAuthMiddleware, async (req: Request, res: Res
         }),
     ]);
 
-    getIO().emit('group_cancelled', { id });
+    getIO().to('groups').to(`group:${id}`).emit('group_cancelled', { id });
 
     // 通知所有成員揪團已取消
     notifyGroupMembers(id, user.id, {
@@ -659,8 +660,8 @@ router.post(
             },
         });
 
-        // 透過 Socket.io 廣播給所有連接的使用者
-        getIO().emit('new_comment', newComment);
+        // 透過 Socket.io 廣播給正在查看此揪團的使用者
+        getIO().to(`group:${id}`).emit('new_comment', { ...newComment, groupId: id });
 
         res.status(201).json({
             success: true,

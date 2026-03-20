@@ -24,6 +24,19 @@ export const initSocket = (server: HttpServer) => {
             }
         });
 
+        // 加入/離開頻道（groups 列表、group:xxx 詳情頁）
+        socket.on('join_room', (room: string) => {
+            if (room && typeof room === 'string' && (room === 'groups' || room.startsWith('group:'))) {
+                socket.join(room);
+            }
+        });
+
+        socket.on('leave_room', (room: string) => {
+            if (room && typeof room === 'string' && (room === 'groups' || room.startsWith('group:'))) {
+                socket.leave(room);
+            }
+        });
+
         socket.on('disconnect', () => {
             console.log(`[Socket.io] Client disconnected: ${socket.id}`);
         });

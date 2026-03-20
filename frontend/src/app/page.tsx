@@ -51,7 +51,7 @@ import { useWakeupBackend } from '@/hooks/useWakeupBackend';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useState, useEffect } from 'react';
 import { useThemeMode } from '@/theme/ThemeModeContext';
-import { getSocket } from '@/lib/socket';
+import { getSocket, joinRoom, leaveRoom } from '@/lib/socket';
 import OnboardingDialog from './components/OnboardingDialog';
 import { DISCLAIMER_TEXT } from './components/OnboardingDialog';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -130,6 +130,7 @@ export default function LandingPage() {
 
     useEffect(() => {
         const socket = getSocket();
+        joinRoom('groups');
 
         const handleGroupCreated = (group: any) => {
             const organizer = group.createdBy?.nickname || '有人';
@@ -155,6 +156,7 @@ export default function LandingPage() {
         return () => {
             socket.off('group_created', handleGroupCreated);
             socket.off('group_updated', handleGroupUpdated);
+            leaveRoom('groups');
         };
     }, []);
 

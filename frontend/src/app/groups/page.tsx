@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
-import { getSocket } from '@/lib/socket';
+import { getSocket, joinRoom, leaveRoom } from '@/lib/socket';
 import { SportType, SkillLevel } from '@/types';
 import {
     Box,
@@ -88,6 +88,7 @@ export default function GroupsPage() {
 
     useEffect(() => {
         const socket = getSocket();
+        joinRoom('groups');
 
         const handleGroupUpdated = (updatedGroup: { id: string; currentCount: number; status: string }) => {
             setGroups((prev) =>
@@ -114,6 +115,7 @@ export default function GroupsPage() {
         return () => {
             socket.off('group_updated', handleGroupUpdated);
             socket.off('group_created', handleGroupCreated);
+            leaveRoom('groups');
         };
     }, []);
 

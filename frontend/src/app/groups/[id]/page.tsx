@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
-import { getSocket } from '@/lib/socket';
+import { getSocket, joinRoom, leaveRoom } from '@/lib/socket';
 import { useAuth } from '@/hooks/useAuth';
 import {
     Box,
@@ -117,6 +117,8 @@ export default function GroupDetailPage() {
 
         // Socket.io for Real-time Comments
         const socket = getSocket();
+        const groupRoom = `group:${id}`;
+        joinRoom(groupRoom);
 
         const handleNewComment = (comment: CommentDetail & { groupId: string }) => {
             if (comment.groupId === id) {
@@ -132,6 +134,7 @@ export default function GroupDetailPage() {
 
         return () => {
             socket.off('new_comment', handleNewComment);
+            leaveRoom(groupRoom);
         };
     }, [id]);
 
