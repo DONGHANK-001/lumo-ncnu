@@ -23,6 +23,7 @@ enum SportType {
   GYM
   VOLLEYBALL
   NIGHT_WALK
+  TENNIS
   DINING
 }
 

@@ -120,13 +120,13 @@ router.post('/callback', async (req, res) => {
 
                 // 計算到期日
                 const endDate = new Date();
-                if (paymentLog.amount === 19) {
-                    endDate.setDate(endDate.getDate() + 7); // 7天
-                } else if (paymentLog.amount === 60) {
+                if (paymentLog.amount === 25) {
+                    endDate.setDate(endDate.getDate() + 14); // 兩週
+                } else if (paymentLog.amount === 49) {
                     endDate.setMonth(endDate.getMonth() + 1); // 1個月
-                } else if (paymentLog.amount === 150) {
+                } else if (paymentLog.amount === 99) {
                     endDate.setMonth(endDate.getMonth() + 3); // 3個月
-                } else if (paymentLog.amount === 399) {
+                } else if (paymentLog.amount === 199) {
                     endDate.setFullYear(endDate.getFullYear() + 100); // 永久 (加100年)
                 } else {
                     // Fallback

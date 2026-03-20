@@ -231,7 +231,35 @@ const SPORT_DATA: Record<string, SportInfo> = {
             '建立標籤（安靜散步/邊走邊聊）讓大家更有默契',
         ],
         equipment: ['舒適的鞋子', '手電筒或手機手電筒', '外套（晚上可能涼）'],
-        campusSpots: ['環校步道', '暨大行政大樓前廣場', '暨大操場', '暨大圖書館周邊'],
+        campusSpots: ['環校步道', '暨大行政大樓前廣場', '暨大操場', '暨大圖書館周邊', '暨大大草原'],
+    },
+    TENNIS: {
+        name: '網球',
+        icon: <SportsTennis sx={{ fontSize: 60 }} />,
+        color: '#66BB6A',
+        description: '網球是一項兼具力量與策略的運動，暨大設有網球場供學生使用。',
+        rules: [
+            '單打或雙打，每盤 6 局制',
+            '每局中率先拿到 4 分者贏得該局（計分：0、15、30、40）',
+            '40:40 為 Deuce，需連贏兩分才能拿下該局',
+            '先贏 6 局者拿下一盤，6:6 時進入搶七（Tie-break）',
+            '揪團通常打一盤單打或一盤雙打',
+        ],
+        tips: [
+            '握拍方式是基礎！東方式握拍適合初學者',
+            '擊球時側身站位，用身體旋轉帶動力量',
+            '多練習底線來回球，穩定性比力量更重要',
+            '發球要拋球到正確位置，初學先求穩不求快',
+            '雙打時一前一後站位，前排負責截擊',
+        ],
+        equipment: ['網球拍', '網球（建議準備 3-4 顆）', '運動鞋（底部耐磨款）', '護腕（選配）'],
+        campusSpots: ['暨大網球場'],
+        nutrition: [
+            { food: '🍗 雞胸肉 + 白飯 + 青菜', reason: '蛋白質修復加碳水補充，全方位恢復' },
+            { food: '🍌 香蕉 + 運動飲料', reason: '快速補鉀防抽筋 + 電解質補充' },
+            { food: '🥚 蛋餅 + 豆漿', reason: '方便取得，碳水蛋白均衡' },
+            { food: '🥩 牛肉麵', reason: '鐵質 + 蛋白質，適合高強度對打後補充' },
+        ],
     },
     DINING: {
         name: '飯飯之交',
@@ -407,7 +435,7 @@ export default function SportGuidePage() {
                         href={`/create?type=${type}`}
                         sx={{ borderRadius: 3, px: 6, py: 1.5, fontSize: '1.1rem' }}
                     >
-                        {type === 'NIGHT_WALK' ? '立即漫步校園！' : type === 'DINING' ? '立即結識飯飯之交！' : type === 'RUNNING' ? '立即揪團跑步！' : type === 'GYM' ? '立即揪團健身！' : `立即揪團打${sport.name}！`}
+                        {type === 'NIGHT_WALK' ? '立即漫步校園！' : type === 'DINING' ? '立即結識飯飯之交！' : type === 'RUNNING' ? '立即揪團跑步！' : type === 'GYM' ? '立即揪團健身！' : type === 'TENNIS' ? '立即揪團打網球！' : `立即揪團打${sport.name}！`}
                     </Button>
                 </Box>
             </Stack>

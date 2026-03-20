@@ -368,6 +368,7 @@ export default function CreateGroupPage() {
                                             '暨大操場',
                                             '暨大籃球場',
                                             '暨大排球場',
+                                            '暨大網球場',
                                             '暨大羽球場',
                                             '暨大健身房',
                                             '暨大學生餐廳',

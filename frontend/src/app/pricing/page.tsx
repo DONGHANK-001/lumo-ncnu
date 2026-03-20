@@ -145,7 +145,7 @@ export default function PricingPage() {
                         <CardContent sx={{ flexGrow: 1, p: 4, textAlign: 'center' }}>
                             <Typography variant="h4" fontWeight="bold" gutterBottom color="secondary.main">PLUS</Typography>
                             <Typography variant="h3" fontWeight="bold" color="text.primary" gutterBottom>
-                                $30<Typography component="span" variant="h6" color="text.secondary">/月</Typography>
+                                $49<Typography component="span" variant="h6" color="text.secondary">/月</Typography>
                             </Typography>
                             <Typography variant="body2" color="text.secondary" mb={4}>解鎖所有功能（金流串接中）</Typography>
 

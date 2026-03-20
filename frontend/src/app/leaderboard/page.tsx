@@ -47,7 +47,7 @@ const TITLE_MAP: Record<string, { label: string; icon: string }> = {
     'pioneer_6': { label: '創始先鋒 #006', icon: '💎' },
     'pioneer_7': { label: '創始先鋒 #007', icon: '💎' },
     'pioneer_8': { label: '創始先鋒 #008', icon: '💎' },
-    'pioneer_9': { label: '創創先鋒 #009', icon: '💎' },
+    'pioneer_9': { label: '創始先鋒 #009', icon: '💎' },
     'pioneer_10': { label: '創始先鋒 #010', icon: '💎' },
     'wbc_2026': { label: '經典賽應援團 2026', icon: '⚾' },
 };
