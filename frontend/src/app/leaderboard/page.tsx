@@ -354,6 +354,11 @@ export default function LeaderboardPage() {
                                                     <Typography variant="caption" color="text.secondary">
                                                         參團次數
                                                     </Typography>
+                                                    {ur.attendanceRate != null && (
+                                                        <Typography variant="caption" display="block" color={ur.attendanceRate >= 80 ? 'success.main' : ur.attendanceRate >= 50 ? 'warning.main' : 'error.main'}>
+                                                            ✅ {ur.attendanceRate}% 出席
+                                                        </Typography>
+                                                    )}
                                                 </Box>
                                             </Stack>
                                         </CardContent>

@@ -166,7 +166,7 @@ router.get('/users', firebaseAuthMiddleware, async (req: Request, res: Response)
         const userIds = members.map(m => m.userId);
         const users = await prisma.user.findMany({
             where: { id: { in: userIds } },
-            select: { id: true, nickname: true, department: true, avatarUrl: true, activeTitle: true },
+            select: { id: true, nickname: true, department: true, avatarUrl: true, activeTitle: true, attendedCount: true, noShowCount: true },
         });
 
         const userMap = new Map(users.map(u => [u.id, u]));
@@ -175,11 +175,17 @@ router.get('/users', firebaseAuthMiddleware, async (req: Request, res: Response)
             const rank = index + 1;
             const topTitle = rank <= 10 ? COOL_TITLES[rank - 1] : undefined;
             const dbUser = userMap.get(m.userId);
+            const attended = dbUser?.attendedCount ?? 0;
+            const noShow = dbUser?.noShowCount ?? 0;
+            const total = attended + noShow;
 
             return {
                 rank,
-                user: dbUser || { id: m.userId, nickname: '匿名', avatarUrl: null, activeTitle: null },
+                user: dbUser ? { id: dbUser.id, nickname: dbUser.nickname, avatarUrl: dbUser.avatarUrl, activeTitle: dbUser.activeTitle } : { id: m.userId, nickname: '匿名', avatarUrl: null, activeTitle: null },
                 totalJoins: m._count.id,
+                attendedCount: attended,
+                noShowCount: noShow,
+                attendanceRate: total > 0 ? Math.round((attended / total) * 100) : null,
                 topTitle,
                 activeTitle: dbUser?.activeTitle,
             };
