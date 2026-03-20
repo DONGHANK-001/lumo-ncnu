@@ -436,22 +436,7 @@ export default function LandingPage() {
                             }
                         }}
                     >
-                        追蹤 @lumo_dailyfit
-                    </Button>
-                    <Button
-                        href="https://www.instagram.com/lumo_dailyfit?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-                        target="_blank"
-                        startIcon={<Instagram />}
-                        variant="outlined"
-                        sx={{
-                            color: 'text.secondary',
-                            borderColor: 'divider',
-                            borderRadius: 3,
-                            px: 3,
-                            py: 1,
-                        }}
-                    >
-                        聯繫／問題回報
+                        追蹤 LUMO／問題回報
                     </Button>
                 </Box>
                 <Typography variant="h5" fontWeight="bold" textAlign="center" mb={6}>支援活動類型</Typography>
