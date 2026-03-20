@@ -370,14 +370,22 @@ export default function CreateGroupPage() {
                                             '暨大排球場',
                                             '暨大羽球場',
                                             '暨大健身房',
-                                            '暨大學餘堂',
+                                            '暨大學生餐廳',
                                             '暨大圖書館',
                                             '暨大行政大樓前廣場',
                                             '暨大游泳池',
-                                            '暨大學生活圈區',
-                                            '暨大學生宿舍',
-                                            '暨大活動中心',
+                                            '暨大學生活動中心',
+                                            '暨大男宿舍',
+                                            '暨大女宿舍',
+                                            '暨大男研究生宿舍',
+                                            '暨大女研究生宿舍',
                                             '暨大綜合大樓',
+                                            '暨大大草原',
+                                            '人文學院',
+                                            '管理學院',
+                                            '科技學院一館',
+                                            '科技學院二館',
+                                            '教育學院',
                                         ]}
                                         value={form.location}
                                         onInputChange={(_event, newVal) => handleLocationChange(newVal)}
@@ -404,7 +412,7 @@ export default function CreateGroupPage() {
                                     />
                                     <Alert severity="info" sx={{ borderRadius: 2 }} icon={<Place sx={{ mr: 1 }} />}>
                                         <Typography variant="caption">
-                                            拱圈地點僅限於暨大校內，平台不負責校外活動
+                                            揪團地點僅限於暨大校內，平台不負責校外活動
                                         </Typography>
                                     </Alert>
                                 </Stack>

@@ -148,7 +148,7 @@ const SPORT_DATA: Record<string, SportInfo> = {
             '多練搓球和防守，初學者最實用',
         ],
         equipment: ['桌球拍（自備品質較好）', '桌球（三星球較耐打）'],
-        campusSpots: ['暨大活動中心', '暨大學生活圈區'],
+        campusSpots: ['暨大學生活動中心'],
         nutrition: [
             { food: '🍜 乾拌麵 + 荷包蛋', reason: '簡單好吃，低強度運動後剛剛好' },
             { food: '🍙 飯糰 + 味噌湯', reason: '便利商店組合，方便又快速' },
@@ -237,21 +237,21 @@ const SPORT_DATA: Record<string, SportInfo> = {
         name: '飯飯之交',
         icon: <Restaurant sx={{ fontSize: 60 }} />,
         color: '#F2B8B5',
-        description: '找人一起吃飯！不管是學餘堂、宿舍周邊還是各學院的小吃，有伴就更好吃。',
+        description: '找人一起吃飯！不管是學生餐廳、宿舍周邊還是各學院的小吃，有伴就更好吃。',
         rules: [
             '尊重其他人的食物習慣和速度',
             '費用各付各的（AA 制），除非事先約好',
-            '準時賍約，遮到請提前通知',
+            '準時赴約，遲到請提前通知',
             '校外用餐時的安全由個人自行負責',
         ],
         tips: [
-            '建立標籤（安静吃飯/想聪天交期友）上削找到志趣相投的飯友',
-            '學餘堂用餐尖峰時段是 11:30-12:30，可以提早或戱一點去',
-            '有特殊食物需求（素食、不吃輷）記得在揮團說明裤寫清楚',
+            '建立標籤（安靜吃飯/想聊天交朋友）更容易找到志趣相投的飯友',
+            '學生餐廳用餐尖峰時段是 11:30-12:30，可以提早或晚一點去',
+            '有特殊食物需求（素食、不吃辣）記得在揪團說明裡寫清楚',
             '人多的話可以一起叫外送，省運費',
         ],
         equipment: ['好心情', '環保餐具（選配，愛地球）'],
-        campusSpots: ['暁大學餘堂', '暁大學生活圈區', '暁大綜合大樓'],
+        campusSpots: ['暨大學生餐廳', '暨大綜合大樓'],
     },
 };
 
@@ -407,7 +407,7 @@ export default function SportGuidePage() {
                         href={`/create?type=${type}`}
                         sx={{ borderRadius: 3, px: 6, py: 1.5, fontSize: '1.1rem' }}
                     >
-                        {type === 'NIGHT_WALK' ? '立即漫步校園！' : type === 'DINING' ? '立即結識飯飯之交！' : `立即揪團打${sport.name}！`}
+                        {type === 'NIGHT_WALK' ? '立即漫步校園！' : type === 'DINING' ? '立即結識飯飯之交！' : type === 'RUNNING' ? '立即揪團跑步！' : type === 'GYM' ? '立即揪團健身！' : `立即揪團打${sport.name}！`}
                     </Button>
                 </Box>
             </Stack>
