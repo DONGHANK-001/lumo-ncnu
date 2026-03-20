@@ -68,4 +68,15 @@ router.put('/read-all', async (req: Request, res: Response) => {
     res.json({ success: true, data: { message: '全部已讀' } });
 });
 
+/**
+ * DELETE /notifications/read
+ * 刪除所有已讀通知
+ */
+router.delete('/read', async (req: Request, res: Response) => {
+    const deleted = await prisma.notification.deleteMany({
+        where: { userId: req.user!.id, isRead: true },
+    });
+    res.json({ success: true, data: { deletedCount: deleted.count } });
+});
+
 export default router;

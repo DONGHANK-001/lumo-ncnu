@@ -55,6 +55,40 @@ interface Group {
     createdBy: { nickname: string | null; email: string; planType?: string };
 }
 
+function CountdownChip({ time }: { time: string }) {
+    const [label, setLabel] = useState('');
+
+    useEffect(() => {
+        const update = () => {
+            const diff = new Date(time).getTime() - Date.now();
+            if (diff <= 0) { setLabel('已開始'); return; }
+            const hours = Math.floor(diff / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            if (hours >= 24) {
+                setLabel(`${Math.floor(hours / 24)} 天後`);
+            } else if (hours > 0) {
+                setLabel(`${hours} 小時 ${minutes} 分後`);
+            } else {
+                setLabel(`${minutes} 分鐘後`);
+            }
+        };
+        update();
+        const interval = setInterval(update, 60000);
+        return () => clearInterval(interval);
+    }, [time]);
+
+    if (!label) return null;
+    return (
+        <Chip
+            size="small"
+            label={`⏰ ${label}`}
+            color={label === '已開始' ? 'default' : 'warning'}
+            variant="outlined"
+            sx={{ fontSize: '0.7rem', height: 22 }}
+        />
+    );
+}
+
 export default function GroupsPage() {
     const { user } = useAuth();
     const [groups, setGroups] = useState<Group[]>([]);
@@ -335,6 +369,7 @@ export default function GroupsPage() {
                                         <Stack direction="row" spacing={1} alignItems="center">
                                             <Event fontSize="small" />
                                             <Typography variant="body2">{formatDate(group.time)}</Typography>
+                                            <CountdownChip time={group.time} />
                                         </Stack>
                                         <Stack direction="row" spacing={1} alignItems="center">
                                             <LocationOn fontSize="small" />

@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma.js';
+import { Prisma } from '@prisma/client';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 import { validateBody } from '../middleware/validation.js';
 import { updateProfileSchema } from '../types/schemas.js';
@@ -279,6 +280,49 @@ router.get('/me/stats', firebaseAuthMiddleware, async (req: Request, res: Respon
             totalCalories,
             sportDistribution,
         }
+    });
+});
+
+/**
+ * GET /me/groups
+ * 取得個人揪團歷史紀錄
+ */
+router.get('/me/groups', firebaseAuthMiddleware, async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const type = (req.query.type as string) || 'all';
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const pageSize = 10;
+
+    const where: Prisma.GroupWhereInput = type === 'hosted'
+        ? { createdById: userId }
+        : type === 'joined'
+        ? { members: { some: { userId, status: 'JOINED' } } }
+        : { OR: [{ createdById: userId }, { members: { some: { userId, status: 'JOINED' } } }] };
+
+    const [items, total] = await Promise.all([
+        prisma.group.findMany({
+            where,
+            orderBy: { time: 'desc' },
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+            select: {
+                id: true,
+                sportType: true,
+                title: true,
+                time: true,
+                location: true,
+                status: true,
+                currentCount: true,
+                capacity: true,
+                createdById: true,
+            },
+        }),
+        prisma.group.count({ where }),
+    ]);
+
+    res.json({
+        success: true,
+        data: { items, total, page, hasMore: page * pageSize < total },
     });
 });
 

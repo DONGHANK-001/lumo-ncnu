@@ -99,6 +99,13 @@ export default function ProfilePage() {
     const [activeTitleKey, setActiveTitleKey] = useState<string | null>(null);
     const [titleDialogOpen, setTitleDialogOpen] = useState(false);
 
+    // Group History
+    const [groupHistory, setGroupHistory] = useState<any[]>([]);
+    const [groupHistoryTab, setGroupHistoryTab] = useState<'all' | 'hosted' | 'joined'>('all');
+    const [groupHistoryPage, setGroupHistoryPage] = useState(1);
+    const [groupHistoryHasMore, setGroupHistoryHasMore] = useState(false);
+    const [groupHistoryLoading, setGroupHistoryLoading] = useState(false);
+
     useEffect(() => {
         // Fetch all badges
         api.getBadges().then(res => { if (res.success && res.data) setAllBadges(res.data as any[]); });
@@ -122,6 +129,26 @@ export default function ProfilePage() {
             });
         }
     }, [user]);
+
+    // Fetch group history
+    const fetchGroupHistory = async (tab: string, page: number, append = false) => {
+        setGroupHistoryLoading(true);
+        const token = await getToken();
+        if (!token) { setGroupHistoryLoading(false); return; }
+        const res = await api.getMyGroups(token, tab === 'all' ? undefined : tab, page);
+        if (res.success && res.data) {
+            setGroupHistory(prev => append ? [...prev, ...res.data!.items] : res.data!.items);
+            setGroupHistoryHasMore(res.data.hasMore);
+        }
+        setGroupHistoryLoading(false);
+    };
+
+    useEffect(() => {
+        if (user) {
+            setGroupHistoryPage(1);
+            fetchGroupHistory(groupHistoryTab, 1);
+        }
+    }, [user, groupHistoryTab]);
 
     const handleSetTitle = async (titleKey: string) => {
         const token = await getToken();
@@ -445,6 +472,89 @@ export default function ProfilePage() {
                                 <Box display="flex" justifyContent="center" py={4}>
                                     <CircularProgress size={24} />
                                 </Box>
+                            )}
+                        </Paper>
+
+                        {/* Group History Section */}
+                        <Paper sx={{ p: 4, borderRadius: 4 }}>
+                            <Typography variant="h6" fontWeight="bold" mb={2}>📋 揪團紀錄</Typography>
+                            <Stack direction="row" spacing={1} mb={3}>
+                                {([['all', '全部'], ['hosted', '我發起的'], ['joined', '我參加的']] as const).map(([value, label]) => (
+                                    <Chip
+                                        key={value}
+                                        label={label}
+                                        clickable
+                                        onClick={() => setGroupHistoryTab(value)}
+                                        color={groupHistoryTab === value ? 'primary' : 'default'}
+                                        variant={groupHistoryTab === value ? 'filled' : 'outlined'}
+                                    />
+                                ))}
+                            </Stack>
+
+                            {groupHistoryLoading && groupHistory.length === 0 ? (
+                                <Box display="flex" justifyContent="center" py={4}>
+                                    <CircularProgress size={24} />
+                                </Box>
+                            ) : groupHistory.length === 0 ? (
+                                <Typography variant="body2" color="text.secondary" textAlign="center" py={4}>
+                                    還沒有揪團紀錄，快去參加或發起一個吧！
+                                </Typography>
+                            ) : (
+                                <Stack spacing={1.5}>
+                                    {groupHistory.map((g: any) => (
+                                        <Paper
+                                            key={g.id}
+                                            variant="outlined"
+                                            sx={{
+                                                p: 2,
+                                                cursor: 'pointer',
+                                                borderRadius: 2,
+                                                transition: 'all 0.2s',
+                                                '&:hover': { bgcolor: 'action.hover', transform: 'translateX(4px)' },
+                                            }}
+                                            onClick={() => router.push(`/groups/${g.id}`)}
+                                        >
+                                            <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                                <Box sx={{ minWidth: 0 }}>
+                                                    <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
+                                                        <Chip label={SPORT_NAMES[g.sportType] || g.sportType} size="small" color="primary" variant="filled" />
+                                                        <Chip
+                                                            label={g.status === 'OPEN' ? '進行中' : g.status === 'FULL' ? '已滿' : g.status === 'CANCELLED' ? '已取消' : '已結束'}
+                                                            size="small"
+                                                            color={g.status === 'OPEN' ? 'success' : g.status === 'CANCELLED' ? 'error' : 'default'}
+                                                            variant="outlined"
+                                                        />
+                                                        {g.createdById === user?.id && (
+                                                            <Chip label="發起人" size="small" color="secondary" variant="outlined" sx={{ fontSize: '0.65rem' }} />
+                                                        )}
+                                                    </Stack>
+                                                    <Typography variant="subtitle2" fontWeight="bold" noWrap>
+                                                        {g.title}
+                                                    </Typography>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        {new Date(g.time).toLocaleDateString('zh-TW', { month: 'short', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                        {' · '}{g.location} · {g.currentCount}/{g.capacity} 人
+                                                    </Typography>
+                                                </Box>
+                                            </Stack>
+                                        </Paper>
+                                    ))}
+
+                                    {groupHistoryHasMore && (
+                                        <Button
+                                            variant="text"
+                                            onClick={() => {
+                                                const nextPage = groupHistoryPage + 1;
+                                                setGroupHistoryPage(nextPage);
+                                                fetchGroupHistory(groupHistoryTab, nextPage, true);
+                                            }}
+                                            disabled={groupHistoryLoading}
+                                            sx={{ color: 'text.secondary' }}
+                                        >
+                                            {groupHistoryLoading ? '載入中...' : '載入更多'}
+                                        </Button>
+                                    )}
+                                </Stack>
                             )}
                         </Paper>
 

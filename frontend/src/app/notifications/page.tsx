@@ -25,6 +25,8 @@ import {
     EmojiEvents,
     Info,
     Circle,
+    DeleteSweep,
+    ChatBubbleOutline,
 } from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -35,6 +37,7 @@ const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
     GROUP_FULL: { icon: <EmojiEvents />, color: '#FFD700' },
     GROUP_CANCELLED: { icon: <Cancel />, color: '#f44336' },
     GROUP_REMINDER: { icon: <AccessTime />, color: '#2196F3' },
+    GROUP_COMMENT: { icon: <ChatBubbleOutline />, color: '#00BCD4' },
     WAITLIST_PROMOTED: { icon: <EmojiEvents />, color: '#9C27B0' },
     BADGE_UNLOCKED: { icon: <EmojiEvents />, color: '#FFD700' },
     SYSTEM: { icon: <Info />, color: '#607D8B' },
@@ -64,6 +67,7 @@ export default function NotificationsPage() {
         fetchNotifications,
         markAsRead,
         markAllAsRead,
+        deleteReadNotifications,
     } = useNotifications();
     const [page, setPage] = useState(1);
 
@@ -123,16 +127,28 @@ export default function NotificationsPage() {
                         <Chip label={`${unreadCount} 則未讀`} color="error" size="small" />
                     )}
                 </Stack>
-                {unreadCount > 0 && (
-                    <Button
-                        startIcon={<DoneAll />}
-                        size="small"
-                        onClick={markAllAsRead}
-                        sx={{ color: 'text.secondary' }}
-                    >
-                        全部已讀
-                    </Button>
-                )}
+                <Stack direction="row" spacing={1}>
+                    {unreadCount > 0 && (
+                        <Button
+                            startIcon={<DoneAll />}
+                            size="small"
+                            onClick={markAllAsRead}
+                            sx={{ color: 'text.secondary' }}
+                        >
+                            全部已讀
+                        </Button>
+                    )}
+                    {notifications.some(n => n.isRead) && (
+                        <Button
+                            startIcon={<DeleteSweep />}
+                            size="small"
+                            color="error"
+                            onClick={deleteReadNotifications}
+                        >
+                            清除已讀
+                        </Button>
+                    )}
+                </Stack>
             </Stack>
 
             {/* Notification List */}

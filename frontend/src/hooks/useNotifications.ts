@@ -68,6 +68,16 @@ export function useNotifications() {
         setUnreadCount(0);
     }, [getToken]);
 
+    // 刪除所有已讀通知
+    const deleteReadNotifications = useCallback(async () => {
+        const token = await getToken();
+        if (!token) return;
+        const res = await api.deleteReadNotifications(token);
+        if (res.success) {
+            setNotifications(prev => prev.filter(n => !n.isRead));
+        }
+    }, [getToken]);
+
     // Socket.io 即時監聽 + 加入 user room
     useEffect(() => {
         if (!user) return;
@@ -102,5 +112,6 @@ export function useNotifications() {
         fetchUnreadCount,
         markAsRead,
         markAllAsRead,
+        deleteReadNotifications,
     };
 }

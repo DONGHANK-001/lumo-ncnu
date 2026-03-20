@@ -272,6 +272,18 @@ class ApiClient {
     markAllNotificationsRead(token: string) {
         return this.request<{ message: string }>('/notifications/read-all', { method: 'PUT', token });
     }
+
+    deleteReadNotifications(token: string) {
+        return this.request<{ deletedCount: number }>('/notifications/read', { method: 'DELETE', token });
+    }
+
+    // My Groups History
+    getMyGroups(token: string, type?: string, page?: number) {
+        const params = new URLSearchParams();
+        if (type) params.set('type', type);
+        if (page) params.set('page', String(page));
+        return this.request<{ items: any[]; total: number; page: number; hasMore: boolean }>(`/me/groups?${params}`, { token });
+    }
 }
 
 export const api = new ApiClient(API_BASE_URL);

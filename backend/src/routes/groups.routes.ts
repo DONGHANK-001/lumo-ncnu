@@ -552,6 +552,14 @@ router.post(
         // 透過 Socket.io 廣播給正在查看此揪團的使用者
         getIO().to(`group:${id}`).emit('new_comment', { ...newComment, groupId: id });
 
+        // 通知所有團員有新留言（排除留言者自己）
+        notifyGroupMembers(id, user.id, {
+            type: 'GROUP_COMMENT',
+            title: '揪團有新留言 💬',
+            body: `${user.nickname || '成員'} 在「${group.title}」留言：${content.trim().slice(0, 50)}`,
+            data: { groupId: id },
+        }).catch((err: unknown) => req.log.error({ err }, 'Comment notification failed'));
+
         res.status(201).json({
             success: true,
             data: newComment,
