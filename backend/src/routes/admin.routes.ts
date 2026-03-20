@@ -231,4 +231,110 @@ router.delete('/reports/:id', async (req: Request, res: Response) => {
     });
 });
 
+// ============================================
+// 使用者管理
+// ============================================
+
+/**
+ * GET /admin/users
+ * 使用者列表（支援搜尋、篩選）
+ */
+router.get('/users', async (req: Request, res: Response) => {
+    const { page = 1, pageSize = 20, search, role, banned } = req.query;
+
+    const where: any = {};
+    if (search) {
+        where.OR = [
+            { nickname: { contains: String(search), mode: 'insensitive' } },
+            { email: { contains: String(search), mode: 'insensitive' } },
+            { studentId: { contains: String(search) } },
+        ];
+    }
+    if (role) where.role = String(role);
+    if (banned === 'true') where.isBanned = true;
+    if (banned === 'false') where.isBanned = false;
+
+    const [items, total] = await Promise.all([
+        prisma.user.findMany({
+            where,
+            select: {
+                id: true,
+                email: true,
+                nickname: true,
+                department: true,
+                studentId: true,
+                role: true,
+                planType: true,
+                isBanned: true,
+                banReason: true,
+                attendedCount: true,
+                noShowCount: true,
+                createdAt: true,
+            },
+            orderBy: { createdAt: 'desc' },
+            skip: (Number(page) - 1) * Number(pageSize),
+            take: Number(pageSize),
+        }),
+        prisma.user.count({ where }),
+    ]);
+
+    res.json({
+        success: true,
+        data: { items, total, page: Number(page), pageSize: Number(pageSize) },
+    });
+});
+
+/**
+ * PATCH /admin/users/:id/ban
+ * 封鎖/解封使用者
+ */
+router.patch('/users/:id/ban', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { isBanned, banReason } = req.body;
+
+    if (typeof isBanned !== 'boolean') {
+        throw new ApiError(400, 'INVALID_INPUT', '請提供 isBanned 布林值');
+    }
+
+    const target = await prisma.user.findUnique({ where: { id } });
+    if (!target) throw new ApiError(404, 'USER_NOT_FOUND', '找不到此使用者');
+    if (target.role === 'ADMIN') throw new ApiError(403, 'FORBIDDEN', '無法封鎖管理員帳號');
+
+    const updated = await prisma.user.update({
+        where: { id },
+        data: {
+            isBanned,
+            banReason: isBanned ? (banReason || null) : null,
+        },
+        select: { id: true, email: true, nickname: true, isBanned: true, banReason: true },
+    });
+
+    res.json({ success: true, data: updated });
+});
+
+/**
+ * PATCH /admin/users/:id/role
+ * 變更使用者角色
+ */
+router.patch('/users/:id/role', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!['USER', 'ADMIN'].includes(role)) {
+        throw new ApiError(400, 'INVALID_ROLE', '角色必須是 USER 或 ADMIN');
+    }
+
+    if (id === req.user!.id) {
+        throw new ApiError(403, 'FORBIDDEN', '無法修改自己的角色');
+    }
+
+    const updated = await prisma.user.update({
+        where: { id },
+        data: { role },
+        select: { id: true, email: true, nickname: true, role: true },
+    });
+
+    res.json({ success: true, data: updated });
+});
+
 export default router;

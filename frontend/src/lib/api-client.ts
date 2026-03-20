@@ -202,6 +202,19 @@ class ApiClient {
         return this.request(`/admin/reports/${id}`, { method: 'DELETE', token });
     }
 
+    getAdminUsers(token: string, params?: { search?: string; role?: string; banned?: string }) {
+        const query = params ? `?${new URLSearchParams(Object.entries(params).filter(([, v]) => v !== undefined) as [string, string][])}` : '';
+        return this.request<{ items: any[]; total: number }>(`/admin/users${query}`, { token });
+    }
+
+    banUser(token: string, id: string, isBanned: boolean, banReason?: string) {
+        return this.request(`/admin/users/${id}/ban`, { method: 'PATCH', token, body: { isBanned, banReason } });
+    }
+
+    changeUserRole(token: string, id: string, role: string) {
+        return this.request(`/admin/users/${id}/role`, { method: 'PATCH', token, body: { role } });
+    }
+
     // Badges
     getBadges() {
         return this.request<any[]>('/badges');

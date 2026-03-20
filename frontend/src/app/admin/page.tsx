@@ -38,7 +38,9 @@ import {
     Edit as EditIcon,
     CleaningServices as CleanupIcon,
     Refresh as RefreshIcon,
-    ArrowBack as ArrowBackIcon
+    ArrowBack as ArrowBackIcon,
+    Search as SearchIcon,
+    Block as BlockIcon,
 } from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
@@ -80,6 +82,21 @@ interface Report {
     targetDetails: any;
 }
 
+interface AdminUser {
+    id: string;
+    email: string;
+    nickname: string | null;
+    department: string | null;
+    studentId: string | null;
+    role: string;
+    planType: string;
+    isBanned: boolean;
+    banReason: string | null;
+    attendedCount: number;
+    noShowCount: number;
+    createdAt: string;
+}
+
 const sportTypeLabels: Record<string, string> = {
     BASKETBALL: '🏀 籃球',
     RUNNING: '🏃 跑步',
@@ -101,6 +118,8 @@ export default function AdminPage() {
     const [groups, setGroups] = useState<Group[]>([]);
     const [reports, setReports] = useState<Report[]>([]);
     const [feedbacks, setFeedbacks] = useState<any[]>([]);
+    const [users, setUsers] = useState<AdminUser[]>([]);
+    const [userTotal, setUserTotal] = useState(0);
     const [stats, setStats] = useState<Stats | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -117,17 +136,24 @@ export default function AdminPage() {
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
+    // 使用者管理
+    const [userSearch, setUserSearch] = useState('');
+    const [banDialog, setBanDialog] = useState(false);
+    const [banTarget, setBanTarget] = useState<AdminUser | null>(null);
+    const [banReason, setBanReason] = useState('');
+
     const fetchData = useCallback(async () => {
         try {
             setLoading(true);
             const token = await getToken();
             if (!token) return;
 
-            const [groupsRes, statsRes, reportsRes, feedbacksRes] = await Promise.all([
+            const [groupsRes, statsRes, reportsRes, feedbacksRes, usersRes] = await Promise.all([
                 api.getAdminGroups(token),
                 api.getAdminStats(token),
                 api.getAdminReports(token),
                 api.getAdminFeedbacks(token),
+                api.getAdminUsers(token),
             ]);
 
             if (!groupsRes.success || !statsRes.success || !reportsRes.success || !feedbacksRes.success) {
@@ -137,6 +163,10 @@ export default function AdminPage() {
             setGroups((groupsRes.data?.items as Group[]) || []);
             setReports((reportsRes.data?.items as Report[]) || []);
             setFeedbacks((feedbacksRes.data as any[]) || []);
+            if (usersRes.success) {
+                setUsers((usersRes.data?.items as AdminUser[]) || []);
+                setUserTotal(usersRes.data?.total || 0);
+            }
             setStats(statsRes.data || null);
             setError(null);
         } catch (err) {
@@ -299,6 +329,7 @@ export default function AdminPage() {
                     <Tab label="揪團管理" />
                     <Tab label={`檢舉處理 ${reports.length > 0 ? `(${reports.length})` : ''}`} />
                     <Tab label={`意見回饋 ${feedbacks.length > 0 ? `(${feedbacks.length})` : ''}`} />
+                    <Tab label={`使用者管理 (${userTotal})`} />
                 </Tabs>
             </Box>
 
@@ -530,6 +561,138 @@ export default function AdminPage() {
                 </TableContainer>
             )}
 
+            {tabValue === 3 && (
+                <>
+                    <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+                        <TextField
+                            size="small"
+                            placeholder="搜尋暱稱、Email 或學號..."
+                            value={userSearch}
+                            onChange={(e) => setUserSearch(e.target.value)}
+                            onKeyDown={async (e) => {
+                                if (e.key === 'Enter') {
+                                    const token = await getToken();
+                                    if (!token) return;
+                                    const res = await api.getAdminUsers(token, { search: userSearch || undefined });
+                                    if (res.success) {
+                                        setUsers(res.data?.items || []);
+                                        setUserTotal(res.data?.total || 0);
+                                    }
+                                }
+                            }}
+                            sx={{ minWidth: 300 }}
+                        />
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<SearchIcon />}
+                            onClick={async () => {
+                                const token = await getToken();
+                                if (!token) return;
+                                const res = await api.getAdminUsers(token, { search: userSearch || undefined });
+                                if (res.success) {
+                                    setUsers(res.data?.items || []);
+                                    setUserTotal(res.data?.total || 0);
+                                }
+                            }}
+                        >
+                            搜尋
+                        </Button>
+                    </Stack>
+
+                    <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider' }}>
+                        <Table size="small">
+                            <TableHead sx={{ bgcolor: 'action.hover' }}>
+                                <TableRow>
+                                    <TableCell>暱稱</TableCell>
+                                    <TableCell>Email</TableCell>
+                                    <TableCell>科系</TableCell>
+                                    <TableCell>角色</TableCell>
+                                    <TableCell>方案</TableCell>
+                                    <TableCell>出席/缺席</TableCell>
+                                    <TableCell>狀態</TableCell>
+                                    <TableCell align="right">操作</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {users.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
+                                            目前沒有使用者資料
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    users.map((u) => (
+                                        <TableRow key={u.id} sx={{ bgcolor: u.isBanned ? 'rgba(244,67,54,0.06)' : undefined }}>
+                                            <TableCell>{u.nickname || '-'}</TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{u.email}</Typography>
+                                            </TableCell>
+                                            <TableCell>{u.department || '-'}</TableCell>
+                                            <TableCell>
+                                                <Chip size="small" label={u.role} color={u.role === 'ADMIN' ? 'secondary' : 'default'} />
+                                            </TableCell>
+                                            <TableCell>{u.planType}</TableCell>
+                                            <TableCell>{u.attendedCount}/{u.noShowCount}</TableCell>
+                                            <TableCell>
+                                                {u.isBanned ? (
+                                                    <Chip size="small" label="已封鎖" color="error" />
+                                                ) : (
+                                                    <Chip size="small" label="正常" color="success" variant="outlined" />
+                                                )}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                                    {u.role !== 'ADMIN' && (
+                                                        <Button
+                                                            size="small"
+                                                            variant="outlined"
+                                                            color={u.isBanned ? 'success' : 'error'}
+                                                            startIcon={<BlockIcon />}
+                                                            onClick={async () => {
+                                                                if (u.isBanned) {
+                                                                    const token = await getToken();
+                                                                    if (!token) return;
+                                                                    const res = await api.banUser(token, u.id, false);
+                                                                    if (res.success) { setSuccess('已解除封鎖'); fetchData(); }
+                                                                    else setError(res.error?.message || '操作失敗');
+                                                                } else {
+                                                                    setBanTarget(u);
+                                                                    setBanReason('');
+                                                                    setBanDialog(true);
+                                                                }
+                                                            }}
+                                                        >
+                                                            {u.isBanned ? '解封' : '封鎖'}
+                                                        </Button>
+                                                    )}
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        disabled={u.id === user?.id}
+                                                        onClick={async () => {
+                                                            const newRole = u.role === 'ADMIN' ? 'USER' : 'ADMIN';
+                                                            if (!window.confirm(`確定要將 ${u.nickname || u.email} 的角色改為 ${newRole}？`)) return;
+                                                            const token = await getToken();
+                                                            if (!token) return;
+                                                            const res = await api.changeUserRole(token, u.id, newRole);
+                                                            if (res.success) { setSuccess(`角色已變更為 ${newRole}`); fetchData(); }
+                                                            else setError(res.error?.message || '操作失敗');
+                                                        }}
+                                                    >
+                                                        {u.role === 'ADMIN' ? '降為 USER' : '升為 ADMIN'}
+                                                    </Button>
+                                                </Stack>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </>
+            )}
+
             {/* 編輯對話框 */}
             <Dialog open={editDialog} onClose={() => setEditDialog(false)}>
                 <DialogTitle>編輯揪團</DialogTitle>
@@ -573,6 +736,45 @@ export default function AdminPage() {
                     <Button onClick={() => setDeleteDialog(false)}>取消</Button>
                     <Button variant="contained" color="error" onClick={handleDelete}>
                         刪除
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* 封鎖確認對話框 */}
+            <Dialog open={banDialog} onClose={() => setBanDialog(false)}>
+                <DialogTitle>封鎖使用者</DialogTitle>
+                <DialogContent>
+                    <Typography sx={{ mb: 2 }}>
+                        確定要封鎖 <strong>{banTarget?.nickname || banTarget?.email}</strong>？封鎖後該帳號將無法使用任何功能。
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        label="封鎖原因（選填）"
+                        value={banReason}
+                        onChange={(e) => setBanReason(e.target.value)}
+                        placeholder="例如：違反社群規範"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setBanDialog(false)}>取消</Button>
+                    <Button
+                        variant="contained"
+                        color="error"
+                        onClick={async () => {
+                            if (!banTarget) return;
+                            const token = await getToken();
+                            if (!token) return;
+                            const res = await api.banUser(token, banTarget.id, true, banReason || undefined);
+                            if (res.success) {
+                                setSuccess('使用者已封鎖');
+                                setBanDialog(false);
+                                fetchData();
+                            } else {
+                                setError(res.error?.message || '封鎖失敗');
+                            }
+                        }}
+                    >
+                        確認封鎖
                     </Button>
                 </DialogActions>
             </Dialog>

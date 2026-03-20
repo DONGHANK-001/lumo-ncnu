@@ -101,6 +101,8 @@ model User {
   school      String    @default("NCNU")
   role        String    @default("USER") // USER | ADMIN
   planType    PlanType  @default(FREE)
+  isBanned    Boolean   @default(false)  // 帳號封鎖
+  banReason   String?   // 封鎖原因
   preferences Json?     // UserPreferences JSON
   attendedCount Int     @default(0) // 出席次數
   noShowCount   Int     @default(0) // 缺席次數

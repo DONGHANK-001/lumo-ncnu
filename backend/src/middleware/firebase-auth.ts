@@ -84,6 +84,19 @@ export async function firebaseAuthMiddleware(
         }
 
         req.user = user;
+
+        // 封鎖帳號檢查
+        if (user.isBanned) {
+            res.status(403).json({
+                success: false,
+                error: {
+                    code: 'ACCOUNT_BANNED',
+                    message: `帳號已被停權${user.banReason ? `：${user.banReason}` : ''}`,
+                },
+            });
+            return;
+        }
+
         next();
     } catch (error) {
         logger.warn({ err: error }, 'Auth token verification failed');
