@@ -11,6 +11,7 @@ import { Prisma } from '@prisma/client';
 import { sendJoinGroupEmail } from '../lib/mailer.js';
 import { getIO } from '../socket.js';
 import { createNotification, notifyGroupMembers } from '../lib/notification.service.js';
+import { isTrialPeriod } from '../utils/trial-period.js';
 
 const router = Router();
 
@@ -153,8 +154,7 @@ router.get('/quota/me', firebaseAuthMiddleware, async (req: Request, res: Respon
             if (dates.length === 1 && isCurrentActive) currentStreak = 1;
         }
 
-        const isTrialPeriod = new Date() < new Date('2026-04-01T00:00:00+08:00');
-        if (isTrialPeriod) {
+        if (isTrialPeriod()) {
             return res.json({
                 success: true,
                 data: { hostedThisWeek, joinedThisWeek, currentStreak, limit: 999, remaining: 999 }
@@ -245,8 +245,7 @@ router.post(
             if (dates.length === 1 && isCurrentActive) currentStreak = 1;
         }
 
-        const isTrialPeriod = new Date() < new Date('2026-04-01T00:00:00+08:00');
-        if (!isTrialPeriod) {
+        if (!isTrialPeriod()) {
             const limit = 4 + Math.floor(hostedThisWeek / 2) + Math.floor(joinedThisWeek / 2) + Math.floor(currentStreak / 2);
 
             if (hostedThisWeek >= limit) {

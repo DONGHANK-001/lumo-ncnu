@@ -5,7 +5,8 @@ import {
     Container, Typography, Box, Card, CardContent, Stack, Chip,
     ToggleButtonGroup, ToggleButton, Avatar, Skeleton, Paper
 } from '@mui/material';
-import CrownBadge, { isTrialPeriod } from '@/app/components/CrownBadge';
+import CrownBadge from '@/app/components/CrownBadge';
+import { isTrialPeriod } from '@/lib/trial-period';
 import {
     EmojiEvents, WorkspacePremium, MilitaryTech,
     TrendingUp, Groups, ArrowBack, Lock, Person, AccountBalance
@@ -92,8 +93,6 @@ export default function LeaderboardPage() {
         if (!user) return;
         setLoading(true);
 
-        // 免費試用期檢查 (至 2026-04-01)
-        const isTrial = new Date() <= new Date('2026-04-01T23:59:59+08:00');
         setLocked(false);
 
         try {
@@ -103,10 +102,8 @@ export default function LeaderboardPage() {
             });
             const json = await res.json();
 
-            const isTrial = new Date() <= new Date('2026-04-01T23:59:59+08:00');
-
             if (res.status === 403 || !json.success) {
-                if (!isTrial) setLocked(true);
+                if (!isTrialPeriod()) setLocked(true);
             } else {
                 setUserRankings(json.data);
             }

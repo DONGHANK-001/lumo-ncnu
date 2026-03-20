@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { auth, googleProvider, firebase } from '@/lib/firebase';
 import { api } from '@/lib/api-client';
+import { isTrialPeriod } from '@/lib/trial-period';
 
 // 使用 compat 類型
 type FirebaseUser = firebase.User;
@@ -150,8 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const isTrialPeriod = new Date() <= new Date('2026-04-01T23:59:59+08:00');
-    const isPlusActive = user?.planType === 'PLUS' || isTrialPeriod;
+    const isPlusActive = user?.planType === 'PLUS' || isTrialPeriod();
 
     return (
         <AuthContext.Provider value={{ user, isPlusActive, loading, error, signIn, signOut, getToken, refreshUser }}>

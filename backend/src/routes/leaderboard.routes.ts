@@ -1,14 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
+import { isTrialPeriod } from '../utils/trial-period.js';
 
 const router = Router();
-
-// 工具函式：判斷是否在免費試用期間 (即日起至 2026/04/01 23:59:59)
-export const isTrialPeriod = () => {
-    const trialEndDate = new Date('2026-04-01T23:59:59+08:00');
-    return new Date() <= trialEndDate;
-};
 
 // 取得結算時間 (預設每月，第一個月由 2026-03-02 起算)
 const getMonthDateRange = (period: 'current' | 'last_month' = 'current') => {

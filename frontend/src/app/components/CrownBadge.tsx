@@ -1,5 +1,6 @@
 import { Tooltip, Box } from '@mui/material';
 import React from 'react';
+import { isTrialPeriod } from '@/lib/trial-period';
 
 // PLUS 方案的皇冠小圖示
 export default function CrownBadge({ isPlus, size = '1.2rem' }: { isPlus: boolean; size?: string | number }) {
@@ -25,9 +26,4 @@ export default function CrownBadge({ isPlus, size = '1.2rem' }: { isPlus: boolea
             </Box>
         </Tooltip>
     );
-}
-
-// 可選：匯出一個 helper 檢查目前是否為試用期
-export function isTrialPeriod() {
-    return new Date() < new Date('2026-04-01T00:00:00+08:00');
 }

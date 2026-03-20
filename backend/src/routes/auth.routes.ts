@@ -4,6 +4,7 @@ import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 import { validateBody } from '../middleware/validation.js';
 import { updateProfileSchema } from '../types/schemas.js';
 import { getPioneerTitle, getUserTitles } from '../utils/pioneer-titles.js';
+import { isTrialPeriod } from '../utils/trial-period.js';
 
 const router = Router();
 
@@ -18,8 +19,6 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
 
     const pioneerTitle = await getPioneerTitle(user.id);
 
-    const isTrialPeriod = new Date() < new Date('2026-04-01T00:00:00+08:00');
-
     res.json({
         success: true,
         data: {
@@ -31,7 +30,7 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
             department: user.department,
             school: user.school,
             role: user.role,
-            planType: isTrialPeriod ? 'PLUS' : user.planType,
+            planType: isTrialPeriod() ? 'PLUS' : user.planType,
             preferences: user.preferences,
             attendedCount: user.attendedCount,
             noShowCount: user.noShowCount,

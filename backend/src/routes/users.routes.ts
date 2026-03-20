@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 import { getPioneerTitle } from '../utils/pioneer-titles.js';
+import { isTrialPeriod } from '../utils/trial-period.js';
 
 const router = Router();
 
@@ -36,13 +37,12 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
         }
 
         const pioneerTitle = await getPioneerTitle(user.id);
-        const isTrialPeriod = new Date() < new Date('2026-04-01T00:00:00+08:00');
 
         res.json({
             success: true,
             data: {
                 ...user,
-                planType: isTrialPeriod ? 'PLUS' : user.planType,
+                planType: isTrialPeriod() ? 'PLUS' : user.planType,
                 pioneerTitle,
             }
         });
