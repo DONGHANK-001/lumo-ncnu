@@ -38,6 +38,9 @@ const FEATURES = [
     { name: '候補功能', free: false, plus: true },
     { name: '優先配對（即將推出）', free: false, plus: true },
     { name: '專屬徽章', free: false, plus: true },
+    { name: '專屬黑金稱號（終身卡）', free: false, plus: true },
+    { name: '揪團金框標示（終身卡）', free: false, plus: true },
+    { name: '未來周邊最優惠價（終身卡）', free: false, plus: true },
 ];
 
 const FAQS = [

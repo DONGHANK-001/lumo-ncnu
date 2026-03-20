@@ -52,7 +52,7 @@ interface Group {
     currentCount: number;
     status: string;
     tags: string[];
-    createdBy: { nickname: string | null; email: string };
+    createdBy: { nickname: string | null; email: string; planType?: string };
 }
 
 export default function GroupsPage() {
@@ -278,18 +278,38 @@ export default function GroupsPage() {
                                     borderRadius: 3,
                                     cursor: 'pointer',
                                     transition: 'transform 0.2s, box-shadow 0.2s',
-                                    '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 }
+                                    '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 },
+                                    ...(group.createdBy.planType === 'PLUS' && {
+                                        border: '2px solid',
+                                        borderColor: '#FFD700',
+                                        boxShadow: '0 0 12px rgba(255, 215, 0, 0.25)',
+                                    }),
+                                    position: 'relative',
                                 }}
                                 onClick={() => window.location.href = `/groups/${group.id}`}
                             >
                                 <CardContent sx={{ flexGrow: 1 }}>
                                     <Stack direction="row" justifyContent="space-between" mb={2}>
-                                        <Chip
-                                            label={SPORT_NAMES[group.sportType]}
-                                            color="primary"
-                                            variant="filled"
-                                            size="small"
-                                        />
+                                        <Stack direction="row" spacing={0.5} alignItems="center">
+                                            <Chip
+                                                label={SPORT_NAMES[group.sportType]}
+                                                color="primary"
+                                                variant="filled"
+                                                size="small"
+                                            />
+                                            {group.createdBy.planType === 'PLUS' && (
+                                                <Chip
+                                                    label="⚜️ 黑金"
+                                                    size="small"
+                                                    sx={{
+                                                        background: 'linear-gradient(135deg, #FFD700, #B8860B)',
+                                                        color: '#000',
+                                                        fontWeight: 'bold',
+                                                        fontSize: '0.65rem',
+                                                    }}
+                                                />
+                                            )}
+                                        </Stack>
                                         <Chip
                                             label={LEVEL_NAMES[group.level]}
                                             // @ts-ignore

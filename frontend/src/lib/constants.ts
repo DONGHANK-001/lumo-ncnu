@@ -92,5 +92,5 @@ export const PLANS = [
     { type: 'BIWEEKLY', name: '體驗方案', price: 19, period: '兩週', features: ['解除發起揪團上限', '專屬 PLUS 徽章'] },
     { type: 'MONTHLY', name: '月租方案', price: 30, period: '月', features: ['包含體驗方案功能', '無限查看參與者聯絡資訊'] },
     { type: 'QUARTERLY', name: '超值季卡', price: 80, period: '季', features: ['包含月租方案功能', '解鎖智慧配對進階條件'] },
-    { type: 'LIFETIME', name: '終身黑金卡', price: 199, period: '永久', features: ['未來所有新功能免費', '終身專屬特權服務'] },
+    { type: 'LIFETIME', name: '終身黑金卡', price: 199, period: '永久', features: ['專屬「⚜️ 黑金永恆」稱號', '揪團金框標示', '未來所有新功能免費', '未來周邊商品最優惠價格'] },
 ] as const;

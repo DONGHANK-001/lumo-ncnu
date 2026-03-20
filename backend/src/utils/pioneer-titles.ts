@@ -8,7 +8,7 @@ export interface TitleEntry {
     key: string;
     label: string;
     icon: string;
-    category: 'pioneer' | 'leaderboard' | 'event' | 'achievement';
+    category: 'pioneer' | 'leaderboard' | 'event' | 'achievement' | 'subscription';
     description: string;
 }
 
@@ -45,9 +45,14 @@ const EVENT_TITLES: TitleEntry[] = [
     { key: 'wbc_2026', label: '⚾ 經典賽應援團 2026', icon: '⚾', category: 'event', description: '3/5 經典賽當日成功揪團一次' },
 ];
 
+// ── 訂閱方案稱號 ──
+const SUBSCRIPTION_TITLES: TitleEntry[] = [
+    { key: 'lifetime_blackgold', label: '⚜️ 黑金永恆', icon: '⚜️', category: 'subscription', description: '終身黑金卡持有者' },
+];
+
 // ── 全部稱號 Map ──
 const ALL_TITLES_MAP = new Map<string, TitleEntry>();
-[...PIONEER_TITLES, ...LEADERBOARD_TITLES, ...EVENT_TITLES].forEach(t => ALL_TITLES_MAP.set(t.key, t));
+[...PIONEER_TITLES, ...LEADERBOARD_TITLES, ...EVENT_TITLES, ...SUBSCRIPTION_TITLES].forEach(t => ALL_TITLES_MAP.set(t.key, t));
 
 export function getTitleByKey(key: string): TitleEntry | undefined {
     return ALL_TITLES_MAP.get(key);
@@ -128,6 +133,17 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
     });
     if (wbcParticipation > 0 || wbcCreated > 0) {
         titles.push(EVENT_TITLES[0]); // wbc_2026
+    }
+
+    // 4. 終身黑金卡稱號
+    const userRow = await prisma.$queryRaw<{ planType: string; planExpiresAt: Date | null }[]>`
+        SELECT "planType", "planExpiresAt" FROM users WHERE id = ${userId} LIMIT 1
+    `;
+    if (userRow[0]?.planType === 'PLUS') {
+        const exp = userRow[0].planExpiresAt;
+        if (exp && new Date(exp).getFullYear() > 2070) {
+            titles.push(SUBSCRIPTION_TITLES[0]); // lifetime_blackgold
+        }
     }
 
     return titles;
