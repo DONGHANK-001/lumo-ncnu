@@ -12,6 +12,7 @@ import { sendJoinGroupEmail } from '../lib/mailer.js';
 import { getIO } from '../socket.js';
 import { createNotification, notifyGroupMembers } from '../lib/notification.service.js';
 import { isTrialPeriod } from '../utils/trial-period.js';
+import { getUserWeeklyStats, calculateQuotaLimit } from '../utils/quota.js';
 
 const router = Router();
 
@@ -93,66 +94,7 @@ router.get(
 router.get('/quota/me', firebaseAuthMiddleware, async (req: Request, res: Response) => {
     try {
         const user = req.user!;
-        const now = new Date();
-        const startOfWeek = new Date(now);
-        const day = startOfWeek.getDay() || 7;
-        startOfWeek.setHours(0, 0, 0, 0);
-        startOfWeek.setDate(startOfWeek.getDate() - day + 1);
-
-        const hostedThisWeek = await prisma.group.count({
-            where: {
-                createdById: user.id,
-                createdAt: { gte: startOfWeek }
-            }
-        });
-
-        const joinedThisWeek = await prisma.groupMember.count({
-            where: {
-                userId: user.id,
-                status: 'JOINED',
-                joinedAt: { gte: startOfWeek },
-                group: { createdById: { not: user.id } }
-            }
-        });
-
-        const mbs = await prisma.groupMember.findMany({
-            where: {
-                userId: user.id,
-                status: 'JOINED',
-                group: { time: { lt: now } }
-            },
-            include: { group: { select: { time: true } } },
-            orderBy: { group: { time: 'desc' } }
-        });
-
-        const dateSet = new Set<string>();
-        mbs.forEach(mb => dateSet.add(mb.group.time.toISOString().split('T')[0]));
-        const dates = Array.from(dateSet).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
-
-        let currentStreak = 0;
-        if (dates.length > 0) {
-            let prevDate = new Date(dates[0]);
-            const todayStr = now.toISOString().split('T')[0];
-            const yesterday = new Date(now);
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
-            const isCurrentActive = dates[0] === todayStr || dates[0] === yesterdayStr;
-
-            let tempStreak = 1;
-            for (let i = 1; i < dates.length; i++) {
-                const currDate = new Date(dates[i]);
-                const diffTime = Math.abs(prevDate.getTime() - currDate.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                if (diffDays === 1) tempStreak++;
-                else {
-                    if (i === 1 && isCurrentActive) currentStreak = tempStreak;
-                    break;
-                }
-                prevDate = currDate;
-            }
-            if (isCurrentActive && currentStreak === 0) currentStreak = tempStreak;
-            if (dates.length === 1 && isCurrentActive) currentStreak = 1;
-        }
+        const { hostedThisWeek, joinedThisWeek, currentStreak } = await getUserWeeklyStats(user.id);
 
         if (isTrialPeriod()) {
             return res.json({
@@ -161,11 +103,7 @@ router.get('/quota/me', firebaseAuthMiddleware, async (req: Request, res: Respon
             });
         }
 
-        const baseLimit = 4;
-        const bonusHosted = Math.floor(hostedThisWeek / 2);
-        const bonusJoined = Math.floor(joinedThisWeek / 2);
-        const bonusStreak = Math.floor(currentStreak / 2);
-        const limit = baseLimit + bonusHosted + bonusJoined + bonusStreak;
+        const limit = calculateQuotaLimit(hostedThisWeek, joinedThisWeek, currentStreak);
         const remaining = Math.max(0, limit - hostedThisWeek);
 
         res.json({
@@ -191,62 +129,10 @@ router.post(
         const { sportType, title, description, time, location, level, capacity, tags } = req.body;
 
         // 計算揪團額度檢查
-        const now = new Date();
-        const startOfWeek = new Date(now);
-        const day = startOfWeek.getDay() || 7;
-        startOfWeek.setHours(0, 0, 0, 0);
-        startOfWeek.setDate(startOfWeek.getDate() - day + 1);
-
-        const [hostedThisWeek, joinedThisWeek, mbs] = await Promise.all([
-            prisma.group.count({
-                where: { createdById: user.id, createdAt: { gte: startOfWeek } }
-            }),
-            prisma.groupMember.count({
-                where: {
-                    userId: user.id,
-                    status: 'JOINED',
-                    joinedAt: { gte: startOfWeek },
-                    group: { createdById: { not: user.id } }
-                }
-            }),
-            prisma.groupMember.findMany({
-                where: { userId: user.id, status: 'JOINED', group: { time: { lt: now } } },
-                include: { group: { select: { time: true } } },
-                orderBy: { group: { time: 'desc' } }
-            })
-        ]);
-
-        const dateSet = new Set<string>();
-        mbs.forEach(mb => dateSet.add(mb.group.time.toISOString().split('T')[0]));
-        const dates = Array.from(dateSet).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
-
-        let currentStreak = 0;
-        if (dates.length > 0) {
-            let prevDate = new Date(dates[0]);
-            const todayStr = now.toISOString().split('T')[0];
-            const yesterday = new Date(now);
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
-            const isCurrentActive = dates[0] === todayStr || dates[0] === yesterdayStr;
-
-            let tempStreak = 1;
-            for (let i = 1; i < dates.length; i++) {
-                const currDate = new Date(dates[i]);
-                const diffTime = Math.abs(prevDate.getTime() - currDate.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                if (diffDays === 1) tempStreak++;
-                else {
-                    if (i === 1 && isCurrentActive) currentStreak = tempStreak;
-                    break;
-                }
-                prevDate = currDate;
-            }
-            if (isCurrentActive && currentStreak === 0) currentStreak = tempStreak;
-            if (dates.length === 1 && isCurrentActive) currentStreak = 1;
-        }
+        const { hostedThisWeek, joinedThisWeek, currentStreak } = await getUserWeeklyStats(user.id);
 
         if (!isTrialPeriod()) {
-            const limit = 4 + Math.floor(hostedThisWeek / 2) + Math.floor(joinedThisWeek / 2) + Math.floor(currentStreak / 2);
+            const limit = calculateQuotaLimit(hostedThisWeek, joinedThisWeek, currentStreak);
 
             if (hostedThisWeek >= limit) {
                 return res.status(403).json({
