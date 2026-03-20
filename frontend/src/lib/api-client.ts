@@ -29,6 +29,7 @@ class ApiClient {
         }
 
         const maxRetries = 2;
+        const backoffMs = [100, 500, 2500]; // exponential backoff
         let lastError: Error | null = null;
 
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -57,17 +58,9 @@ class ApiClient {
                 return data;
             } catch (error) {
                 lastError = error as Error;
-                console.error(`API request error (attempt ${attempt + 1}):`, error);
 
-                // 如果是 abort (timeout)，retry
-                if ((error as Error).name === 'AbortError' && attempt < maxRetries) {
-                    console.log('Request timeout, retrying...');
-                    continue;
-                }
-
-                // 其他錯誤也 retry（可能是冷啟動）
                 if (attempt < maxRetries) {
-                    await new Promise(r => setTimeout(r, 1000)); // 等 1 秒後重試
+                    await new Promise(r => setTimeout(r, backoffMs[attempt]));
                     continue;
                 }
             }
