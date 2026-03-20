@@ -136,11 +136,14 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
     }
 
     // 4. 終身黑金卡稱號
-    const userRow = await prisma.$queryRaw<{ planType: string; planExpiresAt: Date | null }[]>`
-        SELECT "planType", "planExpiresAt" FROM users WHERE id = ${userId} LIMIT 1
+    const subRow = await prisma.$queryRaw<{ planType: string; endAt: Date | null }[]>`
+        SELECT u."planType", ps."endAt"
+        FROM users u
+        LEFT JOIN plus_subscriptions ps ON ps."userId" = u.id
+        WHERE u.id = ${userId} LIMIT 1
     `;
-    if (userRow[0]?.planType === 'PLUS') {
-        const exp = userRow[0].planExpiresAt;
+    if (subRow[0]?.planType === 'PLUS') {
+        const exp = subRow[0].endAt;
         if (exp && new Date(exp).getFullYear() > 2070) {
             titles.push(SUBSCRIPTION_TITLES[0]); // lifetime_blackgold
         }

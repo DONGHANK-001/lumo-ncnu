@@ -106,16 +106,16 @@ router.post('/callback', async (req, res) => {
 
         // RtnCode === '1' 代表成功
         if (RtnCode === '1') {
-            const paymentLog = await prisma.paymentLog.update({
-                where: { merchantOrderNo: MerchantTradeNo },
-                data: {
-                    status: 'SUCCESS',
-                    paymentMethod: PaymentType,
-                }
-            });
+            // 整段用 transaction 包起來，避免 subscription 寫入成功但 user 更新失敗
+            await prisma.$transaction(async (tx) => {
+                const paymentLog = await tx.paymentLog.update({
+                    where: { merchantOrderNo: MerchantTradeNo },
+                    data: {
+                        status: 'SUCCESS',
+                        paymentMethod: PaymentType,
+                    }
+                });
 
-            if (paymentLog) {
-                // 幫使用者訂閱（或是延長時間）
                 const userId = paymentLog.userId;
 
                 // 計算到期日
@@ -134,7 +134,7 @@ router.post('/callback', async (req, res) => {
                 }
 
                 // 檢查是否已經有訂閱記錄 (用 upsert 更新或新建)
-                await prisma.plusSubscription.upsert({
+                await tx.plusSubscription.upsert({
                     where: { userId },
                     update: {
                         status: 'ACTIVE',
@@ -150,11 +150,11 @@ router.post('/callback', async (req, res) => {
                 });
 
                 // 同步更新 User 的 planType
-                await prisma.user.update({
+                await tx.user.update({
                     where: { id: userId },
                     data: { planType: 'PLUS' }
                 });
-            }
+            });
         } else {
             // 付款失敗或取消
             await prisma.paymentLog.update({

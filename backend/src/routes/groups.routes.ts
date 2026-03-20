@@ -330,70 +330,76 @@ router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Respo
     const user = req.user!;
     const { id } = req.params;
 
-    const group = await prisma.group.findUnique({
-        where: { id },
-        include: {
-            members: true,
-            createdBy: { select: { nickname: true, email: true, planType: true } },
-        },
-    });
+    const result = await prisma.$transaction(async (tx) => {
+        // FOR UPDATE 鎖住 group row，防止並發超額加入
+        const groups = await tx.$queryRaw<
+            { id: string; currentCount: number; capacity: number; status: string; createdById: string; title: string; sportType: string; time: Date }[]
+        >(Prisma.sql`SELECT "id", "currentCount", "capacity", "status", "createdById", "title", "sportType", "time" FROM groups WHERE "id" = ${id} FOR UPDATE`);
 
-    if (!group) {
-        throw new ApiError(404, 'GROUP_NOT_FOUND', '找不到此揪團');
-    }
+        if (groups.length === 0) {
+            throw new ApiError(404, 'GROUP_NOT_FOUND', '找不到此揪團');
+        }
+        const group = groups[0];
 
-    if (group.status !== 'OPEN') {
-        throw new ApiError(400, 'GROUP_NOT_OPEN', '此揪團已關閉');
-    }
+        if (group.status !== 'OPEN') {
+            throw new ApiError(400, 'GROUP_NOT_OPEN', '此揪團已關閉');
+        }
 
-    // 檢查是否已加入
-    const existingMember = group.members.find((m) => m.userId === user.id);
-    if (existingMember && existingMember.status === 'JOINED') {
-        throw new ApiError(400, 'ALREADY_JOINED', '您已經加入此揪團');
-    }
+        // 在鎖內檢查是否已加入
+        const existingMember = await tx.groupMember.findUnique({
+            where: { groupId_userId: { groupId: id, userId: user.id } },
+        });
+        if (existingMember?.status === 'JOINED') {
+            throw new ApiError(400, 'ALREADY_JOINED', '您已經加入此揪團');
+        }
 
-    // 檢查人數
-    if (group.currentCount >= group.capacity) {
-        throw new ApiError(400, 'GROUP_FULL', '揪團已滿，請使用候補功能');
-    }
+        // 在鎖內檢查人數（此時 currentCount 保證是最新值）
+        if (group.currentCount >= group.capacity) {
+            throw new ApiError(400, 'GROUP_FULL', '揪團已滿，請使用候補功能');
+        }
 
-    // 更新或建立成員
-    await prisma.$transaction([
-        prisma.groupMember.upsert({
+        // 安全寫入
+        const newCount = group.currentCount + 1;
+        const newStatus = newCount >= group.capacity ? 'FULL' : 'OPEN';
+
+        await tx.groupMember.upsert({
             where: { groupId_userId: { groupId: id, userId: user.id } },
             create: { groupId: id, userId: user.id, status: 'JOINED' },
             update: { status: 'JOINED', joinedAt: new Date() },
-        }),
-        prisma.group.update({
+        });
+
+        await tx.group.update({
             where: { id },
-            data: {
-                currentCount: { increment: 1 },
-                status: group.currentCount + 1 >= group.capacity ? 'FULL' : 'OPEN',
-            },
-        }),
-    ]);
+            data: { currentCount: newCount, status: newStatus },
+        });
 
-    const updatedPayload = {
-        id,
-        currentCount: group.currentCount + 1,
-        status: group.currentCount + 1 >= group.capacity ? 'FULL' : 'OPEN',
-    };
-    getIO().to('groups').to(`group:${id}`).emit('group_updated', updatedPayload);
+        const creator = await tx.user.findUnique({
+            where: { id: group.createdById },
+            select: { nickname: true, email: true, planType: true },
+        });
 
-    // 發送 Email 通知給發起人
-    if (group.createdBy.email !== user.email) {
-        const isFull = group.currentCount + 1 >= group.capacity;
+        return { group, newCount, newStatus, creator };
+    });
+
+    // transaction 成功後才發通知（不需要在鎖內）
+    const { group, newCount, newStatus, creator } = result;
+
+    getIO().to('groups').to(`group:${id}`).emit('group_updated', {
+        id, currentCount: newCount, status: newStatus,
+    });
+
+    if (creator && creator.email !== user.email) {
+        const isFull = newCount >= group.capacity;
         sendJoinGroupEmail({
-            toEmail: group.createdBy.email,
-            organizerName: group.createdBy.nickname || '發起人',
+            toEmail: creator.email,
+            organizerName: creator.nickname || '發起人',
             joinerName: user.nickname || '新成員',
             groupTitle: group.title,
             sportType: group.sportType,
             time: group.time.toISOString(),
-            isFull: isFull,
+            isFull,
         }).catch((err: unknown) => req.log.error({ err }, 'Email send failed'));
 
-        // 站內通知發起人
         createNotification({
             userId: group.createdById,
             type: 'GROUP_JOIN',
@@ -403,10 +409,7 @@ router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Respo
         }).catch((err: unknown) => req.log.error({ err }, 'Join notification failed'));
     }
 
-    res.json({
-        success: true,
-        data: { message: '加入成功' },
-    });
+    res.json({ success: true, data: { message: '加入成功' } });
 });
 
 /**
