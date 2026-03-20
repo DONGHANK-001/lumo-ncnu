@@ -11,7 +11,6 @@ import aiRoutes from './routes/ai.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import leaderboardRoutes from './routes/leaderboard.routes.js';
 import badgesRoutes from './routes/badges.routes.js';
-import feedbackRoutes from './routes/feedback.routes.js';
 import matchRoutes from './routes/match.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import usersRoutes from './routes/users.routes.js';
@@ -108,7 +107,6 @@ app.use('/ai', aiRoutes);           // /ai/status
 app.use('/admin', adminRoutes);     // /admin/*
 app.use('/leaderboard', leaderboardRoutes); // /leaderboard/departments, /leaderboard/users
 app.use('/badges', badgesRoutes);           // /badges, /badges/me, /badges/check
-app.use('/feedback', feedbackRoutes);       // /feedback
 app.use('/match', matchRoutes);             // /match/partners
 app.use('/payment', paymentRoutes);         // /payment/checkout, /payment/callback
 app.use('/users', usersRoutes);     // /users/:id, /users/me/avatar

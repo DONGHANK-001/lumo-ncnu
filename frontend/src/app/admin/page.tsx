@@ -117,7 +117,6 @@ export default function AdminPage() {
     const router = useRouter();
     const [groups, setGroups] = useState<Group[]>([]);
     const [reports, setReports] = useState<Report[]>([]);
-    const [feedbacks, setFeedbacks] = useState<any[]>([]);
     const [users, setUsers] = useState<AdminUser[]>([]);
     const [userTotal, setUserTotal] = useState(0);
     const [stats, setStats] = useState<Stats | null>(null);
@@ -148,21 +147,19 @@ export default function AdminPage() {
             const token = await getToken();
             if (!token) return;
 
-            const [groupsRes, statsRes, reportsRes, feedbacksRes, usersRes] = await Promise.all([
+            const [groupsRes, statsRes, reportsRes, usersRes] = await Promise.all([
                 api.getAdminGroups(token),
                 api.getAdminStats(token),
                 api.getAdminReports(token),
-                api.getAdminFeedbacks(token),
                 api.getAdminUsers(token),
             ]);
 
-            if (!groupsRes.success || !statsRes.success || !reportsRes.success || !feedbacksRes.success) {
-                throw new Error(groupsRes.error?.message || statsRes.error?.message || reportsRes.error?.message || feedbacksRes.error?.message || '無法載入資料');
+            if (!groupsRes.success || !statsRes.success || !reportsRes.success) {
+                throw new Error(groupsRes.error?.message || statsRes.error?.message || reportsRes.error?.message || '無法載入資料');
             }
 
             setGroups((groupsRes.data?.items as Group[]) || []);
             setReports((reportsRes.data?.items as Report[]) || []);
-            setFeedbacks((feedbacksRes.data as any[]) || []);
             if (usersRes.success) {
                 setUsers((usersRes.data?.items as AdminUser[]) || []);
                 setUserTotal(usersRes.data?.total || 0);
@@ -328,7 +325,6 @@ export default function AdminPage() {
                 <Tabs value={tabValue} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
                     <Tab label="揪團管理" />
                     <Tab label={`檢舉處理 ${reports.length > 0 ? `(${reports.length})` : ''}`} />
-                    <Tab label={`意見回饋 ${feedbacks.length > 0 ? `(${feedbacks.length})` : ''}`} />
                     <Tab label={`使用者管理 (${userTotal})`} />
                 </Tabs>
             </Box>
@@ -524,44 +520,6 @@ export default function AdminPage() {
             )}
 
             {tabValue === 2 && (
-                <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider' }}>
-                    <Table>
-                        <TableHead sx={{ bgcolor: 'action.hover' }}>
-                            <TableRow>
-                                <TableCell>時間</TableCell>
-                                <TableCell>用戶</TableCell>
-                                <TableCell>意見內容</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {feedbacks.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={3} align="center" sx={{ py: 3 }}>
-                                        目前沒有意見回饋
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                feedbacks.map((fb) => (
-                                    <TableRow key={fb.id}>
-                                        <TableCell>{new Date(fb.createdAt).toLocaleString('zh-TW', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</TableCell>
-                                        <TableCell>
-                                            <Typography variant="body2">{fb.user?.nickname || '匿名使用者'}</Typography>
-                                            {fb.user?.email && <Typography variant="caption" color="text.secondary">{fb.user.email}</Typography>}
-                                        </TableCell>
-                                        <TableCell sx={{ maxWidth: 400, wordBreak: 'break-word' }}>
-                                            <Typography variant="body2">
-                                                {fb.content}
-                                            </Typography>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            )}
-
-            {tabValue === 3 && (
                 <>
                     <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
                         <TextField
