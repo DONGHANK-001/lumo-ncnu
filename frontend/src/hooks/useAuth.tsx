@@ -124,6 +124,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 await fetchUserData(result.user);
             }
         } catch (err: unknown) {
+            // 使用者自行關閉彈窗，不需顯示錯誤
+            if (err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === 'auth/popup-closed-by-user') {
+                return;
+            }
             console.error('Sign in error:', err);
             const errorMessage = err instanceof Error ? err.message : '登入失敗';
             setError(errorMessage);

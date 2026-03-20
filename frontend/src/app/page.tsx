@@ -64,6 +64,7 @@ const SPORTS = [
     { type: 'TABLE_TENNIS', icon: <SportsTennis fontSize="large" />, name: '桌球' },
     { type: 'GYM', icon: <FitnessCenter fontSize="large" />, name: '健身' },
     { type: 'VOLLEYBALL', icon: <SportsVolleyball fontSize="large" />, name: '排球' },
+    { type: 'TENNIS', icon: <SportsTennis fontSize="large" />, name: '網球' },
 ];
 
 export default function LandingPage() {
