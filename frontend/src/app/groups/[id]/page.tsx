@@ -40,7 +40,9 @@ import {
     Security,
     Send as SendIcon,
     ChatBubbleOutline,
-    Share as ShareIcon
+    Share as ShareIcon,
+    ThumbUp,
+    ThumbDown
 } from '@mui/icons-material';
 import SafetyNoticeDialog from '@/app/components/SafetyNoticeDialog';
 import ShareButtons from '@/app/components/ShareButtons';
@@ -58,9 +60,9 @@ interface GroupDetail {
     currentCount: number;
     status: string;
     tags: string[];
-    createdBy: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; planType?: string };
+    createdBy: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; planType?: string; positiveRatings?: number; negativeRatings?: number };
     members: Array<{
-        user: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; planType?: string };
+        user: { id: string; nickname: string | null; email: string; attendedCount: number; noShowCount: number; planType?: string; positiveRatings?: number; negativeRatings?: number };
         status: string;
         joinedAt: string;
         isAttended: boolean | null;
@@ -91,12 +93,14 @@ export default function GroupDetailPage() {
 
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
     const [attendanceRecords, setAttendanceRecords] = useState<Record<string, boolean | null>>({});
+    const [myRatings, setMyRatings] = useState<Record<string, boolean>>({});
     const [showSafetyNotice, setShowSafetyNotice] = useState(false);
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
     useEffect(() => {
         fetchGroup();
         fetchComments();
+        fetchRatings();
 
         // Socket.io for Real-time Comments
         const socket = getSocket();
@@ -125,6 +129,24 @@ export default function GroupDetailPage() {
         const response = await api.getGroupComments(id);
         if (response.success && response.data) {
             setComments(response.data);
+        }
+    };
+
+    const fetchRatings = async () => {
+        if (!user) return;
+        const token = await getToken();
+        if (!token) return;
+        const res = await api.getGroupRatings(token, id);
+        if (res.success && res.data) setMyRatings(res.data);
+    };
+
+    const handleRate = async (ratedUserId: string, isPositive: boolean) => {
+        const token = await getToken();
+        if (!token) return;
+        const res = await api.rateGroupMember(token, id, ratedUserId, isPositive);
+        if (res.success) {
+            setMyRatings(prev => ({ ...prev, [ratedUserId]: isPositive }));
+            setSnackbarMessage(isPositive ? '已給予 👍' : '已給予 👎');
         }
     };
 
@@ -561,6 +583,15 @@ export default function GroupDetailPage() {
                                                     variant="outlined"
                                                 />
                                             )}
+                                            {((member.user.positiveRatings || 0) + (member.user.negativeRatings || 0)) > 0 && (
+                                                <Chip
+                                                    size="small"
+                                                    label={`👍 ${member.user.positiveRatings || 0}`}
+                                                    sx={{ ml: 0.5, height: 20, fontSize: '0.7rem' }}
+                                                    color="info"
+                                                    variant="outlined"
+                                                />
+                                            )}
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary">
                                             {index === 0 ? '第一位' : `第 ${index + 1} 位`}
@@ -568,28 +599,49 @@ export default function GroupDetailPage() {
                                     </Box>
                                 </Stack>
 
-                                {isCreator && group && (new Date(group.time) < new Date() || group.status === 'COMPLETED') && member.user.id !== user?.id && (
-                                    <Stack direction="row" spacing={1}>
-                                        <Button
-                                            size="small"
-                                            variant={attendanceRecords[member.user.id] === true ? "contained" : "outlined"}
-                                            color="success"
-                                            onClick={() => handleAttendanceChange(member.user.id, true)}
-                                            sx={{ minWidth: 48, px: 1 }}
-                                        >
-                                            出席
-                                        </Button>
-                                        <Button
-                                            size="small"
-                                            variant={attendanceRecords[member.user.id] === false ? "contained" : "outlined"}
-                                            color="error"
-                                            onClick={() => handleAttendanceChange(member.user.id, false)}
-                                            sx={{ minWidth: 48, px: 1 }}
-                                        >
-                                            缺席
-                                        </Button>
-                                    </Stack>
-                                )}
+                                <Stack direction="column" spacing={0.5} alignItems="flex-end">
+                                    {isCreator && group && (new Date(group.time) < new Date() || group.status === 'COMPLETED') && member.user.id !== user?.id && (
+                                        <Stack direction="row" spacing={1}>
+                                            <Button
+                                                size="small"
+                                                variant={attendanceRecords[member.user.id] === true ? "contained" : "outlined"}
+                                                color="success"
+                                                onClick={() => handleAttendanceChange(member.user.id, true)}
+                                                sx={{ minWidth: 48, px: 1 }}
+                                            >
+                                                出席
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                variant={attendanceRecords[member.user.id] === false ? "contained" : "outlined"}
+                                                color="error"
+                                                onClick={() => handleAttendanceChange(member.user.id, false)}
+                                                sx={{ minWidth: 48, px: 1 }}
+                                            >
+                                                缺席
+                                            </Button>
+                                        </Stack>
+                                    )}
+                                    {user && member.user.id !== user.id && isJoined
+                                        && (new Date(group.time) < new Date() || group.status === 'COMPLETED') && (
+                                        <Stack direction="row" spacing={0.5}>
+                                            <IconButton
+                                                size="small"
+                                                color={myRatings[member.user.id] === true ? 'success' : 'default'}
+                                                onClick={() => handleRate(member.user.id, true)}
+                                            >
+                                                <ThumbUp fontSize="small" />
+                                            </IconButton>
+                                            <IconButton
+                                                size="small"
+                                                color={myRatings[member.user.id] === false ? 'error' : 'default'}
+                                                onClick={() => handleRate(member.user.id, false)}
+                                            >
+                                                <ThumbDown fontSize="small" />
+                                            </IconButton>
+                                        </Stack>
+                                    )}
+                                </Stack>
                             </Stack>
                         ))}
                     </Stack>

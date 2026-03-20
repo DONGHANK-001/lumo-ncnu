@@ -233,6 +233,17 @@ class ApiClient {
         return this.request<any[]>('/match/partners', { token });
     }
 
+    // Member Ratings
+    rateGroupMember(token: string, groupId: string, ratedUserId: string, isPositive: boolean) {
+        return this.request<{ message: string }>(`/groups/${groupId}/rate`, {
+            method: 'POST', token, body: { ratedUserId, isPositive },
+        });
+    }
+
+    getGroupRatings(token: string, groupId: string) {
+        return this.request<Record<string, boolean>>(`/groups/${groupId}/ratings`, { token });
+    }
+
     // Payment
     checkoutSubscription(token: string, planType: string) {
         return this.request<any>('/payment/checkout', { method: 'POST', token, body: { planType } });

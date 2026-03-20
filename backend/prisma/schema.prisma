@@ -108,6 +108,8 @@ model User {
   preferences Json?     // UserPreferences JSON
   attendedCount Int     @default(0) // 出席次數
   noShowCount   Int     @default(0) // 缺席次數
+  positiveRatings Int   @default(0) // 正評數
+  negativeRatings Int   @default(0) // 負評數
   disclaimerAccepted Boolean @default(false) // 免責聲明同意
   disclaimerAcceptedAt DateTime? // 同意時間
   onboardingCompleted Boolean @default(false) // 引導流程完成
@@ -123,11 +125,12 @@ model User {
   subscription    PlusSubscription?
   coachProfile    CoachProfile?
   comments        GroupComment[]
-  feedbacks       Feedback[]
   paymentLogs     PaymentLog[]
   checkIns        UserCheckIn[]
   notifications   Notification[]
   badges          UserBadge[]
+  ratingsGiven    MemberRating[] @relation("RatingsGiven")
+  ratingsReceived MemberRating[] @relation("RatingsReceived")
 
   @@map("users")
 }
@@ -154,6 +157,7 @@ model Group {
   // Relations
   members      GroupMember[]
   comments     GroupComment[]
+  ratings      MemberRating[]
 
   @@index([sportType])
   @@index([time])
@@ -246,17 +250,6 @@ model CoachProfile {
   @@map("coach_profiles")
 }
 
-model Feedback {
-  id        String   @id @default(uuid())
-  userId    String? 
-  user      User?    @relation(fields: [userId], references: [id])
-  content   String
-  status    String   @default("OPEN")
-  createdAt DateTime @default(now())
-
-  @@map("feedbacks")
-}
-
 model PaymentLog {
   id              String        @id @default(uuid())
   userId          String
@@ -321,4 +314,20 @@ model UserBadge {
 
   @@unique([userId, badgeId])
   @@map("user_badges")
+}
+
+model MemberRating {
+  id          String   @id @default(uuid())
+  groupId     String
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  raterId     String
+  rater       User     @relation("RatingsGiven", fields: [raterId], references: [id], onDelete: Cascade)
+  ratedUserId String
+  ratedUser   User     @relation("RatingsReceived", fields: [ratedUserId], references: [id], onDelete: Cascade)
+  isPositive  Boolean
+  createdAt   DateTime @default(now())
+
+  @@unique([groupId, raterId, ratedUserId])
+  @@index([ratedUserId])
+  @@map("member_ratings")
 }

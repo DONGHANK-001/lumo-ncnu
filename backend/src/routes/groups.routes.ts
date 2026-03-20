@@ -34,8 +34,13 @@ router.get(
             pageSize: number;
         };
 
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
         const where: Prisma.GroupWhereInput = {
-            status: { in: ['OPEN', 'FULL'] },
+            OR: [
+                { status: { in: ['OPEN', 'FULL'] } },
+                { status: 'COMPLETED', time: { gte: sevenDaysAgo } },
+            ],
             ...(sportType && { sportType: sportType as Prisma.EnumSportTypeFilter }),
             ...(level && { level: level as Prisma.EnumSkillLevelFilter }),
             ...(dateFrom && { time: { gte: new Date(dateFrom) } }),
@@ -188,10 +193,10 @@ router.get('/:id', async (req: Request, res: Response) => {
     const group = await prisma.group.findUnique({
         where: { id },
         include: {
-            createdBy: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true, planType: true } },
+            createdBy: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true, planType: true, positiveRatings: true, negativeRatings: true } },
             members: {
                 include: {
-                    user: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true, planType: true } },
+                    user: { select: { id: true, nickname: true, email: true, attendedCount: true, noShowCount: true, planType: true, positiveRatings: true, negativeRatings: true } },
                 },
                 orderBy: { joinedAt: 'asc' },
             },
@@ -306,65 +311,71 @@ router.post('/:id/leave', firebaseAuthMiddleware, async (req: Request, res: Resp
     const user = req.user!;
     const { id } = req.params;
 
-    const group = await prisma.group.findUnique({
-        where: { id },
-        include: { members: true },
-    });
+    const result = await prisma.$transaction(async (tx) => {
+        // FOR UPDATE 鎖住 group row，防止併發問題
+        const groups = await tx.$queryRaw<
+            { id: string; currentCount: number; capacity: number; status: string; createdById: string; title: string }[]
+        >(Prisma.sql`SELECT "id", "currentCount", "capacity", "status", "createdById", "title" FROM groups WHERE "id" = ${id} FOR UPDATE`);
 
-    if (!group) {
-        throw new ApiError(404, 'GROUP_NOT_FOUND', '找不到此揪團');
-    }
+        if (groups.length === 0) {
+            throw new ApiError(404, 'GROUP_NOT_FOUND', '找不到此揪團');
+        }
+        const group = groups[0];
 
-    const member = group.members.find((m) => m.userId === user.id && m.status === 'JOINED');
-    if (!member) {
-        throw new ApiError(400, 'NOT_MEMBER', '您不是此揪團成員');
-    }
+        // 檢查是否為成員
+        const member = await tx.groupMember.findFirst({
+            where: { groupId: id, userId: user.id, status: 'JOINED' },
+        });
+        if (!member) {
+            throw new ApiError(400, 'NOT_MEMBER', '您不是此揪團成員');
+        }
 
-    // 建立者不能退出
-    if (group.createdById === user.id) {
-        throw new ApiError(400, 'CREATOR_CANNOT_LEAVE', '揪團發起人無法退出，請取消揪團');
-    }
+        // 建立者不能退出
+        if (group.createdById === user.id) {
+            throw new ApiError(400, 'CREATOR_CANNOT_LEAVE', '揪團發起人無法退出，請取消揪團');
+        }
 
-    // 更新成員狀態
-    await prisma.$transaction([
-        prisma.groupMember.update({
+        // 標記成員退出
+        await tx.groupMember.update({
             where: { id: member.id },
             data: { status: 'LEFT' },
-        }),
-        prisma.group.update({
-            where: { id },
-            data: {
-                currentCount: { decrement: 1 },
-                status: 'OPEN', // 有人退出就重新開放
-            },
-        }),
-    ]);
+        });
 
-    // 檢查候補名單，自動遞補
-    const waitlistMember = group.members.find((m) => m.status === 'WAITLIST');
-    let newCount = group.currentCount - 1;
-    let newStatus: 'OPEN' | 'FULL' = 'OPEN';
+        let newCount = group.currentCount - 1;
+        let newStatus: 'OPEN' | 'FULL' = 'OPEN';
+        let promotedMember: { id: string; userId: string } | null = null;
 
-    if (waitlistMember) {
-        newCount += 1;
-        newStatus = newCount >= group.capacity ? 'FULL' : 'OPEN';
-        await prisma.$transaction([
-            prisma.groupMember.update({
+        // 在同一個 transaction 中檢查候補並遞補
+        const waitlistMember = await tx.groupMember.findFirst({
+            where: { groupId: id, status: 'WAITLIST' },
+            orderBy: { joinedAt: 'asc' },
+        });
+
+        if (waitlistMember) {
+            await tx.groupMember.update({
                 where: { id: waitlistMember.id },
                 data: { status: 'JOINED', joinedAt: new Date() },
-            }),
-            prisma.group.update({
-                where: { id },
-                data: {
-                    currentCount: { increment: 1 },
-                    status: newStatus
-                },
-            }),
-        ]);
+            });
+            newCount += 1;
+            newStatus = newCount >= group.capacity ? 'FULL' : 'OPEN';
+            promotedMember = waitlistMember;
+        }
 
-        // 通知候補者遞補成功
+        // 更新揪團人數（一次性寫入最終值）
+        await tx.group.update({
+            where: { id },
+            data: { currentCount: newCount, status: newStatus },
+        });
+
+        return { group, newCount, newStatus, promotedMember };
+    });
+
+    const { group, newCount, newStatus, promotedMember } = result;
+
+    // Transaction 成功後才發通知（不在鎖內）
+    if (promotedMember) {
         createNotification({
-            userId: waitlistMember.userId,
+            userId: promotedMember.userId,
             type: 'WAITLIST_PROMOTED',
             title: '候補成功！🎉',
             body: `你已自動遞補加入「${group.title}」`,
@@ -372,7 +383,6 @@ router.post('/:id/leave', firebaseAuthMiddleware, async (req: Request, res: Resp
         }).catch((err: unknown) => req.log.error({ err }, 'Waitlist promotion notification failed'));
     }
 
-    // 通知發起人有人退出
     createNotification({
         userId: group.createdById,
         type: 'GROUP_LEAVE',
@@ -650,5 +660,97 @@ router.put(
         });
     }
 );
+
+/**
+ * POST /groups/:id/rate
+ * 對揪團成員進行 👍/👎 評價（活動結束後，僅參與成員可評）
+ */
+router.post('/:id/rate', firebaseAuthMiddleware, async (req: Request, res: Response) => {
+    const user = req.user!;
+    const { id } = req.params;
+    const { ratedUserId, isPositive } = req.body;
+
+    if (!ratedUserId || typeof isPositive !== 'boolean') {
+        throw new ApiError(400, 'INVALID_INPUT', '缺少 ratedUserId 或 isPositive');
+    }
+
+    if (ratedUserId === user.id) {
+        throw new ApiError(400, 'CANNOT_RATE_SELF', '不能評價自己');
+    }
+
+    const group = await prisma.group.findUnique({
+        where: { id },
+        include: { members: { where: { status: 'JOINED' } } },
+    });
+
+    if (!group) {
+        throw new ApiError(404, 'GROUP_NOT_FOUND', '找不到此揪團');
+    }
+
+    if (new Date(group.time) >= new Date() && group.status !== 'COMPLETED') {
+        throw new ApiError(400, 'TOO_EARLY', '活動結束後才能評價');
+    }
+
+    if (!group.members.some(m => m.userId === user.id)) {
+        throw new ApiError(403, 'NOT_MEMBER', '只有參與成員可以評價');
+    }
+
+    if (!group.members.some(m => m.userId === ratedUserId)) {
+        throw new ApiError(400, 'TARGET_NOT_MEMBER', '被評價者不是此揪團成員');
+    }
+
+    await prisma.$transaction(async (tx) => {
+        const existing = await tx.memberRating.findUnique({
+            where: { groupId_raterId_ratedUserId: { groupId: id, raterId: user.id, ratedUserId } },
+        });
+
+        if (existing) {
+            if (existing.isPositive === isPositive) return;
+
+            await tx.memberRating.update({
+                where: { id: existing.id },
+                data: { isPositive },
+            });
+            await tx.user.update({
+                where: { id: ratedUserId },
+                data: {
+                    positiveRatings: { increment: isPositive ? 1 : -1 },
+                    negativeRatings: { increment: isPositive ? -1 : 1 },
+                },
+            });
+        } else {
+            await tx.memberRating.create({
+                data: { groupId: id, raterId: user.id, ratedUserId, isPositive },
+            });
+            await tx.user.update({
+                where: { id: ratedUserId },
+                data: {
+                    [isPositive ? 'positiveRatings' : 'negativeRatings']: { increment: 1 },
+                },
+            });
+        }
+    });
+
+    res.json({ success: true, data: { message: '評價成功' } });
+});
+
+/**
+ * GET /groups/:id/ratings
+ * 取得目前使用者已評過誰
+ */
+router.get('/:id/ratings', firebaseAuthMiddleware, async (req: Request, res: Response) => {
+    const user = req.user!;
+    const { id } = req.params;
+
+    const ratings = await prisma.memberRating.findMany({
+        where: { groupId: id, raterId: user.id },
+        select: { ratedUserId: true, isPositive: true },
+    });
+
+    res.json({
+        success: true,
+        data: Object.fromEntries(ratings.map(r => [r.ratedUserId, r.isPositive])),
+    });
+});
 
 export default router;

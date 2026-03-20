@@ -302,7 +302,9 @@ export default function GroupsPage() {
                 </Paper>
             ) : (
                 <Grid container spacing={3}>
-                    {groups.map((group) => (
+                    {groups.map((group) => {
+                        const isExpired = new Date(group.time) < new Date() || group.status === 'COMPLETED';
+                        return (
                         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={group.id}>
                             <Card
                                 sx={{
@@ -312,11 +314,17 @@ export default function GroupsPage() {
                                     borderRadius: 3,
                                     cursor: 'pointer',
                                     transition: 'transform 0.2s, box-shadow 0.2s',
-                                    '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 },
-                                    ...(group.createdBy.planType === 'PLUS' && {
+                                    ...(!isExpired && {
+                                        '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 },
+                                    }),
+                                    ...(group.createdBy.planType === 'PLUS' && !isExpired && {
                                         border: '2px solid',
                                         borderColor: '#FFD700',
                                         boxShadow: '0 0 12px rgba(255, 215, 0, 0.25)',
+                                    }),
+                                    ...(isExpired && {
+                                        opacity: 0.55,
+                                        filter: 'grayscale(40%)',
                                     }),
                                     position: 'relative',
                                 }}
@@ -395,7 +403,8 @@ export default function GroupsPage() {
                                 </CardActions>
                             </Card>
                         </Grid>
-                    ))}
+                        );
+                    })}
                 </Grid>
             )}
 
