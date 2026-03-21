@@ -25,6 +25,7 @@ enum SportType {
   NIGHT_WALK
   TENNIS
   DINING
+  STUDY
 }
 
 enum SkillLevel {

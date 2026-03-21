@@ -41,7 +41,8 @@ import {
     SportsVolleyball,
     NightsStay,
     Restaurant,
-    Notifications as NotificationsIcon
+    Notifications as NotificationsIcon,
+    MenuBook
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
@@ -446,6 +447,29 @@ export default function LandingPage() {
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 找人一起吃飯！有伴就更好吃
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                    <Card
+                        component={Link}
+                        href="/sports/STUDY"
+                        sx={{
+                            textDecoration: 'none',
+                            borderRadius: 4,
+                            background: mode === 'dark'
+                                ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, #1a3a5c 100%)`
+                                : `linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%)`,
+                            transition: 'transform 0.3s',
+                            '&:hover': { transform: 'translateY(-4px)' },
+                        }}
+                    >
+                        <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                            <MenuBook sx={{ fontSize: 40, color: '#42A5F5', mb: 1 }} />
+                            <Typography variant="h6" fontWeight="bold" gutterBottom>
+                                📚 揪讀書
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                找人一起讀書，有伴效率更高
                             </Typography>
                         </CardContent>
                     </Card>

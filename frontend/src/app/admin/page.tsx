@@ -103,6 +103,7 @@ const sportTypeLabels: Record<string, string> = {
     BADMINTON: '🏸 羽球',
     TABLE_TENNIS: '🏓 桌球',
     GYM: '💪 健身',
+    STUDY: '📚 揪讀書',
 };
 
 const statusColors: Record<string, 'success' | 'warning' | 'error' | 'default'> = {

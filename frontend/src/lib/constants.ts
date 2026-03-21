@@ -13,6 +13,7 @@ export const SPORT_NAMES: Record<string, string> = {
     NIGHT_WALK: '晚風漫遊',
     DINING: '飯飯之交',
     TENNIS: '網球',
+    STUDY: '揪讀書',
 };
 
 /** 運動類型 Emoji */
@@ -26,6 +27,7 @@ export const SPORT_EMOJIS: Record<string, string> = {
     NIGHT_WALK: '🌙',
     DINING: '🍽️',
     TENNIS: '🎾',
+    STUDY: '📚',
 };
 
 /** 技能等級中文名稱 */

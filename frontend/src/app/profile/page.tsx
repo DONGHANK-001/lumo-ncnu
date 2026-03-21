@@ -40,7 +40,7 @@ import CrownBadge from '@/app/components/CrownBadge';
 import { SPORT_NAMES, SPORT_EMOJIS, LEVEL_OPTIONS, TIME_OPTIONS, LOCATION_OPTIONS } from '@/lib/constants';
 
 const SPORT_OPTIONS = Object.entries(SPORT_NAMES)
-    .filter(([key]) => !['NIGHT_WALK', 'DINING'].includes(key))
+    .filter(([key]) => !['NIGHT_WALK', 'DINING', 'STUDY'].includes(key))
     .map(([value, label]) => ({ value, label: `${SPORT_EMOJIS[value] || ''} ${label}` }));
 
 export default function ProfilePage() {

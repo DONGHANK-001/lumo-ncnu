@@ -37,7 +37,8 @@ import {
     FitnessCenter,
     SportsVolleyball,
     NightsStay,
-    Restaurant
+    Restaurant,
+    MenuBook
 } from '@mui/icons-material';
 import SafetyNoticeDialog from '../components/SafetyNoticeDialog';
 import { LEVEL_OPTIONS } from '@/lib/constants';
@@ -50,9 +51,15 @@ const SPORT_OPTIONS = [
     { value: 'GYM', label: '健身', icon: <FitnessCenter /> },
     { value: 'VOLLEYBALL', label: '排球', icon: <SportsVolleyball /> },
     { value: 'TENNIS', label: '網球', icon: <SportsTennis /> },
+];
+
+const SOCIAL_OPTIONS = [
     { value: 'NIGHT_WALK', label: '晚風漫遊', icon: <NightsStay /> },
     { value: 'DINING', label: '飯飯之交', icon: <Restaurant /> },
+    { value: 'STUDY', label: '揪讀書', icon: <MenuBook /> },
 ];
+
+const SOCIAL_TYPES = ['NIGHT_WALK', 'DINING', 'STUDY'];
 
 // 根據運動類型取得對應的標籤
 const getTagsForSport = (sportType: string): string[] => {
@@ -66,6 +73,7 @@ const getTagsForSport = (sportType: string): string[] => {
         TENNIS: ['女性友善', '男性友善', '性別友善', '新手友善', '輕鬆打', '激烈競爭'],
         NIGHT_WALK: ['純散步不聊天', '邊走邊聊', '看星星', '運動後散步', '安靜放空'],
         DINING: ['純吃飯不聊天', '邊吃邊聊', '想交朋友', '找飯友', 'AA制'],
+        STUDY: ['安靜自習', '討論型', '期中考衝刺', '期末考衝刺', '讀書會', '找讀伴'],
     };
     return sportTagMap[sportType] || ['女性友善', '性別友善', '新手友善'];
 };
@@ -248,9 +256,9 @@ export default function CreateGroupPage() {
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
                                 <Typography variant="h6" gutterBottom mb={2}>運動類型</Typography>
                                 <ToggleButtonGroup
-                                    value={form.sportType}
+                                    value={SOCIAL_TYPES.includes(form.sportType) ? null : form.sportType}
                                     exclusive
-                                    onChange={(_, newVal) => newVal && setForm({ ...form, sportType: newVal, tags: [] })}
+                                    onChange={(_, newVal) => newVal && setForm({ ...form, sportType: newVal, tags: [], level: 'ANY' })}
                                     aria-label="選擇運動類型"
                                     fullWidth
                                     sx={{
@@ -275,6 +283,40 @@ export default function CreateGroupPage() {
                                             <Stack alignItems="center" spacing={1}>
                                                 {sport.icon}
                                                 <Typography variant="caption">{sport.label}</Typography>
+                                            </Stack>
+                                        </ToggleButton>
+                                    ))}
+                                </ToggleButtonGroup>
+
+                                <Typography variant="h6" gutterBottom mt={4} mb={2}>社交活動</Typography>
+                                <ToggleButtonGroup
+                                    value={SOCIAL_TYPES.includes(form.sportType) ? form.sportType : null}
+                                    exclusive
+                                    onChange={(_, newVal) => newVal && setForm({ ...form, sportType: newVal, tags: [], level: 'ANY' })}
+                                    aria-label="選擇社交活動"
+                                    fullWidth
+                                    sx={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        gap: 1,
+                                        '& .MuiToggleButton-root': {
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                            borderRadius: '12px',
+                                            flex: '1 0 30%',
+                                            py: 2
+                                        },
+                                        '& .Mui-selected': {
+                                            bgcolor: 'primary.main',
+                                            color: 'primary.contrastText'
+                                        }
+                                    }}
+                                >
+                                    {SOCIAL_OPTIONS.map((social) => (
+                                        <ToggleButton key={social.value} value={social.value}>
+                                            <Stack alignItems="center" spacing={1}>
+                                                {social.icon}
+                                                <Typography variant="caption">{social.label}</Typography>
                                             </Stack>
                                         </ToggleButton>
                                     ))}
@@ -415,19 +457,21 @@ export default function CreateGroupPage() {
                             {/* Requirements */}
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
                                 <Stack spacing={3}>
-                                    <TextField
-                                        select
-                                        label="程度要求"
-                                        fullWidth
-                                        value={form.level}
-                                        onChange={(e) => setForm({ ...form, level: e.target.value })}
-                                    >
-                                        {LEVEL_OPTIONS.map((option) => (
-                                            <MenuItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </MenuItem>
-                                        ))}
-                                    </TextField>
+                                    {!SOCIAL_TYPES.includes(form.sportType) && (
+                                        <TextField
+                                            select
+                                            label="程度要求"
+                                            fullWidth
+                                            value={form.level}
+                                            onChange={(e) => setForm({ ...form, level: e.target.value })}
+                                        >
+                                            {LEVEL_OPTIONS.map((option) => (
+                                                <MenuItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    )}
 
                                     <Box>
                                         <Typography variant="subtitle2" fontWeight="bold" mb={2}>
