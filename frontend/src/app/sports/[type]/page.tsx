@@ -282,12 +282,12 @@ const SPORT_DATA: Record<string, SportInfo> = {
         campusSpots: ['暨大學生餐廳', '暨大綜合大樓'],
     },
     STUDY: {
-        name: '揪讀書',
+        name: '靜謐同頻',
         icon: <MenuBook sx={{ fontSize: 60 }} />,
         color: '#42A5F5',
-        description: '找人一起讀書！不管是安靜自習、分組討論還是考前衝刺，有伴效率更高。',
+        description: '在靜謐中尋覓同頻之人——無論是期中備考的專注苦讀、期末衝刺的緊鑼密鼓，或是日常沉浸書海的悠然時光，有志同道合的讀伴相伴，方能走得更遠。',
         rules: [
-            '保持安靜，尊重其他人的讀書節奏',
+            '保持安靜，尊重彼此的閱讀節奏',
             '手機請調靜音或勿擾模式',
             '準時出席，不隨意缺席',
             '公共空間請維持整潔',
@@ -456,7 +456,7 @@ export default function SportGuidePage() {
                         href={`/create?type=${type}`}
                         sx={{ borderRadius: 3, px: 6, py: 1.5, fontSize: '1.1rem' }}
                     >
-                        {type === 'NIGHT_WALK' ? '立即漫步校園！' : type === 'DINING' ? '立即結識飯飯之交！' : type === 'RUNNING' ? '立即揪團跑步！' : type === 'GYM' ? '立即揪團健身！' : type === 'TENNIS' ? '立即揪團打網球！' : `立即揪團打${sport.name}！`}
+                        {type === 'NIGHT_WALK' ? '立即漫步校園！' : type === 'DINING' ? '立即結識飯飯之交！' : type === 'STUDY' ? '尋找讀書夥伴！' : type === 'RUNNING' ? '立即揪團跑步！' : type === 'GYM' ? '立即揪團健身！' : type === 'TENNIS' ? '立即揪團打網球！' : `立即揪團打${sport.name}！`}
                     </Button>
                 </Box>
             </Stack>

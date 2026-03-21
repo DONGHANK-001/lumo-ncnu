@@ -30,6 +30,9 @@ import {
     WaterDrop,
     Timer,
     FoodBank,
+    NightsStay,
+    MenuBook,
+    Restaurant,
 } from '@mui/icons-material';
 
 interface NutritionInfo {
@@ -179,6 +182,94 @@ const NUTRITION_DATA: Record<string, NutritionInfo> = {
         snacks: ['御飯糰', '香蕉', '牛奶'],
         avoid: ['冰水（運動後避免大量冰水）', '過鹹食物', '含氣飲料'],
     },
+    TENNIS: {
+        name: '網球',
+        icon: <SportsTennis sx={{ fontSize: 48 }} />,
+        color: '#26A69A',
+        intensity: '高',
+        caloriesBurned: '400~600 大卡/小時',
+        timing: '打完球後 30 分鐘內補充碳水與蛋白質',
+        hydration: '每換場時補水，大量流汗時加電解質',
+        preMeal: [
+            { food: '🍌 香蕉 + 花生醬', reason: '碳水 + 健康脂肪，持久供能' },
+            { food: '🍞 全麥吐司 + 蜂蜜', reason: '快速碳水補充，比賽前 1 小時食用' },
+            { food: '🥤 運動飲料', reason: '預先補充電解質，延緩疲勞' },
+        ],
+        postMeal: [
+            { food: '🍗 雞胸肉 + 義大利麵', reason: '蛋白質 + 碳水完整恢復' },
+            { food: '🍱 鮭魚便當', reason: 'Omega-3 抗發炎 + 優質蛋白' },
+            { food: '🥚 歐姆蛋 + 全麥麵包', reason: '簡單均衡的恢復餐' },
+            { food: '🍛 雞肉咖哩飯', reason: '薑黃消炎 + 碳水蛋白兼具' },
+        ],
+        snacks: ['能量棒', '葡萄乾', '香蕉'],
+        avoid: ['油炸食物', '碳酸飲料', '過量咖啡因'],
+    },
+    NIGHT_WALK: {
+        name: '晚風漫遊',
+        icon: <NightsStay sx={{ fontSize: 48 }} />,
+        color: '#5C6BC0',
+        intensity: '低',
+        caloriesBurned: '100~200 大卡/小時',
+        timing: '散步後不需特別搶時間進食，正常用餐即可',
+        hydration: '隨身攜帶水壺，適量補水即可',
+        preMeal: [
+            { food: '🍵 溫熱茶飲', reason: '暖身放鬆，適合傍晚出發前' },
+            { food: '🍪 幾片蘇打餅乾', reason: '墊墊胃，避免散步時飢餓' },
+            { food: '🍎 水果 1 份', reason: '輕食不造成負擔' },
+        ],
+        postMeal: [
+            { food: '🥣 燕麥粥 + 堅果', reason: '好消化，適合晚間不想吃太重' },
+            { food: '🍜 清湯麵 + 青菜 + 蛋', reason: '溫暖腸胃，營養均衡' },
+            { food: '🥗 輕食沙拉 + 雞胸肉', reason: '低卡又有飽足感' },
+            { food: '🫖 豆漿 + 全麥饅頭', reason: '植物蛋白 + 碳水，清爽無負擔' },
+        ],
+        snacks: ['堅果小包', '優格', '水果切盤'],
+        avoid: ['宵夜炸物', '含糖手搖飲', '重口味鹹酥雞（太晚吃影響睡眠）'],
+    },
+    DINING: {
+        name: '飯飯之交',
+        icon: <Restaurant sx={{ fontSize: 48 }} />,
+        color: '#FF7043',
+        intensity: '低',
+        caloriesBurned: '—',
+        timing: '享受社交用餐，不需刻意計時',
+        hydration: '餐間適量飲水，幫助消化',
+        preMeal: [
+            { food: '🥛 一杯牛奶或豆漿', reason: '墊胃避免到餐廳時過度點餐' },
+            { food: '🍎 少量水果', reason: '穩定血糖，避免飢餓暴食' },
+            { food: '🫖 無糖茶', reason: '促進代謝，減少等餐焦慮' },
+        ],
+        postMeal: [
+            { food: '🚶 飯後散步 15 分鐘', reason: '幫助消化、穩定血糖' },
+            { food: '🫖 溫熱無糖茶', reason: '解膩助消化' },
+            { food: '🍊 飯後水果（少量）', reason: '補充維生素，幫助消化' },
+            { food: '💧 溫開水', reason: '最簡單有效的飯後選擇' },
+        ],
+        snacks: ['水果', '無糖茶', '黑巧克力'],
+        avoid: ['飯後立刻躺下', '過量甜點', '含糖飲料配餐'],
+    },
+    STUDY: {
+        name: '靜謐同頻',
+        icon: <MenuBook sx={{ fontSize: 48 }} />,
+        color: '#42A5F5',
+        intensity: '低',
+        caloriesBurned: '80~120 大卡/小時（腦力消耗）',
+        timing: '每 1-2 小時補充小點心，維持專注力',
+        hydration: '持續小口喝水，建議每小時至少 200ml',
+        preMeal: [
+            { food: '🥜 堅果 + 黑巧克力', reason: '健康脂肪 + 可可鹼提升專注' },
+            { food: '🍌 香蕉', reason: '快速補充大腦所需葡萄糖' },
+            { food: '☕ 黑咖啡或綠茶', reason: '適量咖啡因提神，不加糖更持久' },
+        ],
+        postMeal: [
+            { food: '🍱 均衡便當（少油）', reason: '碳水蛋白蔬菜兼具，不易昏沉' },
+            { food: '🥗 沙拉 + 雞蛋 + 全麥麵包', reason: '輕食組合，讀書後不會太飽' },
+            { food: '🍜 湯麵 + 蛋 + 青菜', reason: '溫暖好消化，適合晚間讀書後' },
+            { food: '🍙 飯糰 + 味噌湯', reason: '便利商店快速解決，方便繼續唸書' },
+        ],
+        snacks: ['藍莓（護眼抗氧化）', '核桃（DHA 補腦）', '黑巧克力 70%', '綠茶'],
+        avoid: ['高糖零食（血糖震盪更想睡）', '大量炸物（昏沉想睡）', '過量咖啡因（焦慮手抖）'],
+    },
 };
 
 const SPORT_TYPES = Object.keys(NUTRITION_DATA);
@@ -219,10 +310,10 @@ export default function NutritionPage() {
                             <Box sx={{ color: info.color }}>{info.icon}</Box>
                             <Box>
                                 <Typography variant="h4" fontWeight="bold">
-                                    🍽️ 運動後飲食指南
+                                    🍽️ 活動飲食指南
                                 </Typography>
                                 <Typography variant="body1" color="text.secondary">
-                                    依運動類型，提供科學的營養補給建議
+                                    依活動類型，提供科學的營養補給建議
                                 </Typography>
                             </Box>
                         </Stack>
@@ -267,7 +358,7 @@ export default function NutritionPage() {
                         <Grid size={{ xs: 6, sm: 3 }}>
                             <Card sx={{ borderRadius: 3, textAlign: 'center' }}>
                                 <CardContent>
-                                    <Typography variant="caption" color="text.secondary">運動強度</Typography>
+                                    <Typography variant="caption" color="text.secondary">活動強度</Typography>
                                     <Typography variant="h6" fontWeight="bold" color={
                                         info.intensity === '高' ? 'error.main' :
                                         info.intensity === '中' ? 'warning.main' : 'success.main'
@@ -313,7 +404,7 @@ export default function NutritionPage() {
                     <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
                         <Stack direction="row" alignItems="center" spacing={1} mb={2}>
                             <FoodBank sx={{ color: info.color }} />
-                            <Typography variant="h6" fontWeight="bold">🏃 運動前吃什麼</Typography>
+                            <Typography variant="h6" fontWeight="bold">🏃 活動前吃什麼</Typography>
                         </Stack>
                         <Stack spacing={2}>
                             {info.preMeal.map((item, i) => (
@@ -331,7 +422,7 @@ export default function NutritionPage() {
                     <Paper sx={{ p: 3, mb: 3, borderRadius: 3, border: `1px solid ${info.color}44` }}>
                         <Stack direction="row" alignItems="center" spacing={1} mb={2}>
                             <LocalDining sx={{ color: info.color }} />
-                            <Typography variant="h6" fontWeight="bold">💪 運動後吃什麼（重點！）</Typography>
+                            <Typography variant="h6" fontWeight="bold">💪 活動後吃什麼（重點！）</Typography>
                         </Stack>
                         <Stack spacing={2}>
                             {info.postMeal.map((item, i) => (
@@ -384,6 +475,8 @@ export default function NutritionPage() {
                                 '盡量選擇原型食物，減少加工食品攝取',
                                 '如果目標是增肌，每公斤體重建議攝取 1.6-2.2g 蛋白質',
                                 '運動前 2 小時內避免高脂肪食物，以免消化不良',
+                                '長時間讀書用腦，大腦消耗的葡萄糖佔全身 20%，適時補充碳水很重要',
+                                '社交聚餐時細嚼慢嚥，每口咀嚼 20 次以上可增加飽足感、減少過食',
                             ].map((tip, i) => (
                                 <Typography key={i} variant="body2" color="text.secondary" sx={{ pl: 2, borderLeft: `2px solid ${info.color}44` }}>
                                     {tip}

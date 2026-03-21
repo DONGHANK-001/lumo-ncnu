@@ -466,10 +466,10 @@ export default function LandingPage() {
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <MenuBook sx={{ fontSize: 40, color: '#42A5F5', mb: 1 }} />
                             <Typography variant="h6" fontWeight="bold" gutterBottom>
-                                📚 揪讀書
+                                📚 靜謐同頻
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                找人一起讀書，有伴效率更高
+                                期中期末靜心衝刺，覓一知己共赴書海
                             </Typography>
                         </CardContent>
                     </Card>
@@ -493,10 +493,10 @@ export default function LandingPage() {
                 >
                     <CardContent sx={{ textAlign: 'center', py: 3 }}>
                         <Typography variant="h5" fontWeight="bold" gutterBottom>
-                            🍽️ 運動後飲食指南
+                            🍽️ 活動飲食指南
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            打完球不知道吃什麼？依運動類型推薦最佳恢復餐
+                            依活動類型推薦最佳飲食與營養補給建議
                         </Typography>
                     </CardContent>
                 </Card>

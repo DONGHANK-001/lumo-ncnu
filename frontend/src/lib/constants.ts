@@ -13,7 +13,7 @@ export const SPORT_NAMES: Record<string, string> = {
     NIGHT_WALK: '晚風漫遊',
     DINING: '飯飯之交',
     TENNIS: '網球',
-    STUDY: '揪讀書',
+    STUDY: '靜謐同頻',
 };
 
 /** 運動類型 Emoji */

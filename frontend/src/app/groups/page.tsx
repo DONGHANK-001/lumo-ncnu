@@ -29,7 +29,8 @@ import {
     IconButton,
     InputAdornment,
     Skeleton,
-    Paper
+    Paper,
+    ListSubheader
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -208,20 +209,33 @@ export default function GroupsPage() {
                             <Typography variant="body2">篩選</Typography>
                         </Box>
 
-                        <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <InputLabel>運動類型</InputLabel>
+                        <FormControl size="small" sx={{ minWidth: 140 }}>
+                            <InputLabel>活動類型</InputLabel>
                             <Select
                                 value={filters.sportType}
-                                label="運動類型"
-                                onChange={(e) => setFilters({ ...filters, sportType: e.target.value })}
+                                label="活動類型"
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setFilters({
+                                        ...filters,
+                                        sportType: val,
+                                        level: ['NIGHT_WALK', 'DINING', 'STUDY'].includes(val) ? '' : filters.level,
+                                    });
+                                }}
                             >
                                 <MenuItem value="">全部</MenuItem>
-                                {Object.entries(SportType).map(([key, value]) => (
-                                    <MenuItem key={key} value={value}>{SPORT_NAMES[value]}</MenuItem>
+                                <ListSubheader>運動類型</ListSubheader>
+                                {['BASKETBALL', 'RUNNING', 'BADMINTON', 'TABLE_TENNIS', 'GYM', 'VOLLEYBALL', 'TENNIS'].map((key) => (
+                                    <MenuItem key={key} value={key}>{SPORT_NAMES[key]}</MenuItem>
+                                ))}
+                                <ListSubheader>社交活動</ListSubheader>
+                                {['NIGHT_WALK', 'DINING', 'STUDY'].map((key) => (
+                                    <MenuItem key={key} value={key}>{SPORT_NAMES[key]}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
 
+                        {!['NIGHT_WALK', 'DINING', 'STUDY'].includes(filters.sportType) && (
                         <FormControl size="small" sx={{ minWidth: 120 }}>
                             <InputLabel>程度</InputLabel>
                             <Select
@@ -235,6 +249,7 @@ export default function GroupsPage() {
                                 ))}
                             </Select>
                         </FormControl>
+                        )}
 
                         <FormControlLabel
                             control={

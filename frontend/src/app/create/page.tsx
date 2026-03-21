@@ -56,7 +56,7 @@ const SPORT_OPTIONS = [
 const SOCIAL_OPTIONS = [
     { value: 'NIGHT_WALK', label: '晚風漫遊', icon: <NightsStay /> },
     { value: 'DINING', label: '飯飯之交', icon: <Restaurant /> },
-    { value: 'STUDY', label: '揪讀書', icon: <MenuBook /> },
+    { value: 'STUDY', label: '靜謐同頻', icon: <MenuBook /> },
 ];
 
 const SOCIAL_TYPES = ['NIGHT_WALK', 'DINING', 'STUDY'];
@@ -408,6 +408,7 @@ export default function CreateGroupPage() {
                                             '暨大健身房',
                                             '暨大學生餐廳',
                                             '暨大圖書館',
+                                            '暨大圖書館自習室',
                                             '暨大行政大樓前廣場',
                                             '暨大游泳池',
                                             '暨大學生活動中心',
