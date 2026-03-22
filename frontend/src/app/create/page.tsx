@@ -327,7 +327,7 @@ export default function CreateGroupPage() {
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
                                 <Stack spacing={3}>
                                     <TextField
-                                        label="揪團標題 *"
+                                        label="揪團標題"
                                         required
                                         fullWidth
                                         value={form.title}
@@ -384,7 +384,7 @@ export default function CreateGroupPage() {
                             <Paper sx={{ p: 4, borderRadius: 4 }}>
                                 <Stack spacing={3}>
                                     <TextField
-                                        label="時間 *"
+                                        label="時間"
                                         type="datetime-local"
                                         required
                                         fullWidth
@@ -430,7 +430,7 @@ export default function CreateGroupPage() {
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
-                                                label="位置 *"
+                                                label="位置"
                                                 required
                                                 placeholder="例如：暨大體育館、操場"
                                                 error={!!errors.location}
@@ -497,7 +497,7 @@ export default function CreateGroupPage() {
                                         自訂人數上限 (含自己)
                                     </Typography>
                                     <TextField
-                                        label="人數上限 *"
+                                        label="人數上限"
                                         type="number"
                                         required
                                         fullWidth
@@ -539,7 +539,7 @@ export default function CreateGroupPage() {
                             <CardContent>
                                 <Stack direction="row" justifyContent="space-between" mb={2}>
                                     <Typography variant="caption" sx={{ bgcolor: 'action.hover', px: 1, py: 0.5, borderRadius: 1 }}>
-                                        {SPORT_OPTIONS.find(s => s.value === form.sportType)?.label}
+                                        {[...SPORT_OPTIONS, ...SOCIAL_OPTIONS].find(s => s.value === form.sportType)?.label}
                                     </Typography>
                                     <Typography variant="caption" color="text.secondary">
                                         {LEVEL_OPTIONS.find(l => l.value === form.level)?.label}
