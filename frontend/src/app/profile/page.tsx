@@ -430,7 +430,7 @@ export default function ProfilePage() {
                         )}
 
                         <Paper sx={{ p: 4, borderRadius: 4 }}>
-                            <Typography variant="h6" fontWeight="bold" mb={3}>📊 我的運動數據 (本週)</Typography>
+                            <Typography variant="h6" fontWeight="bold" mb={3}>📊 我的活動數據</Typography>
 
                             {stats ? (
                                 <Stack spacing={4}>
@@ -441,9 +441,14 @@ export default function ProfilePage() {
                                             <Typography variant="caption" color="text.secondary">最高 {stats.longestStreak} 天</Typography>
                                         </Box>
                                         <Box>
-                                            <Typography variant="h4" color="warning.main" fontWeight="bold">{stats.totalCalories}</Typography>
-                                            <Typography variant="body2" color="text.secondary">🔥 預估燃脂 (大卡)</Typography>
-                                            <Typography variant="caption" color="text.secondary">根據歷史參加揪團試算</Typography>
+                                            <Typography variant="h4" color="warning.main" fontWeight="bold">{stats.totalParticipations}</Typography>
+                                            <Typography variant="body2" color="text.secondary">📌 累計參與次數</Typography>
+                                            <Typography variant="caption" color="text.secondary">歷史總參加揪團次數</Typography>
+                                        </Box>
+                                        <Box>
+                                            <Typography variant="h4" color="success.main" fontWeight="bold">{stats.uniquePeopleMet}</Typography>
+                                            <Typography variant="body2" color="text.secondary">🤝 認識人數</Typography>
+                                            <Typography variant="caption" color="text.secondary">累計不重複夥伴數</Typography>
                                         </Box>
                                     </Stack>
 
@@ -452,7 +457,7 @@ export default function ProfilePage() {
                                     <Grid container spacing={3}>
                                         <Grid size={{ xs: 12 }}>
                                             <Typography variant="subtitle2" mb={2} color="text.secondary" textAlign="center">
-                                                運動項目分佈
+                                                活動類型分佈
                                             </Typography>
                                             <PieChart
                                                 series={[{

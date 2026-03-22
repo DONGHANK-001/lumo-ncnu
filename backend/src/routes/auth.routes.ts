@@ -250,24 +250,29 @@ router.get('/me/stats', firebaseAuthMiddleware, async (req: Request, res: Respon
         include: { group: true }
     });
 
-    // 每種運動的預估消耗大卡 (每場預設 2 小時算)
-    const kcalPerEvent: Record<string, number> = {
-        BASKETBALL: 1200,
-        RUNNING: 1000,
-        BADMINTON: 900,
-        TABLE_TENNIS: 600,
-        GYM: 800,
-        VOLLEYBALL: 800,
-    };
-
-    let totalCalories = 0;
+    const totalParticipations = mbs.length;
     const sportCounts: Record<string, number> = {};
 
     mbs.forEach(mb => {
         const sport = mb.group.sportType;
-        totalCalories += (kcalPerEvent[sport] || 800);
         sportCounts[sport] = (sportCounts[sport] || 0) + 1;
     });
+
+    // 計算認識的不重複夥伴數
+    const groupIds = mbs.map(mb => mb.group.id);
+    let uniquePeopleMet = 0;
+    if (groupIds.length > 0) {
+        const fellows = await prisma.groupMember.findMany({
+            where: {
+                groupId: { in: groupIds },
+                userId: { not: user.id },
+                status: 'JOINED',
+            },
+            select: { userId: true },
+            distinct: ['userId'],
+        });
+        uniquePeopleMet = fellows.length;
+    }
 
     // 格式化回傳資料
     const sportDistribution = Object.entries(sportCounts).map(([label, value], id) => ({ id, label, value }));
@@ -277,7 +282,8 @@ router.get('/me/stats', firebaseAuthMiddleware, async (req: Request, res: Respon
         data: {
             currentStreak,
             longestStreak,
-            totalCalories,
+            totalParticipations,
+            uniquePeopleMet,
             sportDistribution,
         }
     });
