@@ -43,7 +43,7 @@ export const createGroupSchema = z.object({
     sportType: sportTypeSchema,
     title: z.string().min(1).max(100),
     description: z.string().max(500).optional(),
-    time: z.string().datetime(),
+    time: z.string().refine((s) => !isNaN(Date.parse(s)), { message: 'Invalid datetime string' }),
     location: z.string().min(1).max(100),
     level: skillLevelSchema,
     capacity: z.number().int().min(2).max(50),
@@ -78,3 +78,13 @@ export const createReportSchema = z.object({
 });
 
 export type CreateReportInput = z.infer<typeof createReportSchema>;
+
+// ============================================
+// Feedback Schemas
+// ============================================
+
+export const createFeedbackSchema = z.object({
+    content: z.string().min(1).max(1000),
+});
+
+export type CreateFeedbackInput = z.infer<typeof createFeedbackSchema>;

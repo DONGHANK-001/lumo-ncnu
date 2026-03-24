@@ -9,6 +9,7 @@ export const SportType = {
     TABLE_TENNIS: 'TABLE_TENNIS',
     GYM: 'GYM',
     VOLLEYBALL: 'VOLLEYBALL',
+    TENNIS: 'TENNIS',
     NIGHT_WALK: 'NIGHT_WALK',
     DINING: 'DINING',
     STUDY: 'STUDY',

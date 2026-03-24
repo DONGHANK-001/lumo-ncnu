@@ -132,6 +132,7 @@ model User {
   badges          UserBadge[]
   ratingsGiven    MemberRating[] @relation("RatingsGiven")
   ratingsReceived MemberRating[] @relation("RatingsReceived")
+  feedbacks       Feedback[]
 
   @@map("users")
 }
@@ -331,4 +332,15 @@ model MemberRating {
   @@unique([groupId, raterId, ratedUserId])
   @@index([ratedUserId])
   @@map("member_ratings")
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("feedbacks")
 }
