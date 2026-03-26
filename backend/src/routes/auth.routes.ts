@@ -55,13 +55,14 @@ router.post(
     validateBody(updateProfileSchema),
     async (req: Request, res: Response) => {
         const user = req.user!;
-        const { nickname, preferences } = req.body;
+        const { nickname, preferences, department } = req.body;
 
         const updated = await prisma.user.update({
             where: { id: user.id },
             data: {
                 ...(nickname !== undefined && { nickname }),
                 ...(preferences !== undefined && { preferences }),
+                ...(department !== undefined && { department }),
             },
         });
 

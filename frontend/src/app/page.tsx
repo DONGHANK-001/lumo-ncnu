@@ -54,8 +54,9 @@ import { useThemeMode } from '@/theme/ThemeModeContext';
 import { getSocket, joinRoom, leaveRoom } from '@/lib/socket';
 import OnboardingDialog from './components/OnboardingDialog';
 import { DISCLAIMER_TEXT } from './components/OnboardingDialog';
+import DepartmentUpdateDialog, { DEPARTMENT_VERSION } from './components/DepartmentUpdateDialog';
 import { useNotifications } from '@/hooks/useNotifications';
-import { SPORT_NAMES } from '@/lib/constants';
+import { SPORT_NAMES, DEPARTMENTS } from '@/lib/constants';
 
 const SPORTS = [
     { type: 'BASKETBALL', icon: <SportsBasketball fontSize="large" />, name: '籃球' },
@@ -95,6 +96,21 @@ export default function LandingPage() {
     useEffect(() => {
         if (user && !user.onboardingCompleted) {
             setShowOnboarding(true);
+        }
+    }, [user]);
+
+    // Department version check
+    const [showDeptUpdate, setShowDeptUpdate] = useState(false);
+    useEffect(() => {
+        if (!user || !user.onboardingCompleted) return;
+        const savedVersion = localStorage.getItem('lumo_dept_version');
+        if (savedVersion && Number(savedVersion) >= DEPARTMENT_VERSION) return;
+        // Check if user's current department is NOT in the new list
+        if (!user.department || !DEPARTMENTS.includes(user.department)) {
+            setShowDeptUpdate(true);
+        } else {
+            // Department is valid, mark as up-to-date
+            localStorage.setItem('lumo_dept_version', String(DEPARTMENT_VERSION));
         }
     }, [user]);
 
@@ -566,6 +582,17 @@ export default function LandingPage() {
                 open={showOnboarding}
                 onComplete={() => {
                     setShowOnboarding(false);
+                    refreshUser();
+                }}
+                getToken={getToken}
+            />
+
+            {/* Department Update Dialog */}
+            <DepartmentUpdateDialog
+                open={showDeptUpdate && !showOnboarding}
+                currentDepartment={user?.department || null}
+                onComplete={() => {
+                    setShowDeptUpdate(false);
                     refreshUser();
                 }}
                 getToken={getToken}

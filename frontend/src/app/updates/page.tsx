@@ -28,6 +28,18 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
+        version: 'v1.7.0',
+        date: '2026-03-26',
+        category: '重大更新',
+        title: '系所選單全面更新',
+        details: [
+            '系所選單改為依學院分組，新增護理暨健康福祉學院、管理學院學士班等選項',
+            '已登入的使用者將自動收到系所更新提醒，重新選擇正確系所',
+            '排行榜頁面手機 / 平板 RWD 全面修正，不再被切掉',
+            '各運動類型標註地點更新為正確校園場館名稱',
+        ],
+    },
+    {
         version: 'v1.6.0',
         date: '2026-01-12',
         category: '新功能',

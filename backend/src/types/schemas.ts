@@ -31,6 +31,7 @@ export const userPreferencesSchema = z.object({
 export const updateProfileSchema = z.object({
     nickname: z.string().min(1).max(50).optional(),
     preferences: userPreferencesSchema.optional(),
+    department: z.string().min(1).max(100).optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

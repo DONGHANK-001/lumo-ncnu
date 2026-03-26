@@ -84,7 +84,7 @@ class ApiClient {
         return this.request<{ id: string; email: string; nickname: string | null; planType: string; role: string; attendedCount: number; noShowCount: number; }>('/me', { token });
     }
 
-    updateProfile(token: string, data: { nickname?: string; preferences?: unknown }) {
+    updateProfile(token: string, data: { nickname?: string; preferences?: unknown; department?: string }) {
         return this.request('/profile', { method: 'POST', token, body: data });
     }
 
