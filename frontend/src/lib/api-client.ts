@@ -81,10 +81,21 @@ class ApiClient {
 
     // Auth
     getMe(token: string) {
-        return this.request<{ id: string; email: string; nickname: string | null; planType: string; role: string; attendedCount: number; noShowCount: number; }>('/me', { token });
+        return this.request<{
+            id: string;
+            email: string;
+            nickname: string | null;
+            gender: string | null;
+            gradeLabel: string | null;
+            department: string | null;
+            planType: string;
+            role: string;
+            attendedCount: number;
+            noShowCount: number;
+        }>('/me', { token });
     }
 
-    updateProfile(token: string, data: { nickname?: string; preferences?: unknown; department?: string }) {
+    updateProfile(token: string, data: { nickname?: string; preferences?: unknown; department?: string; gender?: string; gradeLabel?: string }) {
         return this.request('/profile', { method: 'POST', token, body: data });
     }
 
@@ -93,10 +104,30 @@ class ApiClient {
     }
 
     getUserProfile(id: string, token?: string) {
-        return this.request<{ id: string; nickname: string | null; department: string | null; school: string; avatarUrl: string | null; planType: string; preferences: unknown; attendedCount: number; noShowCount: number; createdAt: string }>(`/users/${id}`, { token });
+        return this.request<{
+            id: string;
+            nickname: string | null;
+            department: string | null;
+            gender: string | null;
+            gradeLabel: string | null;
+            school: string;
+            avatarUrl: string | null;
+            planType: string;
+            preferences: unknown;
+            attendedCount: number;
+            noShowCount: number;
+            createdAt: string;
+        }>(`/users/${id}`, { token });
     }
 
-    submitOnboarding(token: string, data: { realName: string; studentId: string; department: string; disclaimerAccepted: boolean }) {
+    submitOnboarding(token: string, data: {
+        realName: string;
+        studentId: string;
+        department: string;
+        gender: 'FEMALE' | 'MALE' | 'NON_BINARY' | 'PREFER_NOT_TO_SAY';
+        gradeLabel: string;
+        disclaimerAccepted: boolean;
+    }) {
         return this.request<{ id: string; onboardingCompleted: boolean }>('/onboarding', { method: 'POST', token, body: data });
     }
 
@@ -202,9 +233,21 @@ class ApiClient {
         return this.request(`/admin/reports/${id}`, { method: 'DELETE', token });
     }
 
-    getAdminUsers(token: string, params?: { search?: string; role?: string; banned?: string }) {
+    getAdminUsers(token: string, params?: { search?: string; role?: string; banned?: string; identity?: 'complete' | 'incomplete' }) {
         const query = params ? `?${new URLSearchParams(Object.entries(params).filter(([, v]) => v !== undefined) as [string, string][])}` : '';
         return this.request<{ items: any[]; total: number }>(`/admin/users${query}`, { token });
+    }
+
+    updateAdminUserProfile(
+        token: string,
+        id: string,
+        data: {
+            department?: string | null;
+            gender?: 'FEMALE' | 'MALE' | 'NON_BINARY' | 'PREFER_NOT_TO_SAY' | null;
+            gradeLabel?: string | null;
+        }
+    ) {
+        return this.request(`/admin/users/${id}/profile`, { method: 'PATCH', token, body: data });
     }
 
     banUser(token: string, id: string, isBanned: boolean, banReason?: string) {

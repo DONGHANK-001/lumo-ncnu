@@ -55,6 +55,7 @@ import { getSocket, joinRoom, leaveRoom } from '@/lib/socket';
 import OnboardingDialog from './components/OnboardingDialog';
 import { DISCLAIMER_TEXT } from './components/OnboardingDialog';
 import DepartmentUpdateDialog, { DEPARTMENT_VERSION } from './components/DepartmentUpdateDialog';
+import IdentityUpdateDialog from './components/IdentityUpdateDialog';
 import { useNotifications } from '@/hooks/useNotifications';
 import { SPORT_NAMES, DEPARTMENTS } from '@/lib/constants';
 
@@ -89,6 +90,7 @@ export default function LandingPage() {
 
     // Onboarding Dialog
     const [showOnboarding, setShowOnboarding] = useState(false);
+    const [showIdentityUpdate, setShowIdentityUpdate] = useState(false);
 
     // Notifications
     const { unreadCount } = useNotifications();
@@ -99,10 +101,17 @@ export default function LandingPage() {
         }
     }, [user]);
 
+    useEffect(() => {
+        if (!user || !user.onboardingCompleted) return;
+        const missingIdentity = !user.department || !user.gender || !user.gradeLabel;
+        setShowIdentityUpdate(missingIdentity);
+    }, [user]);
+
     // Department version check
     const [showDeptUpdate, setShowDeptUpdate] = useState(false);
     useEffect(() => {
         if (!user || !user.onboardingCompleted) return;
+        if (!user.department || !user.gender || !user.gradeLabel) return;
         const savedVersion = localStorage.getItem('lumo_dept_version');
         if (savedVersion && Number(savedVersion) >= DEPARTMENT_VERSION) return;
         // Check if user's current department is NOT in the new list
@@ -587,9 +596,21 @@ export default function LandingPage() {
                 getToken={getToken}
             />
 
+            <IdentityUpdateDialog
+                open={showIdentityUpdate && !showOnboarding}
+                currentDepartment={user?.department || null}
+                currentGender={user?.gender || null}
+                currentGradeLabel={user?.gradeLabel || null}
+                onComplete={() => {
+                    setShowIdentityUpdate(false);
+                    refreshUser();
+                }}
+                getToken={getToken}
+            />
+
             {/* Department Update Dialog */}
             <DepartmentUpdateDialog
-                open={showDeptUpdate && !showOnboarding}
+                open={showDeptUpdate && !showOnboarding && !showIdentityUpdate}
                 currentDepartment={user?.department || null}
                 onComplete={() => {
                     setShowDeptUpdate(false);

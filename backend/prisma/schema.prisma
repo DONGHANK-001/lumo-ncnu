@@ -40,6 +40,13 @@ enum PlanType {
   PLUS
 }
 
+enum Gender {
+  FEMALE
+  MALE
+  NON_BINARY
+  PREFER_NOT_TO_SAY
+}
+
 enum GroupStatus {
   OPEN
   FULL
@@ -101,6 +108,8 @@ model User {
   realName    String?   // 真實姓名
   studentId   String?   // 學號
   department  String?   // 系所
+  gender      Gender?
+  gradeLabel  String?   // 系級
   school      String    @default("NCNU")
   role        String    @default("USER") // USER | ADMIN
   planType    PlanType  @default(FREE)

@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma.js';
-import { Prisma } from '@prisma/client';
+import { Prisma, Gender } from '@prisma/client';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 import { validateBody } from '../middleware/validation.js';
 import { updateProfileSchema } from '../types/schemas.js';
@@ -29,6 +29,8 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
             realName: user.realName,
             studentId: user.studentId,
             department: user.department,
+            gender: user.gender,
+            gradeLabel: user.gradeLabel,
             school: user.school,
             role: user.role,
             planType: isTrialPeriod() ? 'PLUS' : user.planType,
@@ -55,7 +57,7 @@ router.post(
     validateBody(updateProfileSchema),
     async (req: Request, res: Response) => {
         const user = req.user!;
-        const { nickname, preferences, department } = req.body;
+        const { nickname, preferences, department, gender, gradeLabel } = req.body;
 
         const updated = await prisma.user.update({
             where: { id: user.id },
@@ -63,6 +65,8 @@ router.post(
                 ...(nickname !== undefined && { nickname }),
                 ...(preferences !== undefined && { preferences }),
                 ...(department !== undefined && { department }),
+                ...(gender !== undefined && { gender }),
+                ...(gradeLabel !== undefined && { gradeLabel }),
             },
         });
 
@@ -90,9 +94,28 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = req.user!;
-            const { realName, studentId, department, disclaimerAccepted } = req.body;
+            const { realName, studentId, department, gender, gradeLabel, disclaimerAccepted } = req.body as {
+                realName?: string;
+                studentId?: string;
+                department?: string;
+                gender?: string;
+                gradeLabel?: string;
+                disclaimerAccepted?: boolean;
+            };
 
-            if (!realName || !studentId || !department || !disclaimerAccepted) {
+            const allowedGenders: Gender[] = ['FEMALE', 'MALE', 'NON_BINARY', 'PREFER_NOT_TO_SAY'];
+            const normalizedRealName = realName?.trim();
+            const normalizedStudentId = studentId?.trim();
+            const normalizedDepartment = department?.trim();
+            const normalizedGradeLabel = gradeLabel?.trim();
+
+            if (
+                !normalizedRealName ||
+                !normalizedStudentId ||
+                !normalizedDepartment ||
+                !normalizedGradeLabel ||
+                !disclaimerAccepted
+            ) {
                 res.status(400).json({
                     success: false,
                     error: { code: 'MISSING_FIELDS', message: '請填寫所有必填欄位' },
@@ -100,12 +123,22 @@ router.post(
                 return;
             }
 
+            if (!gender || !allowedGenders.includes(gender as Gender)) {
+                res.status(400).json({
+                    success: false,
+                    error: { code: 'INVALID_INPUT', message: '性別欄位格式不正確' },
+                });
+                return;
+            }
+
             const updated = await prisma.user.update({
                 where: { id: user.id },
                 data: {
-                    realName,
-                    studentId,
-                    department,
+                    realName: normalizedRealName,
+                    studentId: normalizedStudentId,
+                    department: normalizedDepartment,
+                    gender: gender as Gender,
+                    gradeLabel: normalizedGradeLabel,
                     disclaimerAccepted: true,
                     disclaimerAcceptedAt: new Date(),
                     onboardingCompleted: true,

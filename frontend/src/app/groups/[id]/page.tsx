@@ -562,11 +562,11 @@ export default function GroupDetailPage() {
                                 sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2 }}
                             >
                                 <Stack direction="row" alignItems="center" spacing={2}>
-                                    <Avatar sx={{ bgcolor: 'secondary.main' }}>
+                                    <Avatar component={Link} href={`/users/${member.user.id}`} sx={{ bgcolor: 'secondary.main', textDecoration: 'none', cursor: 'pointer' }}>
                                         {(member.user.nickname || member.user.email)[0].toUpperCase()}
                                     </Avatar>
                                     <Box>
-                                        <Typography variant="body1" fontWeight="medium" sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <Typography component={Link} href={`/users/${member.user.id}`} variant="body1" fontWeight="medium" sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
                                             {member.user.nickname || member.user.email.split('@')[0]}
                                             <CrownBadge isPlus={member.user.planType === 'PLUS'} />
                                             {member.user.id === group.createdBy.id && (
@@ -661,10 +661,10 @@ export default function GroupDetailPage() {
                                         spacing={2}
                                         sx={{ p: 1 }}
                                     >
-                                        <Avatar sx={{ width: 32, height: 32, fontSize: '0.875rem' }}>
+                                        <Avatar component={Link} href={`/users/${member.user.id}`} sx={{ width: 32, height: 32, fontSize: '0.875rem', textDecoration: 'none', cursor: 'pointer' }}>
                                             {index + 1}
                                         </Avatar>
-                                        <Typography color="text.secondary">
+                                        <Typography component={Link} href={`/users/${member.user.id}`} color="text.secondary" sx={{ textDecoration: 'none' }}>
                                             {member.user.nickname || member.user.email.split('@')[0]}
                                         </Typography>
                                     </Stack>
@@ -691,7 +691,7 @@ export default function GroupDetailPage() {
                         ) : (
                             comments.map((comment) => (
                                 <Stack key={comment.id} direction="row" spacing={2} alignItems="flex-start">
-                                    <Avatar sx={{ bgcolor: comment.user.id === group.createdBy.id ? 'primary.main' : 'secondary.main', width: 40, height: 40 }}>
+                                    <Avatar component={Link} href={`/users/${comment.user.id}`} sx={{ bgcolor: comment.user.id === group.createdBy.id ? 'primary.main' : 'secondary.main', width: 40, height: 40, textDecoration: 'none', cursor: 'pointer' }}>
                                         {(comment.user.nickname || comment.user.email)[0].toUpperCase()}
                                     </Avatar>
                                     <Box sx={{
@@ -703,7 +703,7 @@ export default function GroupDetailPage() {
                                         maxWidth: '85%'
                                     }}>
                                         <Stack direction="row" alignItems="center" spacing={1} mb={0.5}>
-                                            <Typography variant="subtitle2" fontWeight="bold">
+                                            <Typography component={Link} href={`/users/${comment.user.id}`} variant="subtitle2" fontWeight="bold" sx={{ textDecoration: 'none', color: 'inherit' }}>
                                                 {comment.user.nickname || comment.user.email.split('@')[0]}
                                             </Typography>
                                             {comment.user.id === group.createdBy.id && (

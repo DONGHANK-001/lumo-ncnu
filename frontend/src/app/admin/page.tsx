@@ -87,6 +87,8 @@ interface AdminUser {
     email: string;
     nickname: string | null;
     department: string | null;
+    gender: 'FEMALE' | 'MALE' | 'NON_BINARY' | 'PREFER_NOT_TO_SAY' | null;
+    gradeLabel: string | null;
     studentId: string | null;
     role: string;
     planType: string;
@@ -111,6 +113,13 @@ const statusColors: Record<string, 'success' | 'warning' | 'error' | 'default'> 
     FULL: 'warning',
     CANCELLED: 'error',
     COMPLETED: 'default',
+};
+
+const genderLabelMap: Record<NonNullable<AdminUser['gender']>, string> = {
+    FEMALE: '女',
+    MALE: '男',
+    NON_BINARY: '非二元',
+    PREFER_NOT_TO_SAY: '不透露',
 };
 
 export default function AdminPage() {
@@ -138,9 +147,18 @@ export default function AdminPage() {
 
     // 使用者管理
     const [userSearch, setUserSearch] = useState('');
+    const [identityFilter, setIdentityFilter] = useState<'all' | 'complete' | 'incomplete'>('all');
     const [banDialog, setBanDialog] = useState(false);
     const [banTarget, setBanTarget] = useState<AdminUser | null>(null);
     const [banReason, setBanReason] = useState('');
+    const [profileDialog, setProfileDialog] = useState(false);
+    const [profileTarget, setProfileTarget] = useState<AdminUser | null>(null);
+    const [profileForm, setProfileForm] = useState({
+        department: '',
+        gender: '',
+        gradeLabel: '',
+    });
+    const [profileSaving, setProfileSaving] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
@@ -173,6 +191,67 @@ export default function AdminPage() {
             setLoading(false);
         }
     }, [getToken]);
+
+    const fetchUsersWithFilters = async (searchValue: string, identity: 'all' | 'complete' | 'incomplete') => {
+        try {
+            const token = await getToken();
+            if (!token) return;
+
+            const res = await api.getAdminUsers(token, {
+                search: searchValue || undefined,
+                identity: identity === 'all' ? undefined : identity,
+            });
+
+            if (!res.success) {
+                throw new Error(res.error?.message || '讀取使用者失敗');
+            }
+
+            setUsers((res.data?.items as AdminUser[]) || []);
+            setUserTotal(res.data?.total || 0);
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '讀取使用者失敗');
+        }
+    };
+
+    const openUserProfileDialog = (target: AdminUser) => {
+        setProfileTarget(target);
+        setProfileForm({
+            department: target.department || '',
+            gender: target.gender || '',
+            gradeLabel: target.gradeLabel || '',
+        });
+        setProfileDialog(true);
+    };
+
+    const saveUserProfile = async () => {
+        if (!profileTarget) return;
+        setProfileSaving(true);
+
+        try {
+            const token = await getToken();
+            if (!token) return;
+
+            const res = await api.updateAdminUserProfile(token, profileTarget.id, {
+                department: profileForm.department.trim() || null,
+                gender: (profileForm.gender || null) as 'FEMALE' | 'MALE' | 'NON_BINARY' | 'PREFER_NOT_TO_SAY' | null,
+                gradeLabel: profileForm.gradeLabel.trim() || null,
+            });
+
+            if (!res.success) {
+                throw new Error(res.error?.message || '更新公開資料失敗');
+            }
+
+            setSuccess('公開資料已更新');
+            setProfileDialog(false);
+            setProfileTarget(null);
+            await fetchUsersWithFilters(userSearch, identityFilter);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '更新公開資料失敗');
+        } finally {
+            setProfileSaving(false);
+        }
+    };
 
     useEffect(() => {
         if (!authLoading && user) {
@@ -522,7 +601,7 @@ export default function AdminPage() {
 
             {tabValue === 2 && (
                 <>
-                    <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2 }}>
                         <TextField
                             size="small"
                             placeholder="搜尋暱稱、Email 或學號..."
@@ -530,32 +609,45 @@ export default function AdminPage() {
                             onChange={(e) => setUserSearch(e.target.value)}
                             onKeyDown={async (e) => {
                                 if (e.key === 'Enter') {
-                                    const token = await getToken();
-                                    if (!token) return;
-                                    const res = await api.getAdminUsers(token, { search: userSearch || undefined });
-                                    if (res.success) {
-                                        setUsers(res.data?.items || []);
-                                        setUserTotal(res.data?.total || 0);
-                                    }
+                                    await fetchUsersWithFilters(userSearch, identityFilter);
                                 }
                             }}
-                            sx={{ minWidth: 300 }}
+                            sx={{ minWidth: 280 }}
                         />
+                        <FormControl size="small" sx={{ minWidth: 160 }}>
+                            <InputLabel>身分資料</InputLabel>
+                            <Select
+                                value={identityFilter}
+                                label="身分資料"
+                                onChange={async (e) => {
+                                    const nextFilter = e.target.value as 'all' | 'complete' | 'incomplete';
+                                    setIdentityFilter(nextFilter);
+                                    await fetchUsersWithFilters(userSearch, nextFilter);
+                                }}
+                            >
+                                <MenuItem value="all">全部</MenuItem>
+                                <MenuItem value="complete">完整</MenuItem>
+                                <MenuItem value="incomplete">未完整</MenuItem>
+                            </Select>
+                        </FormControl>
                         <Button
                             variant="outlined"
                             size="small"
                             startIcon={<SearchIcon />}
-                            onClick={async () => {
-                                const token = await getToken();
-                                if (!token) return;
-                                const res = await api.getAdminUsers(token, { search: userSearch || undefined });
-                                if (res.success) {
-                                    setUsers(res.data?.items || []);
-                                    setUserTotal(res.data?.total || 0);
-                                }
-                            }}
+                            onClick={() => fetchUsersWithFilters(userSearch, identityFilter)}
                         >
                             搜尋
+                        </Button>
+                        <Button
+                            variant="text"
+                            size="small"
+                            onClick={async () => {
+                                setUserSearch('');
+                                setIdentityFilter('all');
+                                await fetchUsersWithFilters('', 'all');
+                            }}
+                        >
+                            重置
                         </Button>
                     </Stack>
 
@@ -565,7 +657,10 @@ export default function AdminPage() {
                                 <TableRow>
                                     <TableCell>暱稱</TableCell>
                                     <TableCell>Email</TableCell>
-                                    <TableCell>科系</TableCell>
+                                    <TableCell>系所</TableCell>
+                                    <TableCell>性別</TableCell>
+                                    <TableCell>系級</TableCell>
+                                    <TableCell>身分完整</TableCell>
                                     <TableCell>角色</TableCell>
                                     <TableCell>方案</TableCell>
                                     <TableCell>出席/缺席</TableCell>
@@ -576,7 +671,7 @@ export default function AdminPage() {
                             <TableBody>
                                 {users.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
+                                        <TableCell colSpan={11} align="center" sx={{ py: 3 }}>
                                             目前沒有使用者資料
                                         </TableCell>
                                     </TableRow>
@@ -588,6 +683,15 @@ export default function AdminPage() {
                                                 <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{u.email}</Typography>
                                             </TableCell>
                                             <TableCell>{u.department || '-'}</TableCell>
+                                            <TableCell>{u.gender ? genderLabelMap[u.gender] : '-'}</TableCell>
+                                            <TableCell>{u.gradeLabel || '-'}</TableCell>
+                                            <TableCell>
+                                                {u.department && u.gender && u.gradeLabel ? (
+                                                    <Chip size="small" label="完整" color="success" variant="outlined" />
+                                                ) : (
+                                                    <Chip size="small" label="未完整" color="warning" variant="outlined" />
+                                                )}
+                                            </TableCell>
                                             <TableCell>
                                                 <Chip size="small" label={u.role} color={u.role === 'ADMIN' ? 'secondary' : 'default'} />
                                             </TableCell>
@@ -602,6 +706,13 @@ export default function AdminPage() {
                                             </TableCell>
                                             <TableCell align="right">
                                                 <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                                    <Button
+                                                        size="small"
+                                                        variant="outlined"
+                                                        onClick={() => openUserProfileDialog(u)}
+                                                    >
+                                                        編輯資料
+                                                    </Button>
                                                     {u.role !== 'ADMIN' && (
                                                         <Button
                                                             size="small"
@@ -613,7 +724,7 @@ export default function AdminPage() {
                                                                     const token = await getToken();
                                                                     if (!token) return;
                                                                     const res = await api.banUser(token, u.id, false);
-                                                                    if (res.success) { setSuccess('已解除封鎖'); fetchData(); }
+                                                                    if (res.success) { setSuccess('已解除封鎖'); await fetchUsersWithFilters(userSearch, identityFilter); }
                                                                     else setError(res.error?.message || '操作失敗');
                                                                 } else {
                                                                     setBanTarget(u);
@@ -635,7 +746,7 @@ export default function AdminPage() {
                                                             const token = await getToken();
                                                             if (!token) return;
                                                             const res = await api.changeUserRole(token, u.id, newRole);
-                                                            if (res.success) { setSuccess(`角色已變更為 ${newRole}`); fetchData(); }
+                                                            if (res.success) { setSuccess(`角色已變更為 ${newRole}`); await fetchUsersWithFilters(userSearch, identityFilter); }
                                                             else setError(res.error?.message || '操作失敗');
                                                         }}
                                                     >
@@ -699,6 +810,51 @@ export default function AdminPage() {
                 </DialogActions>
             </Dialog>
 
+            {/* 公開資料編輯對話框 */}
+            <Dialog open={profileDialog} onClose={() => !profileSaving && setProfileDialog(false)} maxWidth="xs" fullWidth>
+                <DialogTitle>編輯公開資料</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        調整使用者公開檔案欄位：系所、性別、系級
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        label="系所"
+                        value={profileForm.department}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, department: e.target.value }))}
+                        sx={{ mb: 2 }}
+                    />
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                        <InputLabel>性別</InputLabel>
+                        <Select
+                            value={profileForm.gender}
+                            label="性別"
+                            onChange={(e) => setProfileForm((prev) => ({ ...prev, gender: e.target.value }))}
+                        >
+                            <MenuItem value="">未填寫</MenuItem>
+                            <MenuItem value="FEMALE">女</MenuItem>
+                            <MenuItem value="MALE">男</MenuItem>
+                            <MenuItem value="NON_BINARY">非二元</MenuItem>
+                            <MenuItem value="PREFER_NOT_TO_SAY">不透露</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        fullWidth
+                        label="系級"
+                        value={profileForm.gradeLabel}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, gradeLabel: e.target.value }))}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setProfileDialog(false)} disabled={profileSaving}>
+                        取消
+                    </Button>
+                    <Button variant="contained" onClick={saveUserProfile} disabled={profileSaving}>
+                        {profileSaving ? <CircularProgress size={18} /> : '儲存'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             {/* 封鎖確認對話框 */}
             <Dialog open={banDialog} onClose={() => setBanDialog(false)}>
                 <DialogTitle>封鎖使用者</DialogTitle>
@@ -727,7 +883,7 @@ export default function AdminPage() {
                             if (res.success) {
                                 setSuccess('使用者已封鎖');
                                 setBanDialog(false);
-                                fetchData();
+                                await fetchUsersWithFilters(userSearch, identityFilter);
                             } else {
                                 setError(res.error?.message || '封鎖失敗');
                             }

@@ -173,14 +173,20 @@ export default function MatchPage() {
                 <Grid container spacing={3}>
                     {partners.map((partner) => (
                         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={partner.id}>
-                            <Card sx={{
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                borderRadius: 4,
-                                transition: 'transform 0.2s',
-                                '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 }
-                            }}>
+                            <Card
+                                component={Link}
+                                href={`/users/${partner.id}`}
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    borderRadius: 4,
+                                    textDecoration: 'none',
+                                    color: 'inherit',
+                                    transition: 'transform 0.2s',
+                                    '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 }
+                                }}
+                            >
                                 <CardContent>
                                     <Stack direction="row" spacing={2} alignItems="center" mb={2}>
                                         <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>

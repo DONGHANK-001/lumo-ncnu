@@ -60,6 +60,20 @@ export const DISCLAIMER_TEXT = `LUMO 運動揪團平台使用者免責聲明
 
 const IG_URL = 'https://www.instagram.com/lumo_dailyfit?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==';
 
+const GENDER_OPTIONS = [
+    { value: 'FEMALE', label: '女生' },
+    { value: 'MALE', label: '男生' },
+    { value: 'NON_BINARY', label: '非二元' },
+    { value: 'PREFER_NOT_TO_SAY', label: '不便透露' },
+] as const;
+
+const GRADE_OPTIONS = [
+    '大一', '大二', '大三', '大四',
+    '碩一', '碩二',
+    '博一', '博二', '博三',
+    '其他',
+] as const;
+
 interface OnboardingDialogProps {
     open: boolean;
     onComplete: () => void;
@@ -72,6 +86,8 @@ export default function OnboardingDialog({ open, onComplete, getToken }: Onboard
     const [realName, setRealName] = useState('');
     const [studentId, setStudentId] = useState('');
     const [department, setDepartment] = useState('');
+    const [gender, setGender] = useState('');
+    const [gradeLabel, setGradeLabel] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [igClicked, setIgClicked] = useState(false);
@@ -94,6 +110,8 @@ export default function OnboardingDialog({ open, onComplete, getToken }: Onboard
                     realName,
                     studentId,
                     department,
+                    gender: gender as 'FEMALE' | 'MALE' | 'NON_BINARY' | 'PREFER_NOT_TO_SAY',
+                    gradeLabel,
                     disclaimerAccepted: true,
                 });
                 if (response.success) {
@@ -114,7 +132,7 @@ export default function OnboardingDialog({ open, onComplete, getToken }: Onboard
     const canProceed = () => {
         switch (activeStep) {
             case 0: return agreed;
-            case 1: return realName.trim() && studentId.trim() && department.trim();
+            case 1: return realName.trim() && studentId.trim() && department.trim() && gender && gradeLabel;
             case 2: return igClicked;
             default: return false;
         }
@@ -204,6 +222,34 @@ export default function OnboardingDialog({ open, onComplete, getToken }: Onboard
                                     <MenuItem key={dept} value={dept} sx={{ pl: 4 }}>{dept}</MenuItem>
                                 )),
                             ])}
+                        </TextField>
+                        <TextField
+                            label="性別"
+                            value={gender}
+                            onChange={(e) => setGender(e.target.value)}
+                            select
+                            fullWidth
+                            required
+                        >
+                            {GENDER_OPTIONS.map((opt) => (
+                                <MenuItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField
+                            label="系級"
+                            value={gradeLabel}
+                            onChange={(e) => setGradeLabel(e.target.value)}
+                            select
+                            fullWidth
+                            required
+                        >
+                            {GRADE_OPTIONS.map((g) => (
+                                <MenuItem key={g} value={g}>
+                                    {g}
+                                </MenuItem>
+                            ))}
                         </TextField>
                     </Stack>
                 )}

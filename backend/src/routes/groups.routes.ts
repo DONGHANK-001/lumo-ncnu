@@ -7,7 +7,7 @@ import {
 import { validateBody, validateQuery } from '../middleware/validation.js';
 import { createGroupSchema, listGroupsQuerySchema } from '../types/schemas.js';
 import { ApiError } from '../middleware/error-handler.js';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { sendJoinGroupEmail } from '../lib/mailer.js';
 import { getIO } from '../socket.js';
 import { createNotification, notifyGroupMembers } from '../lib/notification.service.js';
@@ -15,6 +15,16 @@ import { isTrialPeriod } from '../utils/trial-period.js';
 import { getUserWeeklyStats, calculateQuotaLimit } from '../utils/quota.js';
 
 const router = Router();
+
+function ensureIdentityComplete(user: Pick<User, 'department' | 'gender' | 'gradeLabel'>): void {
+    const hasDepartment = !!user?.department;
+    const hasGender = !!user?.gender;
+    const hasGrade = !!user?.gradeLabel;
+
+    if (!hasDepartment || !hasGender || !hasGrade) {
+        throw new ApiError(403, 'PROFILE_INCOMPLETE', '請先完成性別、系級與系所資料');
+    }
+}
 
 /**
  * GET /groups
@@ -131,6 +141,7 @@ router.post(
     validateBody(createGroupSchema),
     async (req: Request, res: Response) => {
         const user = req.user!;
+        ensureIdentityComplete(user);
         const { sportType, title, description, time, location, level, capacity, tags } = req.body;
 
         // 計算揪團額度檢查
@@ -219,6 +230,7 @@ router.get('/:id', async (req: Request, res: Response) => {
  */
 router.post('/:id/join', firebaseAuthMiddleware, async (req: Request, res: Response) => {
     const user = req.user!;
+    ensureIdentityComplete(user);
     const { id } = req.params;
 
     const result = await prisma.$transaction(async (tx) => {
@@ -465,6 +477,7 @@ router.post(
     requirePlusPlan,
     async (req: Request, res: Response) => {
         const user = req.user!;
+        ensureIdentityComplete(user);
         const { id } = req.params;
 
         const group = await prisma.group.findUnique({

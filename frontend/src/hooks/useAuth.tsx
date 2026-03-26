@@ -22,6 +22,8 @@ interface User {
     realName: string | null;
     studentId: string | null;
     department: string | null;
+    gender: string | null;
+    gradeLabel: string | null;
     planType: 'FREE' | 'PLUS';
     avatarUrl: string | null;
     role: string;
@@ -73,6 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     realName: (response.data as any).realName || null,
                     studentId: (response.data as any).studentId || null,
                     department: (response.data as any).department || null,
+                    gender: (response.data as any).gender || null,
+                    gradeLabel: (response.data as any).gradeLabel || null,
                     planType: response.data.planType as 'FREE' | 'PLUS',
                     avatarUrl: (response.data as any).avatarUrl || null,
                     role: response.data.role || 'USER',

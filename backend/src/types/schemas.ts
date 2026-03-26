@@ -28,10 +28,19 @@ export const userPreferencesSchema = z.object({
     usualLocations: z.array(z.string()),
 });
 
+export const genderSchema = z.enum([
+    'FEMALE',
+    'MALE',
+    'NON_BINARY',
+    'PREFER_NOT_TO_SAY',
+]);
+
 export const updateProfileSchema = z.object({
     nickname: z.string().min(1).max(50).optional(),
     preferences: userPreferencesSchema.optional(),
     department: z.string().min(1).max(100).optional(),
+    gender: genderSchema.optional(),
+    gradeLabel: z.string().min(1).max(30).optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

@@ -33,6 +33,15 @@ export const PlanType = {
 
 export type PlanType = (typeof PlanType)[keyof typeof PlanType];
 
+export const Gender = {
+    FEMALE: 'FEMALE',
+    MALE: 'MALE',
+    NON_BINARY: 'NON_BINARY',
+    PREFER_NOT_TO_SAY: 'PREFER_NOT_TO_SAY',
+} as const;
+
+export type Gender = (typeof Gender)[keyof typeof Gender];
+
 export const GroupStatus = {
     OPEN: 'OPEN',
     FULL: 'FULL',
@@ -73,6 +82,9 @@ export interface User {
     firebaseUid: string;
     email: string;
     nickname: string | null;
+    department?: string | null;
+    gender?: Gender | null;
+    gradeLabel?: string | null;
     school: string;
     role: 'USER' | 'ADMIN';
     planType: PlanType;

@@ -37,6 +37,13 @@ const SKILL_LABELS: Record<string, string> = {
     ANY: '不限程度',
 };
 
+const GENDER_LABELS: Record<string, string> = {
+    FEMALE: 'Female',
+    MALE: 'Male',
+    NON_BINARY: 'Non-binary',
+    PREFER_NOT_TO_SAY: 'Prefer not to say',
+};
+
 export default function PublicProfilePage({ params }: { params: { id: string } }) {
     const { id } = params;
     const { user: currentUser } = useAuth();
@@ -148,11 +155,23 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                         <CrownBadge isPlus={profile.planType === 'PLUS'} />
                     </Typography>
 
-                    {profile.department && (
-                        <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8 }}>
-                            🏢 {profile.department}
-                        </Typography>
-                    )}
+                    <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="center">
+                        <Chip
+                            size="small"
+                            variant="outlined"
+                            label={`性別 ${profile.gender ? (GENDER_LABELS[profile.gender] || profile.gender) : '未填寫'}`}
+                        />
+                        <Chip
+                            size="small"
+                            variant="outlined"
+                            label={`系級 ${profile.gradeLabel || '未填寫'}`}
+                        />
+                        <Chip
+                            size="small"
+                            variant="outlined"
+                            label={`系所 ${profile.department || '未填寫'}`}
+                        />
+                    </Stack>
                 </Stack>
 
                 <Divider sx={{ my: 3 }} />

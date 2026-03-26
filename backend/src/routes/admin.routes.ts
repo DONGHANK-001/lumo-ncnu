@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma.js';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 import { requireAdmin } from '../middleware/admin-auth.js';
 import { ApiError } from '../middleware/error-handler.js';
+import { Gender } from '@prisma/client';
 
 const router = Router();
 
@@ -240,7 +241,7 @@ router.delete('/reports/:id', async (req: Request, res: Response) => {
  * 使用者列表（支援搜尋、篩選）
  */
 router.get('/users', async (req: Request, res: Response) => {
-    const { page = 1, pageSize = 20, search, role, banned } = req.query;
+    const { page = 1, pageSize = 20, search, role, banned, identity } = req.query;
 
     const where: any = {};
     if (search) {
@@ -253,6 +254,26 @@ router.get('/users', async (req: Request, res: Response) => {
     if (role) where.role = String(role);
     if (banned === 'true') where.isBanned = true;
     if (banned === 'false') where.isBanned = false;
+    const andConditions: any[] = [];
+    if (identity === 'complete') {
+        andConditions.push(
+            { department: { not: null } },
+            { gender: { not: null } },
+            { gradeLabel: { not: null } },
+        );
+    }
+    if (identity === 'incomplete') {
+        andConditions.push({
+            OR: [
+                { department: null },
+                { gender: null },
+                { gradeLabel: null },
+            ],
+        });
+    }
+    if (andConditions.length > 0) {
+        where.AND = andConditions;
+    }
 
     const [items, total] = await Promise.all([
         prisma.user.findMany({
@@ -262,6 +283,8 @@ router.get('/users', async (req: Request, res: Response) => {
                 email: true,
                 nickname: true,
                 department: true,
+                gender: true,
+                gradeLabel: true,
                 studentId: true,
                 role: true,
                 planType: true,
@@ -282,6 +305,76 @@ router.get('/users', async (req: Request, res: Response) => {
         success: true,
         data: { items, total, page: Number(page), pageSize: Number(pageSize) },
     });
+});
+
+/**
+ * PATCH /admin/users/:id/profile
+ * 管理員修正使用者公開身分欄位
+ */
+router.patch('/users/:id/profile', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { department, gender, gradeLabel } = req.body as {
+        department?: string | null;
+        gender?: string | null;
+        gradeLabel?: string | null;
+    };
+
+    const allowedGenders: Gender[] = ['FEMALE', 'MALE', 'NON_BINARY', 'PREFER_NOT_TO_SAY'];
+    if (
+        gender !== undefined &&
+        gender !== null &&
+        !allowedGenders.includes(gender as Gender)
+    ) {
+        throw new ApiError(400, 'INVALID_INPUT', 'Invalid gender value');
+    }
+
+    if (department === undefined && gender === undefined && gradeLabel === undefined) {
+        throw new ApiError(400, 'INVALID_INPUT', 'No profile fields to update');
+    }
+
+    if (department !== undefined && department !== null && typeof department !== 'string') {
+        throw new ApiError(400, 'INVALID_INPUT', 'Invalid department value');
+    }
+    if (gradeLabel !== undefined && gradeLabel !== null && typeof gradeLabel !== 'string') {
+        throw new ApiError(400, 'INVALID_INPUT', 'Invalid gradeLabel value');
+    }
+
+    const normalizedDepartment =
+        department === undefined ? undefined : (department?.trim() || null);
+    const normalizedGradeLabel =
+        gradeLabel === undefined ? undefined : (gradeLabel?.trim() || null);
+
+    const exists = await prisma.user.findUnique({ where: { id }, select: { id: true } });
+    if (!exists) {
+        throw new ApiError(404, 'USER_NOT_FOUND', 'User not found');
+    }
+
+    const updated = await prisma.user.update({
+        where: { id },
+        data: {
+            ...(normalizedDepartment !== undefined && { department: normalizedDepartment }),
+            ...(gender !== undefined && { gender: gender as Gender | null }),
+            ...(normalizedGradeLabel !== undefined && { gradeLabel: normalizedGradeLabel }),
+        },
+        select: {
+            id: true,
+            email: true,
+            nickname: true,
+            department: true,
+            gender: true,
+            gradeLabel: true,
+            studentId: true,
+            role: true,
+            planType: true,
+            isBanned: true,
+            banReason: true,
+            attendedCount: true,
+            noShowCount: true,
+            createdAt: true,
+        },
+    });
+
+    res.json({ success: true, data: updated });
 });
 
 /**

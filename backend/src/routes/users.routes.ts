@@ -20,6 +20,8 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
                 id: true,
                 nickname: true,
                 department: true,
+                gender: true,
+                gradeLabel: true,
                 school: true,
                 avatarUrl: true,
                 planType: true,
