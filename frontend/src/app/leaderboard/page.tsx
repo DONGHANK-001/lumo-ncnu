@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import {
     Container, Typography, Box, Card, CardContent, Stack, Chip,
-    ToggleButtonGroup, ToggleButton, Avatar, Skeleton, Paper
+    ToggleButtonGroup, ToggleButton, Avatar, Skeleton, Paper, useMediaQuery, useTheme
 } from '@mui/material';
 import CrownBadge from '@/app/components/CrownBadge';
 import { isTrialPeriod } from '@/lib/trial-period';
@@ -54,6 +54,8 @@ const TITLE_MAP: Record<string, { label: string; icon: string }> = {
 
 export default function LeaderboardPage() {
     const { user, isPlusActive, getToken } = useAuth();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const [tab, setTab] = useState<'DEPT' | 'USER'>('DEPT');
 
@@ -160,57 +162,55 @@ export default function LeaderboardPage() {
                                     border: '1px solid',
                                     borderColor: 'divider',
                                     mb: 2,
+                                    overflow: 'hidden',
                                 }}>
-                                    <CardContent sx={{ py: 4 }}>
-                                        <Stack direction="row" justifyContent="center" alignItems="flex-end" spacing={3}>
-                                            {/* 2nd Place */}
-                                            <Box textAlign="center" flex={1}>
-                                                <Box sx={{ mb: 1 }}>{MEDAL_ICONS[1]}</Box>
-                                                <Typography variant="h6" fontWeight="bold" noWrap>
-                                                    {departments[1].department}
-                                                </Typography>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    {departments[1].totalJoins} 次
-                                                </Typography>
-                                                {departments[1].topSport && SPORT_MAP[departments[1].topSport] && (
-                                                    <Typography variant="caption" display="block" color="text.secondary" mt={0.5}>
-                                                        最愛: {SPORT_MAP[departments[1].topSport].icon} {SPORT_MAP[departments[1].topSport].label}
-                                                    </Typography>
-                                                )}
-                                            </Box>
-                                            {/* 1st Place */}
-                                            <Box textAlign="center" flex={1}>
-                                                <Box sx={{ mb: 1 }}>{MEDAL_ICONS[0]}</Box>
-                                                <Typography variant="h5" fontWeight="900" noWrap sx={{ color: 'primary.main' }}>
-                                                    {departments[0].department}
-                                                </Typography>
-                                                <Chip
-                                                    label={`${departments[0].totalJoins} 次`}
-                                                    color="primary"
-                                                    size="small"
-                                                    sx={{ mt: 0.5 }}
-                                                />
-                                                {departments[0].topSport && SPORT_MAP[departments[0].topSport] && (
-                                                    <Typography variant="caption" display="block" color="text.secondary" mt={0.5}>
-                                                        最愛: {SPORT_MAP[departments[0].topSport].icon} {SPORT_MAP[departments[0].topSport].label}
-                                                    </Typography>
-                                                )}
-                                            </Box>
-                                            {/* 3rd Place */}
-                                            <Box textAlign="center" flex={1}>
-                                                <Box sx={{ mb: 1 }}>{MEDAL_ICONS[2]}</Box>
-                                                <Typography variant="h6" fontWeight="bold" noWrap>
-                                                    {departments[2].department}
-                                                </Typography>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    {departments[2].totalJoins} 次
-                                                </Typography>
-                                                {departments[2].topSport && SPORT_MAP[departments[2].topSport] && (
-                                                    <Typography variant="caption" display="block" color="text.secondary" mt={0.5}>
-                                                        最愛: {SPORT_MAP[departments[2].topSport].icon} {SPORT_MAP[departments[2].topSport].label}
-                                                    </Typography>
-                                                )}
-                                            </Box>
+                                    <CardContent sx={{ py: { xs: 2.5, sm: 4 }, px: { xs: 1.5, sm: 3 } }}>
+                                        <Stack
+                                            direction={isMobile ? 'column' : 'row'}
+                                            justifyContent="center"
+                                            alignItems={isMobile ? 'stretch' : 'flex-end'}
+                                            spacing={isMobile ? 2 : 3}
+                                        >
+                                            {/* Mobile: 1→2→3, Desktop: 2→1→3 */}
+                                            {(isMobile ? [0, 1, 2] : [1, 0, 2]).map((idx) => {
+                                                const dept = departments[idx];
+                                                const isFirst = idx === 0;
+                                                return (
+                                                    <Box
+                                                        key={dept.department}
+                                                        textAlign="center"
+                                                        flex={isMobile ? undefined : 1}
+                                                        sx={isMobile ? {
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: 1.5,
+                                                            textAlign: 'left',
+                                                        } : {}}
+                                                    >
+                                                        <Box sx={{ mb: isMobile ? 0 : 1, flexShrink: 0 }}>{MEDAL_ICONS[idx]}</Box>
+                                                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                                                            <Typography
+                                                                variant={isFirst ? (isMobile ? 'subtitle1' : 'h5') : (isMobile ? 'body2' : 'h6')}
+                                                                fontWeight={isFirst ? 900 : 'bold'}
+                                                                sx={{
+                                                                    color: isFirst ? 'primary.main' : 'text.primary',
+                                                                    wordBreak: 'break-word',
+                                                                }}
+                                                            >
+                                                                {dept.department}
+                                                            </Typography>
+                                                            <Typography variant={isMobile ? 'caption' : 'body2'} color="text.secondary">
+                                                                {dept.totalJoins} 次
+                                                            </Typography>
+                                                            {dept.topSport && SPORT_MAP[dept.topSport] && (
+                                                                <Typography variant="caption" display="block" color="text.secondary" mt={0.5}>
+                                                                    最愛: {SPORT_MAP[dept.topSport].icon} {SPORT_MAP[dept.topSport].label}
+                                                                </Typography>
+                                                            )}
+                                                        </Box>
+                                                    </Box>
+                                                );
+                                            })}
                                         </Stack>
                                     </CardContent>
                                 </Card>
@@ -222,23 +222,24 @@ export default function LeaderboardPage() {
                                     borderRadius: 3,
                                     borderLeft: dept.rank <= 3 ? `4px solid ${MEDAL_COLORS[dept.rank - 1]}` : 'none',
                                 }}>
-                                    <CardContent sx={{ py: 2 }}>
-                                        <Stack direction="row" alignItems="center" spacing={2}>
+                                    <CardContent sx={{ py: 2, px: { xs: 1.5, sm: 2 } }}>
+                                        <Stack direction="row" alignItems="center" spacing={{ xs: 1, sm: 2 }}>
                                             <Avatar sx={{
-                                                width: 40, height: 40,
+                                                width: { xs: 32, sm: 40 }, height: { xs: 32, sm: 40 },
                                                 bgcolor: dept.rank <= 3 ? MEDAL_COLORS[dept.rank - 1] : 'action.hover',
                                                 color: dept.rank <= 3 ? '#fff' : 'text.secondary',
                                                 fontWeight: 'bold',
-                                                fontSize: dept.rank <= 3 ? 18 : 16,
+                                                fontSize: { xs: 14, sm: dept.rank <= 3 ? 18 : 16 },
+                                                flexShrink: 0,
                                             }}>
                                                 {dept.rank}
                                             </Avatar>
-                                            <Box flex={1}>
-                                                <Typography variant="subtitle1" fontWeight="bold">
+                                            <Box flex={1} minWidth={0}>
+                                                <Typography variant={isMobile ? 'body2' : 'subtitle1'} fontWeight="bold" sx={{ wordBreak: 'break-word' }}>
                                                     {dept.department}
                                                 </Typography>
-                                                <Stack direction="row" spacing={1} alignItems="center">
-                                                    <Groups fontSize="small" sx={{ color: 'text.secondary' }} />
+                                                <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap">
+                                                    <Groups sx={{ fontSize: 14, color: 'text.secondary' }} />
                                                     <Typography variant="caption" color="text.secondary">
                                                         {dept.uniqueUsers} 位同學
                                                     </Typography>
@@ -252,8 +253,8 @@ export default function LeaderboardPage() {
                                                     )}
                                                 </Stack>
                                             </Box>
-                                            <Box textAlign="right">
-                                                <Typography variant="h6" fontWeight="bold" color="primary.main">
+                                            <Box textAlign="right" flexShrink={0}>
+                                                <Typography variant={isMobile ? 'subtitle1' : 'h6'} fontWeight="bold" color="primary.main">
                                                     {dept.totalJoins}
                                                 </Typography>
                                                 <Typography variant="caption" color="text.secondary">
@@ -295,25 +296,34 @@ export default function LeaderboardPage() {
                                         transition: 'transform 0.2s',
                                         '&:hover': { transform: 'scale(1.02)' }
                                     }}>
-                                        <CardContent sx={{ py: 2 }}>
-                                            <Stack direction="row" alignItems="center" spacing={2}>
+                                        <CardContent sx={{ py: 2, px: { xs: 1.5, sm: 2 } }}>
+                                            <Stack direction="row" alignItems="center" spacing={{ xs: 1, sm: 2 }}>
                                                 <Avatar sx={{
-                                                    width: 40, height: 40,
+                                                    width: { xs: 28, sm: 40 }, height: { xs: 28, sm: 40 },
                                                     bgcolor: ur.rank <= 3 ? MEDAL_COLORS[ur.rank - 1] : 'action.hover',
                                                     color: ur.rank <= 3 ? '#fff' : 'text.secondary',
                                                     fontWeight: 'bold',
-                                                    fontSize: ur.rank <= 3 ? 18 : 16,
+                                                    fontSize: { xs: 13, sm: ur.rank <= 3 ? 18 : 16 },
+                                                    flexShrink: 0,
                                                 }}>
                                                     {ur.rank}
                                                 </Avatar>
 
-                                                <Avatar src={ur.user.avatarUrl || undefined}>
+                                                <Avatar
+                                                    src={ur.user.avatarUrl || undefined}
+                                                    sx={{ width: { xs: 32, sm: 40 }, height: { xs: 32, sm: 40 }, flexShrink: 0 }}
+                                                >
                                                     {!ur.user.avatarUrl && (ur.user.nickname || '匿')[0].toUpperCase()}
                                                 </Avatar>
 
-                                                <Box flex={1}>
-                                                    <Stack direction="row" alignItems="center" flexWrap="wrap" gap={1}>
-                                                        <Typography variant="subtitle1" fontWeight="bold" color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <Box flex={1} minWidth={0}>
+                                                    <Stack direction="row" alignItems="center" flexWrap="wrap" gap={0.5}>
+                                                        <Typography
+                                                            variant={isMobile ? 'body2' : 'subtitle1'}
+                                                            fontWeight="bold"
+                                                            color="text.primary"
+                                                            sx={{ display: 'flex', alignItems: 'center', wordBreak: 'break-word' }}
+                                                        >
                                                             {ur.user.nickname || '匿名使用者'}
                                                             <CrownBadge isPlus={isTrialPeriod()} />
                                                         </Typography>
@@ -324,7 +334,9 @@ export default function LeaderboardPage() {
                                                                 sx={{
                                                                     fontWeight: 'bold',
                                                                     background: 'linear-gradient(45deg, #FFD700 30%, #FFA500 90%)',
-                                                                    color: 'white'
+                                                                    color: 'white',
+                                                                    height: isMobile ? 20 : 24,
+                                                                    fontSize: isMobile ? '0.65rem' : undefined,
                                                                 }}
                                                             />
                                                         )}
@@ -333,18 +345,22 @@ export default function LeaderboardPage() {
                                                                 label={`${TITLE_MAP[ur.activeTitle].icon} ${TITLE_MAP[ur.activeTitle].label}`}
                                                                 size="small"
                                                                 variant="outlined"
-                                                                sx={{ fontWeight: '500' }}
+                                                                sx={{
+                                                                    fontWeight: '500',
+                                                                    height: isMobile ? 20 : 24,
+                                                                    fontSize: isMobile ? '0.65rem' : undefined,
+                                                                }}
                                                             />
                                                         )}
                                                     </Stack>
                                                     {ur.user.department && (
-                                                        <Typography variant="caption" color="text.secondary" display="block">
+                                                        <Typography variant="caption" color="text.secondary" display="block" sx={{ wordBreak: 'break-word' }}>
                                                             🏢 {ur.user.department}
                                                         </Typography>
                                                     )}
                                                 </Box>
-                                                <Box textAlign="right">
-                                                    <Typography variant="h6" fontWeight="bold" color="primary.main">
+                                                <Box textAlign="right" flexShrink={0}>
+                                                    <Typography variant={isMobile ? 'subtitle1' : 'h6'} fontWeight="bold" color="primary.main">
                                                         {ur.totalJoins}
                                                     </Typography>
                                                     <Typography variant="caption" color="text.secondary">

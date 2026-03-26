@@ -17,12 +17,13 @@ import {
     FormControlLabel,
     Box,
     MenuItem,
+    ListSubheader,
     CircularProgress,
     Alert
 } from '@mui/material';
 import { Instagram } from '@mui/icons-material';
 import { api } from '@/lib/api-client';
-import { DEPARTMENTS } from '@/lib/constants';
+import { DEPARTMENT_GROUPS } from '@/lib/constants';
 
 export const DISCLAIMER_TEXT = `LUMO 運動揪團平台使用者免責聲明
 
@@ -195,9 +196,14 @@ export default function OnboardingDialog({ open, onComplete, getToken }: Onboard
                             fullWidth
                             required
                         >
-                            {DEPARTMENTS.map(dept => (
-                                <MenuItem key={dept} value={dept}>{dept}</MenuItem>
-                            ))}
+                            {Object.entries(DEPARTMENT_GROUPS).flatMap(([college, depts]) => [
+                                <ListSubheader key={college} sx={{ fontWeight: 'bold', color: 'text.primary', bgcolor: 'background.paper' }}>
+                                    {college}
+                                </ListSubheader>,
+                                ...depts.map(dept => (
+                                    <MenuItem key={dept} value={dept} sx={{ pl: 4 }}>{dept}</MenuItem>
+                                )),
+                            ])}
                         </TextField>
                     </Stack>
                 )}
