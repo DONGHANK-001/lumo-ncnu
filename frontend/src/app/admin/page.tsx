@@ -159,6 +159,8 @@ export default function AdminPage() {
         gradeLabel: '',
     });
     const [profileSaving, setProfileSaving] = useState(false);
+    const [confirmReportDialog, setConfirmReportDialog] = useState(false);
+    const [confirmingReport, setConfirmingReport] = useState<Report | null>(null);
 
     const fetchData = useCallback(async () => {
         try {
@@ -345,9 +347,6 @@ export default function AdminPage() {
             setError(err instanceof Error ? err.message : '清理失敗');
         }
     };
-
-    const [confirmReportDialog, setConfirmReportDialog] = useState(false);
-    const [confirmingReport, setConfirmingReport] = useState<Report | null>(null);
 
     const PENALTY_MAP: Record<string, number> = {
         '騷擾或不當言論': 5, '惡意放鴿子': 3, '詐騙或金錢糾紛': 8,
