@@ -346,16 +346,39 @@ export default function AdminPage() {
         }
     };
 
-    const handleDeleteReport = async (reportId: string) => {
-        if (!window.confirm('確定要標記此檢舉為已處理（刪除紀錄）嗎？')) return;
+    const [confirmReportDialog, setConfirmReportDialog] = useState(false);
+    const [confirmingReport, setConfirmingReport] = useState<Report | null>(null);
+
+    const PENALTY_MAP: Record<string, number> = {
+        '騷擾或不當言論': 5, '惡意放鴿子': 3, '詐騙或金錢糾紛': 8,
+        '冒充身份': 5, '危害安全': 10, '其他': 3,
+    };
+
+    const handleConfirmReport = async () => {
+        if (!confirmingReport) return;
+        try {
+            const token = await getToken();
+            if (!token) return;
+            const res = await api.confirmReport(token, confirmingReport.id);
+            if (!res.success) throw new Error(res.error?.message || '操作失敗');
+            const data = res.data as any;
+            setSuccess(`檢舉已確認！信譽分 → ${data.newScore}${data.banned ? `，使用者已封鎖 ${data.banDays === -1 ? '永久' : data.banDays + ' 天'}` : ''}`);
+            setConfirmReportDialog(false);
+            setConfirmingReport(null);
+            fetchData();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '操作失敗');
+        }
+    };
+
+    const handleDismissReport = async (reportId: string) => {
+        if (!window.confirm('確定要駁回此檢舉？')) return;
         try {
             const token = await getToken();
             if (!token) return;
             const res = await api.deleteReport(token, reportId);
-
-            if (!res.success) throw new Error(res.error?.message || '刪除失敗');
-
-            setSuccess('檢舉已處理');
+            if (!res.success) throw new Error(res.error?.message || '駁回失敗');
+            setSuccess('檢舉已駁回');
             fetchData();
         } catch (err) {
             setError(err instanceof Error ? err.message : '操作失敗');
@@ -581,14 +604,27 @@ export default function AdminPage() {
                                                 </Typography>
                                             </TableCell>
                                             <TableCell align="right">
-                                                <Button
-                                                    color="success"
-                                                    size="small"
-                                                    variant="outlined"
-                                                    onClick={() => handleDeleteReport(report.id)}
-                                                >
-                                                    標記已處理 (刪除)
-                                                </Button>
+                                                <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                                    <Button
+                                                        color="error"
+                                                        size="small"
+                                                        variant="contained"
+                                                        onClick={() => {
+                                                            setConfirmingReport(report);
+                                                            setConfirmReportDialog(true);
+                                                        }}
+                                                    >
+                                                        ✅ 確認
+                                                    </Button>
+                                                    <Button
+                                                        color="inherit"
+                                                        size="small"
+                                                        variant="outlined"
+                                                        onClick={() => handleDismissReport(report.id)}
+                                                    >
+                                                        ❌ 駁回
+                                                    </Button>
+                                                </Stack>
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -890,6 +926,44 @@ export default function AdminPage() {
                         }}
                     >
                         確認封鎖
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* 確認檢舉 Dialog */}
+            <Dialog open={confirmReportDialog} onClose={() => setConfirmReportDialog(false)} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ fontWeight: 'bold' }}>⚠️ 確認檢舉懲罰</DialogTitle>
+                <DialogContent>
+                    {confirmingReport && (
+                        <Stack spacing={2} sx={{ mt: 1 }}>
+                            <Typography variant="body2">
+                                <strong>檢舉人：</strong>{confirmingReport.reporter.nickname || confirmingReport.reporter.email}
+                            </Typography>
+                            <Typography variant="body2">
+                                <strong>對象：</strong>
+                                {confirmingReport.targetType === 'USER'
+                                    ? confirmingReport.targetDetails?.nickname || '未知用戶'
+                                    : confirmingReport.targetDetails?.title || '未知揪團'}
+                                ({confirmingReport.targetType === 'USER' ? '使用者' : '揪團發起人'})
+                            </Typography>
+                            <Typography variant="body2">
+                                <strong>原因：</strong>{confirmingReport.reason}
+                            </Typography>
+                            {confirmingReport.details && (
+                                <Typography variant="body2">
+                                    <strong>詳情：</strong>{confirmingReport.details}
+                                </Typography>
+                            )}
+                            <Alert severity="warning">
+                                將對被檢舉者施加懲罰：negativeRatings <strong>+{PENALTY_MAP[confirmingReport.reason] || 3}</strong>（信譽 <strong>-{(PENALTY_MAP[confirmingReport.reason] || 3) * 2}</strong> 分）
+                            </Alert>
+                        </Stack>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setConfirmReportDialog(false)} color="inherit">取消</Button>
+                    <Button variant="contained" color="error" onClick={handleConfirmReport}>
+                        確認執行懲罰
                     </Button>
                 </DialogActions>
             </Dialog>

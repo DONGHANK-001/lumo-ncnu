@@ -4,6 +4,7 @@ import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 import { requireAdmin } from '../middleware/admin-auth.js';
 import { ApiError } from '../middleware/error-handler.js';
 import { Gender } from '@prisma/client';
+import { applyPenalty } from '../utils/reputation.js';
 
 const router = Router();
 
@@ -208,8 +209,47 @@ router.get('/reports', async (req: Request, res: Response) => {
 });
 
 /**
+ * POST /admin/reports/:id/confirm
+ * 確認檢舉 — 對被檢舉者施加信譽懲罰
+ */
+router.post('/reports/:id/confirm', async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const report = await prisma.report.findUnique({ where: { id } });
+    if (!report) {
+        throw new ApiError(404, 'REPORT_NOT_FOUND', '找不到此檢舉');
+    }
+
+    // 確定被懲罰的 userId
+    let targetUserId: string;
+    if (report.targetType === 'USER') {
+        targetUserId = report.targetId;
+    } else {
+        const group = await prisma.group.findUnique({
+            where: { id: report.targetId },
+            select: { createdById: true },
+        });
+        if (!group) {
+            throw new ApiError(404, 'GROUP_NOT_FOUND', '找不到被檢舉的揪團');
+        }
+        targetUserId = group.createdById;
+    }
+
+    const result = await applyPenalty(targetUserId, report.reason);
+    await prisma.report.delete({ where: { id } });
+
+    res.json({
+        success: true,
+        data: {
+            message: '檢舉已確認，信譽懲罰已施加',
+            ...result,
+        },
+    });
+});
+
+/**
  * DELETE /admin/reports/:id
- * 刪除檢舉 (標記處理完成)
+ * 駁回檢舉
  */
 router.delete('/reports/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -223,7 +263,7 @@ router.delete('/reports/:id', async (req: Request, res: Response) => {
 
     res.json({
         success: true,
-        data: { message: '檢舉已刪除' },
+        data: { message: '檢舉已駁回' },
     });
 });
 

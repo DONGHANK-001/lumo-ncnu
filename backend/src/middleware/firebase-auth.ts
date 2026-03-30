@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { firebaseAuth } from '../lib/firebase-admin.js';
 import { prisma } from '../lib/prisma.js';
 import { logger } from '../lib/logger.js';
+import { checkAutoUnban } from '../utils/reputation.js';
 import type { User } from '@prisma/client';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 
@@ -85,13 +86,23 @@ export async function firebaseAuthMiddleware(
 
         req.user = user;
 
+        // 自動解封檢查
+        if (user.isBanned) {
+            const unbanned = await checkAutoUnban(user.id, user.banReason);
+            if (unbanned) {
+                // 已自動解封，重新讀取使用者
+                user = await prisma.user.findUnique({ where: { firebaseUid: decodedToken.uid } }) as typeof user;
+                req.user = user;
+            }
+        }
+
         // 封鎖帳號檢查
         if (user.isBanned) {
             res.status(403).json({
                 success: false,
                 error: {
                     code: 'ACCOUNT_BANNED',
-                    message: `帳號已被停權${user.banReason ? `：${user.banReason}` : ''}`,
+                    message: `帳號已被停權${user.banReason ? `：${user.banReason.split('|UNBAN:')[0]}` : ''}`,
                 },
             });
             return;

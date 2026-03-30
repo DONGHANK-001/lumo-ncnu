@@ -30,7 +30,8 @@ import {
     DialogTitle,
     DialogContent,
     DialogContentText,
-    DialogActions
+    DialogActions,
+    MenuItem
 } from '@mui/material';
 import {
     CalendarToday,
@@ -42,7 +43,8 @@ import {
     ChatBubbleOutline,
     Share as ShareIcon,
     ThumbUp,
-    ThumbDown
+    ThumbDown,
+    Flag
 } from '@mui/icons-material';
 import SafetyNoticeDialog from '@/app/components/SafetyNoticeDialog';
 import ShareButtons from '@/app/components/ShareButtons';
@@ -96,6 +98,14 @@ export default function GroupDetailPage() {
     const [myRatings, setMyRatings] = useState<Record<string, boolean>>({});
     const [showSafetyNotice, setShowSafetyNotice] = useState(false);
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+    const [showReportRules, setShowReportRules] = useState(false);
+    const [showReportForm, setShowReportForm] = useState(false);
+    const [reportRulesAccepted, setReportRulesAccepted] = useState(false);
+    const [reportTarget, setReportTarget] = useState<'GROUP' | 'USER'>('GROUP');
+    const [reportTargetUserId, setReportTargetUserId] = useState('');
+    const [reportReason, setReportReason] = useState('');
+    const [reportDetails, setReportDetails] = useState('');
+    const [reportLoading, setReportLoading] = useState(false);
 
     useEffect(() => {
         fetchGroup();
@@ -526,6 +536,19 @@ export default function GroupDetailPage() {
                     {isCreator && group.status !== 'CANCELLED' && (
                         <Chip label="您是揪團發起人" color="primary" variant="outlined" />
                     )}
+
+                    {user && !isCreator && (
+                        <Button
+                            variant="outlined"
+                            color="inherit"
+                            size="small"
+                            startIcon={<Flag />}
+                            onClick={() => { setReportRulesAccepted(false); setShowReportRules(true); }}
+                            sx={{ color: 'text.secondary', borderColor: 'divider' }}
+                        >
+                            檢舉
+                        </Button>
+                    )}
                 </Stack>
             </Paper>
 
@@ -783,6 +806,129 @@ export default function GroupDetailPage() {
                     <Button onClick={() => setShowCancelConfirm(false)}>返回</Button>
                     <Button onClick={handleCancelGroup} color="error" variant="contained">
                         確定取消
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* 檢舉規則 Dialog */}
+            <Dialog open={showReportRules} onClose={() => setShowReportRules(false)} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ fontWeight: 'bold' }}>📋 檢舉須知</DialogTitle>
+                <DialogContent>
+                    <Stack spacing={2}>
+                        <Typography variant="subtitle2" fontWeight="bold">✅ 可檢舉的行為：</Typography>
+                        <Stack spacing={0.5} sx={{ pl: 2 }}>
+                            {['騷擾、歧視或不當言論', '惡意放鴿子（約好卻不出席）', '詐騙行為或金錢糾紛', '冒充身份', '危害人身安全之行為'].map(r => (
+                                <Typography key={r} variant="body2" color="text.secondary">• {r}</Typography>
+                            ))}
+                        </Stack>
+                        <Typography variant="subtitle2" fontWeight="bold">⚠️ 注意事項：</Typography>
+                        <Stack spacing={0.5} sx={{ pl: 2 }}>
+                            {['每則檢舉由管理員人工審核', '經確認的檢舉將扣除被檢舉者信譽分', '請提供具體事實描述，增加審核效率'].map(r => (
+                                <Typography key={r} variant="body2" color="text.secondary">• {r}</Typography>
+                            ))}
+                        </Stack>
+                        <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 1, p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
+                            <input type="checkbox" checked={reportRulesAccepted} onChange={e => setReportRulesAccepted(e.target.checked)} />
+                            <Typography variant="body2">我已閱讀並理解以上規則</Typography>
+                        </Stack>
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setShowReportRules(false)} color="inherit">取消</Button>
+                    <Button
+                        variant="contained"
+                        disabled={!reportRulesAccepted}
+                        onClick={() => {
+                            setShowReportRules(false);
+                            setReportTarget('GROUP');
+                            setReportTargetUserId('');
+                            setReportReason('');
+                            setReportDetails('');
+                            setShowReportForm(true);
+                        }}
+                    >
+                        下一步
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* 檢舉表單 Dialog */}
+            <Dialog open={showReportForm} onClose={() => setShowReportForm(false)} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ fontWeight: 'bold' }}>🚩 提交檢舉</DialogTitle>
+                <DialogContent>
+                    <Stack spacing={2.5} sx={{ mt: 1 }}>
+                        <TextField
+                            label="檢舉對象"
+                            select
+                            fullWidth
+                            value={reportTarget === 'GROUP' ? '__GROUP__' : reportTargetUserId}
+                            onChange={e => {
+                                if (e.target.value === '__GROUP__') {
+                                    setReportTarget('GROUP');
+                                    setReportTargetUserId('');
+                                } else {
+                                    setReportTarget('USER');
+                                    setReportTargetUserId(e.target.value);
+                                }
+                            }}
+                        >
+                            <MenuItem value="__GROUP__">整個揪團</MenuItem>
+                            {joinedMembers.filter(m => m.user.id !== user?.id).map(m => (
+                                <MenuItem key={m.user.id} value={m.user.id}>
+                                    {m.user.nickname || m.user.email.split('@')[0]}
+                                    {m.user.id === group?.createdBy.id ? ' (發起人)' : ''}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField
+                            label="檢舉原因"
+                            select
+                            fullWidth
+                            required
+                            value={reportReason}
+                            onChange={e => setReportReason(e.target.value)}
+                        >
+                            {['騷擾或不當言論', '惡意放鴿子', '詐騙或金錢糾紛', '冒充身份', '危害安全', '其他'].map(r => (
+                                <MenuItem key={r} value={r}>{r}</MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField
+                            label="詳細說明（選填）"
+                            multiline
+                            rows={3}
+                            fullWidth
+                            value={reportDetails}
+                            onChange={e => setReportDetails(e.target.value)}
+                        />
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setShowReportForm(false)} color="inherit">取消</Button>
+                    <Button
+                        variant="contained"
+                        color="error"
+                        disabled={!reportReason || reportLoading}
+                        onClick={async () => {
+                            setReportLoading(true);
+                            const token = await getToken();
+                            if (!token) return;
+                            const targetId = reportTarget === 'GROUP' ? group!.id : reportTargetUserId;
+                            const res = await api.createReport(token, {
+                                targetType: reportTarget,
+                                targetId,
+                                reason: reportReason,
+                                details: reportDetails || undefined,
+                            });
+                            if (res.success) {
+                                setSnackbarMessage('檢舉已送出，我們會盡快處理');
+                                setShowReportForm(false);
+                            } else {
+                                setSnackbarMessage((res as any).error?.message || '檢舉失敗');
+                            }
+                            setReportLoading(false);
+                        }}
+                    >
+                        {reportLoading ? '送出中...' : '送出檢舉'}
                     </Button>
                 </DialogActions>
             </Dialog>

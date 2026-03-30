@@ -8,7 +8,7 @@ export interface TitleEntry {
     key: string;
     label: string;
     icon: string;
-    category: 'pioneer' | 'leaderboard' | 'event' | 'achievement' | 'subscription';
+    category: 'pioneer' | 'leaderboard' | 'event' | 'achievement' | 'subscription' | 'reputation';
     description: string;
 }
 
@@ -50,9 +50,17 @@ const SUBSCRIPTION_TITLES: TitleEntry[] = [
     { key: 'lifetime_blackgold', label: '⚜️ 黑金永恆', icon: '⚜️', category: 'subscription', description: '終身黑金卡持有者' },
 ];
 
+// ── 信譽獎勵稱號 ──
+const REPUTATION_TITLES: TitleEntry[] = [
+    { key: 'rep_week', label: '🛡️ 信譽見習生', icon: '🛡️', category: 'reputation', description: '連續 7 天信譽滿分' },
+    { key: 'rep_month', label: '⚔️ 鋼鐵守則', icon: '⚔️', category: 'reputation', description: '連續 30 天信譽滿分' },
+    { key: 'rep_quarter', label: '💎 鑽石意志', icon: '💎', category: 'reputation', description: '連續 90 天信譽滿分' },
+    { key: 'rep_year', label: '🌟 傳說之證', icon: '🌟', category: 'reputation', description: '連續 365 天信譽滿分' },
+];
+
 // ── 全部稱號 Map ──
 const ALL_TITLES_MAP = new Map<string, TitleEntry>();
-[...PIONEER_TITLES, ...LEADERBOARD_TITLES, ...EVENT_TITLES, ...SUBSCRIPTION_TITLES].forEach(t => ALL_TITLES_MAP.set(t.key, t));
+[...PIONEER_TITLES, ...LEADERBOARD_TITLES, ...EVENT_TITLES, ...SUBSCRIPTION_TITLES, ...REPUTATION_TITLES].forEach(t => ALL_TITLES_MAP.set(t.key, t));
 
 export function getTitleByKey(key: string): TitleEntry | undefined {
     return ALL_TITLES_MAP.get(key);
@@ -145,8 +153,29 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
     if (subRow[0]?.planType === 'PLUS') {
         const exp = subRow[0].endAt;
         if (exp && new Date(exp).getFullYear() > 2070) {
-            titles.push(SUBSCRIPTION_TITLES[0]); // lifetime_blackgold
+            titles.push(SUBSCRIPTION_TITLES[0]);
         }
+    }
+
+    // 5. 信譽稱號 — 連續 N 天信譽 100
+    const userInfo = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { negativeRatings: true, createdAt: true },
+    });
+    if (userInfo && userInfo.negativeRatings === 0) {
+        // 查最後一次被 👎 的時間
+        const lastNeg = await prisma.memberRating.findFirst({
+            where: { ratedUserId: userId, isPositive: false },
+            orderBy: { createdAt: 'desc' },
+            select: { createdAt: true },
+        });
+        const startDate = lastNeg ? lastNeg.createdAt : userInfo.createdAt;
+        const daysSinceClean = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (daysSinceClean >= 365) titles.push(REPUTATION_TITLES[3]);
+        if (daysSinceClean >= 90) titles.push(REPUTATION_TITLES[2]);
+        if (daysSinceClean >= 30) titles.push(REPUTATION_TITLES[1]);
+        if (daysSinceClean >= 7) titles.push(REPUTATION_TITLES[0]);
     }
 
     return titles;
