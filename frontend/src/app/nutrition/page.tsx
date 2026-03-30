@@ -249,7 +249,7 @@ const NUTRITION_DATA: Record<string, NutritionInfo> = {
         avoid: ['飯後立刻躺下', '過量甜點', '含糖飲料配餐'],
     },
     STUDY: {
-        name: '靜謐同頻',
+        name: '讀家回憶',
         icon: <MenuBook sx={{ fontSize: 48 }} />,
         color: '#42A5F5',
         intensity: '低',

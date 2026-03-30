@@ -56,7 +56,7 @@ const SPORT_OPTIONS = [
 const SOCIAL_OPTIONS = [
     { value: 'NIGHT_WALK', label: '晚風漫遊', icon: <NightsStay /> },
     { value: 'DINING', label: '飯飯之交', icon: <Restaurant /> },
-    { value: 'STUDY', label: '靜謐同頻', icon: <MenuBook /> },
+    { value: 'STUDY', label: '讀家回憶', icon: <MenuBook /> },
 ];
 
 const SOCIAL_TYPES = ['NIGHT_WALK', 'DINING', 'STUDY'];

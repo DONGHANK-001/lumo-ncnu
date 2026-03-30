@@ -491,7 +491,7 @@ export default function LandingPage() {
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <MenuBook sx={{ fontSize: 40, color: '#42A5F5', mb: 1 }} />
                             <Typography variant="h6" fontWeight="bold" gutterBottom>
-                                📚 靜謐同頻
+                                📚 讀家回憶
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 期中期末靜心衝刺，覓一知己共赴書海

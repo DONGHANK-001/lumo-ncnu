@@ -105,7 +105,7 @@ const sportTypeLabels: Record<string, string> = {
     BADMINTON: '🏸 羽球',
     TABLE_TENNIS: '🏓 桌球',
     GYM: '💪 健身',
-    STUDY: '📚 靜謐同頻',
+    STUDY: '📚 讀家回憶',
 };
 
 const statusColors: Record<string, 'success' | 'warning' | 'error' | 'default'> = {

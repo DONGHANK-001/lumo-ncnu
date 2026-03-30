@@ -282,10 +282,10 @@ const SPORT_DATA: Record<string, SportInfo> = {
         campusSpots: ['暨大學生餐廳'],
     },
     STUDY: {
-        name: '靜謐同頻',
+        name: '讀家回憶',
         icon: <MenuBook sx={{ fontSize: 60 }} />,
         color: '#42A5F5',
-        description: '在靜謐中尋覓同頻之人——無論是期中備考的專注苦讀、期末衝刺的緊鑼密鼓，或是日常沉浸書海的悠然時光，有志同道合的讀伴相伴，方能走得更遠。',
+        description: '在書頁間尋覓同頻之人——無論是期中備考的專注苦讀、期末衝刺的緊鑼密鼓，或是日常沉浸書海的悠然時光，有志同道合的讀伴相伴，方能走得更遠。',
         rules: [
             '保持安靜，尊重彼此的閱讀節奏',
             '手機請調靜音或勿擾模式',
