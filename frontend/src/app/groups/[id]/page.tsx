@@ -346,6 +346,27 @@ export default function GroupDetailPage() {
         }
     };
 
+    const actionPillSx = {
+        borderRadius: 999,
+        minHeight: 44,
+        px: 2.5,
+        fontWeight: 700,
+        textTransform: 'none' as const,
+        letterSpacing: '0.02em',
+        borderWidth: 1.5,
+        '&.MuiButton-outlined': { borderWidth: 1.5 },
+    };
+
+    const statusPillSx = {
+        height: 44,
+        borderRadius: 999,
+        px: 1.6,
+        fontWeight: 700,
+        fontSize: '0.9rem',
+        letterSpacing: '0.02em',
+        borderWidth: 1.5,
+    };
+
     // 計算使用者狀態
     const userMember = group?.members.find((m) => m.user.id === user?.id);
     const isJoined = userMember?.status === 'JOINED';
@@ -472,9 +493,9 @@ export default function GroupDetailPage() {
                     <Alert severity="error" sx={{ mb: 4 }}>{error}</Alert>
                 )}
 
-                <Stack direction="row" flexWrap="wrap" gap={2}>
+                <Stack direction="row" flexWrap="wrap" gap={1.5} alignItems="center">
                     {!user && (
-                        <Button variant="contained" component={Link} href="/">
+                        <Button variant="contained" component={Link} href="/" sx={actionPillSx}>
                             登入後加入揪團
                         </Button>
                     )}
@@ -484,6 +505,7 @@ export default function GroupDetailPage() {
                             variant="contained"
                             onClick={handleJoin}
                             disabled={actionLoading}
+                            sx={actionPillSx}
                         >
                             {actionLoading ? '處理中...' : '加入揪團'}
                         </Button>
@@ -494,6 +516,7 @@ export default function GroupDetailPage() {
                             variant="outlined"
                             onClick={handleWaitlist}
                             disabled={actionLoading}
+                            sx={actionPillSx}
                         >
                             {user.planType === 'PLUS' ? (
                                 actionLoading ? '處理中...' : '加入候補'
@@ -509,13 +532,14 @@ export default function GroupDetailPage() {
                             color="error"
                             onClick={handleLeave}
                             disabled={actionLoading}
+                            sx={actionPillSx}
                         >
                             {actionLoading ? '處理中...' : '退出揪團'}
                         </Button>
                     )}
 
                     {user && isWaitlist && (
-                        <Chip label="您在候補名單中" color="warning" variant="outlined" />
+                        <Chip label="您在候補名單中" color="warning" variant="outlined" sx={statusPillSx} />
                     )}
 
                     {isCreator && group.status !== 'CANCELLED' && (
@@ -524,27 +548,27 @@ export default function GroupDetailPage() {
                             color="error"
                             onClick={() => setShowCancelConfirm(true)}
                             disabled={actionLoading}
+                            sx={actionPillSx}
                         >
                             {actionLoading ? '處理中...' : '取消揪團'}
                         </Button>
                     )}
 
                     {isCreator && group.status === 'CANCELLED' && (
-                        <Chip label="此揪團已取消" color="error" variant="outlined" />
+                        <Chip label="此揪團已取消" color="error" variant="outlined" sx={statusPillSx} />
                     )}
 
                     {isCreator && group.status !== 'CANCELLED' && (
-                        <Chip label="您是揪團發起人" color="primary" variant="outlined" />
+                        <Chip label="您是揪團發起人" color="primary" variant="outlined" sx={statusPillSx} />
                     )}
 
                     {user && (
                         <Button
                             variant="outlined"
                             color="inherit"
-                            size="small"
                             startIcon={<Flag />}
                             onClick={() => { setReportRulesAccepted(false); setShowReportRules(true); }}
-                            sx={{ color: 'text.secondary', borderColor: 'divider' }}
+                            sx={{ ...actionPillSx, color: 'text.secondary', borderColor: 'divider' }}
                         >
                             檢舉
                         </Button>
