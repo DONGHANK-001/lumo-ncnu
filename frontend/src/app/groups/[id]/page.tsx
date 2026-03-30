@@ -537,7 +537,7 @@ export default function GroupDetailPage() {
                         <Chip label="您是揪團發起人" color="primary" variant="outlined" />
                     )}
 
-                    {user && !isCreator && (
+                    {user && (
                         <Button
                             variant="outlined"
                             color="inherit"
@@ -839,9 +839,15 @@ export default function GroupDetailPage() {
                         variant="contained"
                         disabled={!reportRulesAccepted}
                         onClick={() => {
+                            const firstReportableMemberId = joinedMembers.find((m) => m.user.id !== user?.id)?.user.id || '';
                             setShowReportRules(false);
-                            setReportTarget('GROUP');
-                            setReportTargetUserId('');
+                            if (isCreator) {
+                                setReportTarget('USER');
+                                setReportTargetUserId(firstReportableMemberId);
+                            } else {
+                                setReportTarget('GROUP');
+                                setReportTargetUserId('');
+                            }
                             setReportReason('');
                             setReportDetails('');
                             setShowReportForm(true);
@@ -872,13 +878,16 @@ export default function GroupDetailPage() {
                                 }
                             }}
                         >
-                            <MenuItem value="__GROUP__">整個揪團</MenuItem>
+                            {!isCreator && <MenuItem value="__GROUP__">整個揪團</MenuItem>}
                             {joinedMembers.filter(m => m.user.id !== user?.id).map(m => (
                                 <MenuItem key={m.user.id} value={m.user.id}>
                                     {m.user.nickname || m.user.email.split('@')[0]}
                                     {m.user.id === group?.createdBy.id ? ' (發起人)' : ''}
                                 </MenuItem>
                             ))}
+                            {joinedMembers.filter(m => m.user.id !== user?.id).length === 0 && (
+                                <MenuItem value="" disabled>目前無可檢舉對象</MenuItem>
+                            )}
                         </TextField>
                         <TextField
                             label="檢舉原因"
@@ -907,11 +916,24 @@ export default function GroupDetailPage() {
                     <Button
                         variant="contained"
                         color="error"
-                        disabled={!reportReason || reportLoading}
+                        disabled={!reportReason || reportLoading || (reportTarget === 'USER' && !reportTargetUserId)}
                         onClick={async () => {
                             setReportLoading(true);
                             const token = await getToken();
-                            if (!token) return;
+                            if (!token) {
+                                setReportLoading(false);
+                                return;
+                            }
+                            if (isCreator && reportTarget === 'GROUP') {
+                                setSnackbarMessage('發起人請選擇成員作為檢舉對象');
+                                setReportLoading(false);
+                                return;
+                            }
+                            if (reportTarget === 'USER' && !reportTargetUserId) {
+                                setSnackbarMessage('請先選擇檢舉對象');
+                                setReportLoading(false);
+                                return;
+                            }
                             const targetId = reportTarget === 'GROUP' ? group!.id : reportTargetUserId;
                             const res = await api.createReport(token, {
                                 targetType: reportTarget,
