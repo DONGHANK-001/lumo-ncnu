@@ -47,6 +47,7 @@ import {
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
+import { usePwaInstallPrompt } from '@/hooks/usePwaInstallPrompt';
 import { useWakeupBackend } from '@/hooks/useWakeupBackend';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
 import { useState, useEffect } from 'react';
@@ -56,6 +57,7 @@ import OnboardingDialog from './components/OnboardingDialog';
 import { DISCLAIMER_TEXT } from './components/OnboardingDialog';
 import DepartmentUpdateDialog, { DEPARTMENT_VERSION } from './components/DepartmentUpdateDialog';
 import IdentityUpdateDialog from './components/IdentityUpdateDialog';
+import PwaInstallDialog from './components/PwaInstallDialog';
 import { useNotifications } from '@/hooks/useNotifications';
 import { SPORT_NAMES, DEPARTMENTS } from '@/lib/constants';
 
@@ -81,9 +83,7 @@ export default function LandingPage() {
     // 註冊 Service Worker (PWA)
     useServiceWorker();
 
-    // PWA Install Prompt State
-    const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+    const installPrompt = usePwaInstallPrompt();
 
     // Live Feed State
     const [liveFeed, setLiveFeed] = useState<{ message: string; open: boolean }>({ message: '', open: false });
@@ -162,25 +162,6 @@ export default function LandingPage() {
             setShowError(true);
         }
     }, [error]);
-
-    useEffect(() => {
-        const handler = (e: Event) => {
-            e.preventDefault();
-            setDeferredPrompt(e);
-            setShowInstallPrompt(true);
-        };
-        window.addEventListener('beforeinstallprompt', handler);
-        return () => window.removeEventListener('beforeinstallprompt', handler);
-    }, []);
-
-    const handleInstall = async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            await deferredPrompt.userChoice;
-            setDeferredPrompt(null);
-            setShowInstallPrompt(false);
-        }
-    };
 
     // Fetch Last Month's Top 3 Departments
     const [lastMonthTopDepts, setLastMonthTopDepts] = useState<any[]>([]);
@@ -548,21 +529,12 @@ export default function LandingPage() {
                 </Grid>
             </Container>
 
-            {/* Install Prompt Snackbar */}
-            <Snackbar
-                open={showInstallPrompt}
-                message="安裝 Lumo NCNU 到主畫面"
-                action={
-                    <>
-                        <Button color="inherit" size="small" onClick={() => setShowInstallPrompt(false)}>
-                            稍後
-                        </Button>
-                        <Button color="primary" size="small" onClick={handleInstall}>
-                            安裝
-                        </Button>
-                    </>
-                }
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            <PwaInstallDialog
+                open={installPrompt.open && !showOnboarding && !showIdentityUpdate && !showDeptUpdate && !termsOpen}
+                platform={installPrompt.platform}
+                canInstall={installPrompt.canInstall}
+                onClose={installPrompt.dismiss}
+                onInstall={installPrompt.install}
             />
 
             {/* Error Snackbar */}
