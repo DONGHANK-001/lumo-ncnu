@@ -8,6 +8,7 @@ import { getPioneerTitle, getUserTitles } from '../utils/pioneer-titles.js';
 import { isTrialPeriod } from '../utils/trial-period.js';
 
 const router = Router();
+const PROFILE_GROUP_HISTORY_LIMIT = 3;
 
 // 所有路由都需要認證
 
@@ -330,8 +331,6 @@ router.get('/me/stats', firebaseAuthMiddleware, async (req: Request, res: Respon
 router.get('/me/groups', firebaseAuthMiddleware, async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const type = (req.query.type as string) || 'all';
-    const page = Math.max(1, Number(req.query.page) || 1);
-    const pageSize = 10;
 
     const where: Prisma.GroupWhereInput = type === 'hosted'
         ? { createdById: userId }
@@ -339,30 +338,26 @@ router.get('/me/groups', firebaseAuthMiddleware, async (req: Request, res: Respo
         ? { members: { some: { userId, status: 'JOINED' } } }
         : { OR: [{ createdById: userId }, { members: { some: { userId, status: 'JOINED' } } }] };
 
-    const [items, total] = await Promise.all([
-        prisma.group.findMany({
-            where,
-            orderBy: { time: 'desc' },
-            skip: (page - 1) * pageSize,
-            take: pageSize,
-            select: {
-                id: true,
-                sportType: true,
-                title: true,
-                time: true,
-                location: true,
-                status: true,
-                currentCount: true,
-                capacity: true,
-                createdById: true,
-            },
-        }),
-        prisma.group.count({ where }),
-    ]);
+    const items = await prisma.group.findMany({
+        where,
+        orderBy: { time: 'desc' },
+        take: PROFILE_GROUP_HISTORY_LIMIT,
+        select: {
+            id: true,
+            sportType: true,
+            title: true,
+            time: true,
+            location: true,
+            status: true,
+            currentCount: true,
+            capacity: true,
+            createdById: true,
+        },
+    });
 
     res.json({
         success: true,
-        data: { items, total, page, hasMore: page * pageSize < total },
+        data: { items, total: items.length, page: 1, hasMore: false },
     });
 });
 

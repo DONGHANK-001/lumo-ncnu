@@ -44,12 +44,12 @@ router.get(
             pageSize: number;
         };
 
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
 
         const where: Prisma.GroupWhereInput = {
             OR: [
-                { status: { in: ['OPEN', 'FULL'] } },
-                { status: 'COMPLETED', time: { gte: sevenDaysAgo } },
+                { status: { in: ['OPEN', 'FULL'] }, time: { gte: threeDaysAgo } },
+                { status: 'COMPLETED', time: { gte: threeDaysAgo } },
             ],
             ...(sportType && { sportType: sportType as Prisma.EnumSportTypeFilter }),
             ...(level && { level: level as Prisma.EnumSkillLevelFilter }),

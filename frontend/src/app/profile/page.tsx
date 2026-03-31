@@ -43,6 +43,8 @@ const SPORT_OPTIONS = Object.entries(SPORT_NAMES)
     .filter(([key]) => !['NIGHT_WALK', 'DINING', 'STUDY'].includes(key))
     .map(([value, label]) => ({ value, label: `${SPORT_EMOJIS[value] || ''} ${label}` }));
 
+const PROFILE_GROUP_HISTORY_LIMIT = 3;
+
 export default function ProfilePage() {
     const router = useRouter();
     const { user, loading, signIn, signOut, getToken, refreshUser } = useAuth();
@@ -102,8 +104,6 @@ export default function ProfilePage() {
     // Group History
     const [groupHistory, setGroupHistory] = useState<any[]>([]);
     const [groupHistoryTab, setGroupHistoryTab] = useState<'all' | 'hosted' | 'joined'>('all');
-    const [groupHistoryPage, setGroupHistoryPage] = useState(1);
-    const [groupHistoryHasMore, setGroupHistoryHasMore] = useState(false);
     const [groupHistoryLoading, setGroupHistoryLoading] = useState(false);
 
     useEffect(() => {
@@ -131,22 +131,20 @@ export default function ProfilePage() {
     }, [user]);
 
     // Fetch group history
-    const fetchGroupHistory = async (tab: string, page: number, append = false) => {
+    const fetchGroupHistory = async (tab: string) => {
         setGroupHistoryLoading(true);
         const token = await getToken();
         if (!token) { setGroupHistoryLoading(false); return; }
-        const res = await api.getMyGroups(token, tab === 'all' ? undefined : tab, page);
+        const res = await api.getMyGroups(token, tab === 'all' ? undefined : tab);
         if (res.success && res.data) {
-            setGroupHistory(prev => append ? [...prev, ...res.data!.items] : res.data!.items);
-            setGroupHistoryHasMore(res.data.hasMore);
+            setGroupHistory(res.data.items.slice(0, PROFILE_GROUP_HISTORY_LIMIT));
         }
         setGroupHistoryLoading(false);
     };
 
     useEffect(() => {
         if (user) {
-            setGroupHistoryPage(1);
-            fetchGroupHistory(groupHistoryTab, 1);
+            fetchGroupHistory(groupHistoryTab);
         }
     }, [user, groupHistoryTab]);
 
@@ -483,6 +481,9 @@ export default function ProfilePage() {
                         {/* Group History Section */}
                         <Paper sx={{ p: 4, borderRadius: 4 }}>
                             <Typography variant="h6" fontWeight="bold" mb={2}>📋 揪團紀錄</Typography>
+                            <Typography variant="body2" color="text.secondary" mb={3}>
+                                目前僅顯示最近 {PROFILE_GROUP_HISTORY_LIMIT} 筆紀錄，其餘保留於管理員後台。
+                            </Typography>
                             <Stack direction="row" spacing={1} mb={3}>
                                 {([['all', '全部'], ['hosted', '我發起的'], ['joined', '我參加的']] as const).map(([value, label]) => (
                                     <Chip
@@ -544,21 +545,6 @@ export default function ProfilePage() {
                                             </Stack>
                                         </Paper>
                                     ))}
-
-                                    {groupHistoryHasMore && (
-                                        <Button
-                                            variant="text"
-                                            onClick={() => {
-                                                const nextPage = groupHistoryPage + 1;
-                                                setGroupHistoryPage(nextPage);
-                                                fetchGroupHistory(groupHistoryTab, nextPage, true);
-                                            }}
-                                            disabled={groupHistoryLoading}
-                                            sx={{ color: 'text.secondary' }}
-                                        >
-                                            {groupHistoryLoading ? '載入中...' : '載入更多'}
-                                        </Button>
-                                    )}
                                 </Stack>
                             )}
                         </Paper>
