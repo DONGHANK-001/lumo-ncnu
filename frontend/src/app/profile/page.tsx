@@ -68,6 +68,44 @@ const SOCIAL_PREFERENCE_OPTIONS = [
     { value: 'OUTGOING', label: '主動聊天型' },
 ] as const;
 
+const PREFERENCE_OPTION_GRID_SX = {
+    display: 'grid',
+    gap: 1.25,
+    gridTemplateColumns: {
+        xs: 'repeat(2, minmax(0, 1fr))',
+        sm: 'repeat(3, minmax(0, 1fr))',
+        lg: 'repeat(4, minmax(0, 1fr))',
+    },
+    alignItems: 'stretch',
+} as const;
+
+const PREFERENCE_CHIP_SX = {
+    width: '100%',
+    height: 44,
+    borderRadius: 999,
+    justifyContent: 'center',
+    '& .MuiChip-label': {
+        width: '100%',
+        px: 1.5,
+        textAlign: 'center',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        fontWeight: 600,
+    },
+} as const;
+
+const BADGE_GRID_SX = {
+    display: 'grid',
+    gap: 2,
+    gridTemplateColumns: {
+        xs: 'repeat(2, minmax(0, 1fr))',
+        sm: 'repeat(3, minmax(0, 1fr))',
+        lg: 'repeat(4, minmax(0, 1fr))',
+    },
+    alignItems: 'stretch',
+} as const;
+
 export default function ProfilePage() {
     const router = useRouter();
     const { user, loading, signIn, signOut, getToken, refreshUser } = useAuth();
@@ -601,7 +639,7 @@ export default function ProfilePage() {
                             <Stack spacing={4}>
                                 <Box>
                                     <Typography variant="subtitle2" gutterBottom>喜好運動</Typography>
-                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                    <Box sx={PREFERENCE_OPTION_GRID_SX}>
                                         {SPORT_OPTIONS.map((sport) => (
                                             <Chip
                                                 key={sport.value}
@@ -610,14 +648,15 @@ export default function ProfilePage() {
                                                 onClick={() => setForm({ ...form, sports: toggleArrayItem(form.sports, sport.value) })}
                                                 color={form.sports.includes(sport.value) ? 'primary' : 'default'}
                                                 variant={form.sports.includes(sport.value) ? 'filled' : 'outlined'}
+                                                sx={PREFERENCE_CHIP_SX}
                                             />
                                         ))}
-                                    </Stack>
+                                    </Box>
                                 </Box>
 
                                 <Box>
                                     <Typography variant="subtitle2" gutterBottom>喜好社交</Typography>
-                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                    <Box sx={PREFERENCE_OPTION_GRID_SX}>
                                         {SOCIAL_PREFERENCE_OPTIONS.map((option) => (
                                             <Chip
                                                 key={option.value}
@@ -626,14 +665,15 @@ export default function ProfilePage() {
                                                 onClick={() => setForm({ ...form, socialPreference: option.value })}
                                                 color={form.socialPreference === option.value ? 'primary' : 'default'}
                                                 variant={form.socialPreference === option.value ? 'filled' : 'outlined'}
+                                                sx={PREFERENCE_CHIP_SX}
                                             />
                                         ))}
-                                    </Stack>
+                                    </Box>
                                 </Box>
 
                                 <Box>
                                     <Typography variant="subtitle2" gutterBottom>程度</Typography>
-                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                    <Box sx={PREFERENCE_OPTION_GRID_SX}>
                                         {LEVEL_OPTIONS.map((level) => (
                                             <Chip
                                                 key={level.value}
@@ -642,14 +682,15 @@ export default function ProfilePage() {
                                                 onClick={() => setForm({ ...form, skillLevel: level.value })}
                                                 color={form.skillLevel === level.value ? 'primary' : 'default'}
                                                 variant={form.skillLevel === level.value ? 'filled' : 'outlined'}
+                                                sx={PREFERENCE_CHIP_SX}
                                             />
                                         ))}
-                                    </Stack>
+                                    </Box>
                                 </Box>
 
                                 <Box>
                                     <Typography variant="subtitle2" gutterBottom>可運動時段</Typography>
-                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                    <Box sx={PREFERENCE_OPTION_GRID_SX}>
                                         {TIME_OPTIONS.map((time) => (
                                             <Chip
                                                 key={time}
@@ -658,14 +699,15 @@ export default function ProfilePage() {
                                                 onClick={() => setForm({ ...form, availableTimes: toggleArrayItem(form.availableTimes, time) })}
                                                 color={form.availableTimes.includes(time) ? 'primary' : 'default'}
                                                 variant={form.availableTimes.includes(time) ? 'filled' : 'outlined'}
+                                                sx={PREFERENCE_CHIP_SX}
                                             />
                                         ))}
-                                    </Stack>
+                                    </Box>
                                 </Box>
 
                                 <Box>
                                     <Typography variant="subtitle2" gutterBottom>常去地點</Typography>
-                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                    <Box sx={PREFERENCE_OPTION_GRID_SX}>
                                         {PROFILE_LOCATION_OPTIONS.map((loc) => (
                                             <Chip
                                                 key={loc}
@@ -674,9 +716,10 @@ export default function ProfilePage() {
                                                 onClick={() => setForm({ ...form, usualLocations: toggleArrayItem(form.usualLocations, loc) })}
                                                 color={form.usualLocations.includes(loc) ? 'primary' : 'default'}
                                                 variant={form.usualLocations.includes(loc) ? 'filled' : 'outlined'}
+                                                sx={PREFERENCE_CHIP_SX}
                                             />
                                         ))}
-                                    </Stack>
+                                    </Box>
                                 </Box>
                             </Stack>
                         </Paper>
@@ -694,32 +737,61 @@ export default function ProfilePage() {
                         {/* Badges Section */}
                         <Paper sx={{ p: 3, borderRadius: 4 }}>
                             <Typography variant="h6" fontWeight="bold" mb={2}>🏅 成就勳章</Typography>
-                            <Stack direction="row" flexWrap="wrap" gap={2}>
+                            <Box sx={BADGE_GRID_SX}>
                                 {allBadges.map(badge => {
                                     const unlocked = myBadges.some(mb => mb.code === badge.code);
                                     return (
                                         <Box key={badge.code} sx={{
                                             textAlign: 'center',
-                                            p: 2,
+                                            p: { xs: 2, sm: 2.5 },
                                             borderRadius: 3,
                                             bgcolor: unlocked ? 'action.hover' : 'transparent',
                                             opacity: unlocked ? 1 : 0.4,
                                             border: '1px solid',
                                             borderColor: unlocked ? 'primary.main' : 'divider',
-                                            minWidth: 90,
+                                            minHeight: { xs: 176, sm: 188 },
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'flex-start',
+                                            gap: 1,
                                             transition: 'all 0.3s',
                                         }}>
-                                            <Typography variant="h4">{badge.icon}</Typography>
-                                            <Typography variant="caption" fontWeight="bold" display="block">
+                                            <Typography variant="h4" sx={{ lineHeight: 1.1, mt: 0.5 }}>{badge.icon}</Typography>
+                                            <Typography
+                                                variant="caption"
+                                                fontWeight="bold"
+                                                display="flex"
+                                                alignItems="center"
+                                                justifyContent="center"
+                                                sx={{
+                                                    minHeight: 36,
+                                                    fontSize: '0.85rem',
+                                                    lineHeight: 1.35,
+                                                    textAlign: 'center',
+                                                }}
+                                            >
                                                 {badge.name}
                                             </Typography>
-                                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                                            <Typography
+                                                variant="caption"
+                                                color="text.secondary"
+                                                sx={{
+                                                    fontSize: '0.72rem',
+                                                    lineHeight: 1.5,
+                                                    textAlign: 'center',
+                                                    display: '-webkit-box',
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: 'vertical',
+                                                    overflow: 'hidden',
+                                                }}
+                                            >
                                                 {badge.description}
                                             </Typography>
                                         </Box>
                                     );
                                 })}
-                            </Stack>
+                            </Box>
                         </Paper>
                     </Stack>
                 </Grid>
