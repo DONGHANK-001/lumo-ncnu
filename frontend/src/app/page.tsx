@@ -42,7 +42,13 @@ import {
     NightsStay,
     Restaurant,
     Notifications as NotificationsIcon,
-    MenuBook
+    MenuBook,
+    ChevronLeft,
+    ChevronRight,
+    Event,
+    LocationOn,
+    People,
+    ArrowForward
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
@@ -50,7 +56,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePwaInstallPrompt } from '@/hooks/usePwaInstallPrompt';
 import { useWakeupBackend } from '@/hooks/useWakeupBackend';
 import { useServiceWorker } from '@/hooks/useServiceWorker';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useThemeMode } from '@/theme/ThemeModeContext';
 import { getSocket, joinRoom, leaveRoom } from '@/lib/socket';
 import OnboardingDialog from './components/OnboardingDialog';
@@ -71,6 +77,49 @@ const SPORTS = [
     { type: 'TENNIS', icon: <SportsTennis fontSize="large" />, name: '網球' },
 ];
 
+interface LatestGroup {
+    id: string;
+    sportType: string;
+    title: string;
+    description?: string | null;
+    time: string;
+    location: string;
+    capacity: number;
+    currentCount: number;
+    status: string;
+    createdAt?: string;
+    createdBy: {
+        nickname: string | null;
+        email: string;
+        planType?: string;
+    };
+}
+
+const LATEST_GROUP_LIMIT = 8;
+const LATEST_GROUP_FETCH_SIZE = 50;
+
+function sortLatestGroups(groups: LatestGroup[]) {
+    return [...groups].sort((a, b) => {
+        const aTime = new Date(a.createdAt || a.time).getTime();
+        const bTime = new Date(b.createdAt || b.time).getTime();
+        return bTime - aTime;
+    });
+}
+
+function normalizeLatestGroups(groups: LatestGroup[]) {
+    return sortLatestGroups(groups).slice(0, LATEST_GROUP_LIMIT);
+}
+
+function formatLatestGroupTime(time: string) {
+    return new Date(time).toLocaleString('zh-TW', {
+        month: 'short',
+        day: 'numeric',
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+}
+
 export default function LandingPage() {
     const theme = useTheme();
     const { user, loading, error, signIn, getToken, refreshUser } = useAuth();
@@ -87,6 +136,9 @@ export default function LandingPage() {
 
     // Live Feed State
     const [liveFeed, setLiveFeed] = useState<{ message: string; open: boolean }>({ message: '', open: false });
+    const [latestGroups, setLatestGroups] = useState<LatestGroup[]>([]);
+    const [latestGroupsLoading, setLatestGroupsLoading] = useState(true);
+    const latestGroupsRef = useRef<HTMLDivElement | null>(null);
 
     // Onboarding Dialog
     const [showOnboarding, setShowOnboarding] = useState(false);
@@ -122,8 +174,32 @@ export default function LandingPage() {
             localStorage.setItem('lumo_dept_version', String(DEPARTMENT_VERSION));
         }
     }, [user]);
+    useEffect(() => {
+        const fetchLatestGroups = async () => {
+            setLatestGroupsLoading(true);
+            const response = await api.getGroups({
+                page: '1',
+                pageSize: String(LATEST_GROUP_FETCH_SIZE),
+                dateFrom: new Date().toISOString(),
+            });
 
+            if (response.success && response.data) {
+                setLatestGroups(normalizeLatestGroups(response.data.items as LatestGroup[]));
+            }
 
+            setLatestGroupsLoading(false);
+        };
+
+        fetchLatestGroups();
+    }, []);
+
+    const scrollLatestGroups = (direction: 1 | -1) => {
+        if (!latestGroupsRef.current) return;
+        latestGroupsRef.current.scrollBy({
+            left: direction * latestGroupsRef.current.clientWidth * 0.85,
+            behavior: 'smooth',
+        });
+    };
 
     useEffect(() => {
         const socket = getSocket();
@@ -154,6 +230,41 @@ export default function LandingPage() {
             socket.off('group_created', handleGroupCreated);
             socket.off('group_updated', handleGroupUpdated);
             leaveRoom('groups');
+        };
+    }, []);
+
+    useEffect(() => {
+        const socket = getSocket();
+
+        const handleLatestGroupCreated = (group: LatestGroup) => {
+            setLatestGroups((prev) =>
+                normalizeLatestGroups([
+                    group,
+                    ...prev.filter((item) => item.id !== group.id),
+                ])
+            );
+        };
+
+        const handleLatestGroupUpdated = (group: Partial<LatestGroup> & { id: string }) => {
+            setLatestGroups((prev) =>
+                prev.map((item) =>
+                    item.id === group.id
+                        ? {
+                            ...item,
+                            currentCount: group.currentCount ?? item.currentCount,
+                            status: group.status ?? item.status,
+                        }
+                        : item
+                )
+            );
+        };
+
+        socket.on('group_created', handleLatestGroupCreated);
+        socket.on('group_updated', handleLatestGroupUpdated);
+
+        return () => {
+            socket.off('group_created', handleLatestGroupCreated);
+            socket.off('group_updated', handleLatestGroupUpdated);
         };
     }, []);
 
@@ -346,6 +457,281 @@ export default function LandingPage() {
                         )}
                     </CardContent>
                 </Card>
+            </Container>
+
+            {/* Latest Groups */}
+            <Container maxWidth="lg" sx={{ mb: 8 }}>
+                <Paper
+                    elevation={0}
+                    sx={{
+                        p: { xs: 2.5, md: 3 },
+                        borderRadius: 5,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        background: theme.palette.mode === 'dark'
+                            ? 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)'
+                            : 'linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(245,243,255,0.92) 100%)',
+                        backdropFilter: 'blur(10px)',
+                    }}
+                >
+                    <Stack
+                        direction={{ xs: 'column', md: 'row' }}
+                        justifyContent="space-between"
+                        alignItems={{ xs: 'flex-start', md: 'center' }}
+                        spacing={2}
+                        mb={3}
+                    >
+                        <Box>
+                            <Typography variant="h5" fontWeight="bold" gutterBottom>
+                                最新活動
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                左右滑動看看最近剛發布的揪團，找到順眼的就直接加入。
+                            </Typography>
+                        </Box>
+
+                        <Stack direction="row" spacing={1.5} alignItems="center">
+                            <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
+                                <IconButton
+                                    onClick={() => scrollLatestGroups(-1)}
+                                    sx={{ border: '1px solid', borderColor: 'divider' }}
+                                    aria-label="向左查看最新活動"
+                                >
+                                    <ChevronLeft />
+                                </IconButton>
+                                <IconButton
+                                    onClick={() => scrollLatestGroups(1)}
+                                    sx={{ border: '1px solid', borderColor: 'divider' }}
+                                    aria-label="向右查看最新活動"
+                                >
+                                    <ChevronRight />
+                                </IconButton>
+                            </Stack>
+                            <Button
+                                component={Link}
+                                href="/groups"
+                                endIcon={<ArrowForward />}
+                                variant="outlined"
+                                sx={{ borderRadius: 999 }}
+                            >
+                                查看全部
+                            </Button>
+                        </Stack>
+                    </Stack>
+
+                    {latestGroupsLoading ? (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                gap: 2,
+                                overflowX: 'auto',
+                                pb: 1,
+                            }}
+                        >
+                            {[...Array(3)].map((_, index) => (
+                                <Card
+                                    key={index}
+                                    sx={{
+                                        minWidth: { xs: '78vw', sm: 320, md: 340 },
+                                        borderRadius: 4,
+                                        flex: '0 0 auto',
+                                    }}
+                                >
+                                    <CardContent>
+                                        <Stack spacing={1.5}>
+                                            <Stack direction="row" justifyContent="space-between">
+                                                <Skeleton variant="rounded" width={82} height={26} />
+                                                <Skeleton variant="rounded" width={72} height={26} />
+                                            </Stack>
+                                            <Skeleton variant="text" width="88%" height={36} />
+                                            <Skeleton variant="text" width="100%" height={20} />
+                                            <Skeleton variant="text" width="72%" height={20} />
+                                            <Skeleton variant="text" width="90%" height={20} />
+                                        </Stack>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </Box>
+                    ) : latestGroups.length === 0 ? (
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 4,
+                                borderRadius: 4,
+                                textAlign: 'center',
+                                bgcolor: 'background.default',
+                            }}
+                        >
+                            <Typography variant="h6" fontWeight="bold" gutterBottom>
+                                目前還沒有新的活動
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" mb={3}>
+                                先去逛逛全部揪團，或成為第一個開團的人。
+                            </Typography>
+                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center">
+                                <Button component={Link} href="/groups" variant="contained">
+                                    瀏覽揪團
+                                </Button>
+                                {user && (
+                                    <Button component={Link} href="/create" variant="outlined">
+                                        發起揪團
+                                    </Button>
+                                )}
+                            </Stack>
+                        </Paper>
+                    ) : (
+                        <>
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{ display: { xs: 'block', md: 'none' }, mb: 1.5 }}
+                            >
+                                左右滑動查看更多活動
+                            </Typography>
+                            <Box
+                                ref={latestGroupsRef}
+                                sx={{
+                                    display: 'flex',
+                                    gap: 2,
+                                    overflowX: 'auto',
+                                    scrollSnapType: 'x mandatory',
+                                    pb: 1,
+                                    px: { xs: 0.5, md: 0 },
+                                    scrollBehavior: 'smooth',
+                                    scrollbarWidth: 'thin',
+                                    '&::-webkit-scrollbar': {
+                                        height: 8,
+                                    },
+                                    '&::-webkit-scrollbar-thumb': {
+                                        borderRadius: 999,
+                                        backgroundColor: theme.palette.action.selected,
+                                    },
+                                }}
+                            >
+                                {latestGroups.map((group) => {
+                                    const remainingSpots = Math.max(group.capacity - group.currentCount, 0);
+                                    const organizerName = group.createdBy.nickname || group.createdBy.email.split('@')[0];
+
+                                    return (
+                                        <Card
+                                            key={group.id}
+                                            component={Link}
+                                            href={`/groups/${group.id}`}
+                                            sx={{
+                                                minWidth: { xs: '78vw', sm: 320, md: 340 },
+                                                maxWidth: { xs: '78vw', sm: 340, md: 360 },
+                                                flex: '0 0 auto',
+                                                scrollSnapAlign: 'start',
+                                                textDecoration: 'none',
+                                                color: 'inherit',
+                                                borderRadius: 4,
+                                                border: '1px solid',
+                                                borderColor: 'divider',
+                                                background: theme.palette.mode === 'dark'
+                                                    ? 'linear-gradient(180deg, rgba(27,22,46,0.96) 0%, rgba(39,31,63,0.98) 100%)'
+                                                    : 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(243,238,255,0.98) 100%)',
+                                                transition: 'transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease',
+                                                '&:hover': {
+                                                    transform: 'translateY(-4px)',
+                                                    boxShadow: 8,
+                                                    borderColor: 'primary.main',
+                                                },
+                                            }}
+                                        >
+                                            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 2.5 }}>
+                                                <Stack direction="row" justifyContent="space-between" spacing={1} mb={2} alignItems="flex-start">
+                                                    <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                                                        <Chip
+                                                            label={SPORT_NAMES[group.sportType] || group.sportType}
+                                                            size="small"
+                                                            color="primary"
+                                                        />
+                                                        {group.createdBy.planType === 'PLUS' && (
+                                                            <Chip
+                                                                label="PLUS 主揪"
+                                                                size="small"
+                                                                sx={{
+                                                                    background: 'linear-gradient(135deg, #FFD36E 0%, #F5A623 100%)',
+                                                                    color: '#201100',
+                                                                    fontWeight: 700,
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </Stack>
+                                                    <Chip
+                                                        label={group.status === 'FULL' ? '已額滿' : `剩 ${remainingSpots} 位`}
+                                                        size="small"
+                                                        color={group.status === 'FULL' ? 'default' : 'success'}
+                                                        variant="outlined"
+                                                    />
+                                                </Stack>
+
+                                                <Typography
+                                                    variant="h6"
+                                                    fontWeight="bold"
+                                                    sx={{
+                                                        mb: 1,
+                                                        minHeight: 64,
+                                                        display: '-webkit-box',
+                                                        WebkitLineClamp: 2,
+                                                        WebkitBoxOrient: 'vertical',
+                                                        overflow: 'hidden',
+                                                    }}
+                                                >
+                                                    {group.title}
+                                                </Typography>
+
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        mb: 2.5,
+                                                        minHeight: 42,
+                                                        display: '-webkit-box',
+                                                        WebkitLineClamp: 2,
+                                                        WebkitBoxOrient: 'vertical',
+                                                        overflow: 'hidden',
+                                                    }}
+                                                >
+                                                    {group.description?.trim() || '剛發布的新活動，點進去看看有沒有適合你的時間和地點。'}
+                                                </Typography>
+
+                                                <Stack spacing={1.25} sx={{ mt: 'auto' }}>
+                                                    <Stack direction="row" spacing={1} alignItems="center">
+                                                        <Event fontSize="small" color="action" />
+                                                        <Typography variant="body2">{formatLatestGroupTime(group.time)}</Typography>
+                                                    </Stack>
+                                                    <Stack direction="row" spacing={1} alignItems="center">
+                                                        <LocationOn fontSize="small" color="action" />
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis',
+                                                                whiteSpace: 'nowrap',
+                                                            }}
+                                                        >
+                                                            {group.location}
+                                                        </Typography>
+                                                    </Stack>
+                                                    <Stack direction="row" spacing={1} alignItems="center">
+                                                        <People fontSize="small" color="action" />
+                                                        <Typography variant="body2">
+                                                            {group.currentCount}/{group.capacity} 人
+                                                        </Typography>
+                                                        <Typography variant="caption" color="text.secondary">
+                                                            主揪：{organizerName}
+                                                        </Typography>
+                                                    </Stack>
+                                                </Stack>
+                                            </CardContent>
+                                        </Card>
+                                    );
+                                })}
+                            </Box>
+                        </>
+                    )}
+                </Paper>
             </Container>
 
             {/* Instagram & Sports Icons */}
