@@ -68,6 +68,7 @@ export async function firebaseAuthMiddleware(
         }
 
         req.firebaseUser = decodedToken;
+        const googleAvatarUrl = decodedToken.picture || null;
 
         // 取得或建立 DB User
         let user = await prisma.user.findUnique({
@@ -80,7 +81,13 @@ export async function firebaseAuthMiddleware(
                     firebaseUid: decodedToken.uid,
                     email: email,
                     nickname: decodedToken.name || email.split('@')[0],
+                    avatarUrl: googleAvatarUrl,
                 },
+            });
+        } else if (user.avatarUrl !== googleAvatarUrl) {
+            user = await prisma.user.update({
+                where: { id: user.id },
+                data: { avatarUrl: googleAvatarUrl },
             });
         }
 

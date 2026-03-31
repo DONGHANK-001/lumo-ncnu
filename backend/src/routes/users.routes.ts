@@ -6,10 +6,6 @@ import { isTrialPeriod } from '../utils/trial-period.js';
 
 const router = Router();
 
-/**
- * GET /users/:id
- * 取得指定使用者的公開個人檔案
- */
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = req.params.id;
@@ -29,8 +25,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
                 attendedCount: true,
                 noShowCount: true,
                 createdAt: true,
-                // Do not select sensitive data like email, firebaseUid, studentId, realName
-            }
+            },
         });
 
         if (!user) {
@@ -46,38 +41,29 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
                 ...user,
                 planType: isTrialPeriod() ? 'PLUS' : user.planType,
                 pioneerTitle,
-            }
+            },
         });
     } catch (error) {
         next(error);
     }
 });
 
-/**
- * PUT /users/me/avatar
- * 更新自己的頭像 URL (使用 DiceBear 或其他線上圖片)
- */
 router.put('/me/avatar', firebaseAuthMiddleware, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user!;
-        const { avatarUrl } = req.body;
-
-        if (typeof avatarUrl !== 'string') {
-            res.status(400).json({ success: false, error: { message: '無效的頭像網址' } });
-            return;
-        }
+        const googleAvatarUrl = req.firebaseUser?.picture || null;
 
         const updated = await prisma.user.update({
             where: { id: user.id },
-            data: { avatarUrl },
+            data: { avatarUrl: googleAvatarUrl },
         });
 
         res.json({
             success: true,
             data: {
                 id: updated.id,
-                avatarUrl: updated.avatarUrl
-            }
+                avatarUrl: updated.avatarUrl,
+            },
         });
     } catch (error) {
         next(error);

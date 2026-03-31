@@ -4,30 +4,47 @@ import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 
 const router = Router();
 
-/**
- * GET /match/partners
- * 尋找合適夥伴 (不含自己)
- */
+const SPORT_LABELS: Record<string, string> = {
+    BASKETBALL: '籃球',
+    RUNNING: '跑步',
+    BADMINTON: '羽球',
+    TABLE_TENNIS: '桌球',
+    GYM: '健身',
+    VOLLEYBALL: '排球',
+    TENNIS: '網球',
+    NIGHT_WALK: '夜走',
+    DINING: '吃飯',
+    STUDY: '讀書',
+};
+
+function readArrayPreference(preferences: unknown, key: string): string[] {
+    if (!preferences || typeof preferences !== 'object') {
+        return [];
+    }
+
+    const value = (preferences as Record<string, unknown>)[key];
+    return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+}
+
+function readStringPreference(preferences: unknown, key: string): string | null {
+    if (!preferences || typeof preferences !== 'object') {
+        return null;
+    }
+
+    const value = (preferences as Record<string, unknown>)[key];
+    return typeof value === 'string' ? value : null;
+}
+
 router.get('/partners', firebaseAuthMiddleware, async (req: Request, res: Response) => {
     const user = req.user!;
+    const mySports = readArrayPreference(user.preferences, 'sports');
+    const myLocations = readArrayPreference(user.preferences, 'usualLocations');
+    const myTimes = readArrayPreference(user.preferences, 'availableTimes');
+    const mySocialPreference = readStringPreference(user.preferences, 'socialPreference');
 
-    // 取得當前使用者偏好與設定
-    const mySports = user.preferences && typeof user.preferences === 'object' && Array.isArray((user.preferences as any).sports)
-        ? (user.preferences as any).sports as string[]
-        : [];
-
-    const myLocations = user.preferences && typeof user.preferences === 'object' && Array.isArray((user.preferences as any).usualLocations)
-        ? (user.preferences as any).usualLocations as string[]
-        : [];
-
-    const myTimes = user.preferences && typeof user.preferences === 'object' && Array.isArray((user.preferences as any).availableTimes)
-        ? (user.preferences as any).availableTimes as string[]
-        : [];
-
-    let partnersQuery: any = {
+    const users = await prisma.user.findMany({
         where: {
-            id: { not: user.id }, // 不要配對到自己
-            // 以下條件非常開放，只要有任何一項中就列出（或者在應用層排序）
+            id: { not: user.id },
         },
         select: {
             id: true,
@@ -35,75 +52,72 @@ router.get('/partners', firebaseAuthMiddleware, async (req: Request, res: Respon
             email: true,
             attendedCount: true,
             noShowCount: true,
-            badges: true,     // 目前我們 badges 不在 User 表裡面，不過前端通常只需要信譽
+            badges: true,
             preferences: true,
-            // 如果要更聰明，後勤可以算互通點數
         },
-        take: 30, // 暫定最多拿 30 個活躍的使用者出來推薦
+        take: 30,
         orderBy: {
-            attendedCount: 'desc' // 優先推薦高出席率的
-        }
-    };
+            attendedCount: 'desc',
+        },
+    });
 
-    const users = await prisma.user.findMany(partnersQuery);
-
-    // 我們在 Node 端進行比對計分，比較好處理 JSON 邏輯
-    const scoredUsers = users.map((u) => {
+    const scoredUsers = users.map((candidate) => {
         let score = 0;
         let matchedTags: string[] = [];
 
-        const otherPrefs = u.preferences as any || {};
-        const otherSports = Array.isArray(otherPrefs.sports) ? otherPrefs.sports : [];
-        const otherLocations = Array.isArray(otherPrefs.usualLocations) ? otherPrefs.usualLocations : [];
-        const otherTimes = Array.isArray(otherPrefs.availableTimes) ? otherPrefs.availableTimes : [];
+        const otherSports = readArrayPreference(candidate.preferences, 'sports');
+        const otherLocations = readArrayPreference(candidate.preferences, 'usualLocations');
+        const otherTimes = readArrayPreference(candidate.preferences, 'availableTimes');
+        const otherSocialPreference = readStringPreference(candidate.preferences, 'socialPreference');
 
-        // 比對運動
-        mySports.forEach(s => {
-            if (otherSports.includes(s)) {
+        mySports.forEach((sport) => {
+            if (otherSports.includes(sport)) {
                 score += 3;
-                matchedTags.push(`愛打${s === 'BASKETBALL' ? '籃球' : s === 'BADMINTON' ? '羽球' : s === 'VOLLEYBALL' ? '排球' : s}`);
+                matchedTags.push(`同運動:${SPORT_LABELS[sport] || sport}`);
             }
         });
 
-        // 比對地點
-        myLocations.forEach(loc => {
-            if (otherLocations.includes(loc)) {
+        myLocations.forEach((location) => {
+            if (otherLocations.includes(location)) {
                 score += 2;
-                matchedTags.push(`常去${loc}`);
+                matchedTags.push(`同地點:${location}`);
             }
         });
 
-        // 比對時間
-        myTimes.forEach(t => {
-            if (otherTimes.includes(t)) {
+        myTimes.forEach((time) => {
+            if (otherTimes.includes(time)) {
                 score += 1;
-                matchedTags.push(`${t}活躍`);
+                matchedTags.push(`同時段:${time}`);
             }
         });
 
-        // 取前 3 個標籤就好，避免版面太雜
+        if (mySocialPreference && otherSocialPreference && mySocialPreference === otherSocialPreference) {
+            score += 1;
+            matchedTags.push('社交節奏接近');
+        }
+
         matchedTags = [...new Set(matchedTags)].slice(0, 3);
 
         return {
-            id: u.id,
-            nickname: u.nickname || u.email.split('@')[0],
-            attendedCount: u.attendedCount,
-            noShowCount: u.noShowCount,
+            id: candidate.id,
+            nickname: candidate.nickname || candidate.email.split('@')[0],
+            attendedCount: candidate.attendedCount,
+            noShowCount: candidate.noShowCount,
             matchedTags,
-            score
+            score,
         };
     });
 
-    // 只回傳分數 > 0 的人，並由高到低排序，如果都沒有，回報基礎活躍清單也可以
-    let recommended = scoredUsers.filter(u => u.score > 0).sort((a, b) => b.score - a.score);
+    let recommended = scoredUsers.filter((candidate) => candidate.score > 0).sort((a, b) => b.score - a.score);
     if (recommended.length === 0) {
-        // 退而求其次，顯示最常出席球局的活躍使用者
-        recommended = scoredUsers.sort((a, b) => b.attendedCount - a.attendedCount).slice(0, 10);
+        recommended = scoredUsers
+            .sort((a, b) => b.attendedCount - a.attendedCount)
+            .slice(0, 10);
     }
 
     res.json({
         success: true,
-        data: recommended.slice(0, 15) // 最多呈現 15 位
+        data: recommended.slice(0, 15),
     });
 });
 

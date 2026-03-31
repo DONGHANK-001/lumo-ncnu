@@ -13,6 +13,9 @@ interface UserPreferences {
     skillLevel: string;
     availableTimes: string[];
     usualLocations: string[];
+    bio?: string;
+    hobbies?: string;
+    socialPreference?: 'LOW_KEY' | 'BALANCED' | 'OUTGOING';
 }
 
 interface User {

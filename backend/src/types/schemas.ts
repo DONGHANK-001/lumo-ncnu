@@ -26,6 +26,9 @@ export const userPreferencesSchema = z.object({
     skillLevel: skillLevelSchema,
     availableTimes: z.array(z.string()),
     usualLocations: z.array(z.string()),
+    bio: z.string().max(300).optional(),
+    hobbies: z.string().max(200).optional(),
+    socialPreference: z.enum(['LOW_KEY', 'BALANCED', 'OUTGOING']).optional(),
 });
 
 export const genderSchema = z.enum([

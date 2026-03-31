@@ -75,6 +75,9 @@ export interface UserPreferences {
     skillLevel: SkillLevel;
     availableTimes: string[];
     usualLocations: string[];
+    bio?: string;
+    hobbies?: string;
+    socialPreference?: 'LOW_KEY' | 'BALANCED' | 'OUTGOING';
 }
 
 export interface User {

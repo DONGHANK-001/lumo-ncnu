@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 import { api } from '@/lib/api-client';
-import { useAuth } from '@/hooks/useAuth';
 import {
     Box,
     Container,
@@ -44,9 +42,14 @@ const GENDER_LABELS: Record<string, string> = {
     PREFER_NOT_TO_SAY: 'Prefer not to say',
 };
 
+const SOCIAL_PREFERENCE_LABELS: Record<string, string> = {
+    LOW_KEY: '慢熟輕鬆型',
+    BALANCED: '都可以型',
+    OUTGOING: '主動聊天型',
+};
+
 export default function PublicProfilePage({ params }: { params: { id: string } }) {
     const { id } = params;
-    const { user: currentUser } = useAuth();
 
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -93,6 +96,10 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
 
     const sports = profile.preferences?.sports || [];
     const skillLevel = profile.preferences?.skillLevel || 'ANY';
+    const usualLocations = profile.preferences?.usualLocations || [];
+    const socialPreference = profile.preferences?.socialPreference || null;
+    const bio = profile.preferences?.bio || '';
+    const hobbies = profile.preferences?.hobbies || '';
 
     return (
         <Container maxWidth="sm" sx={{ py: 4, pb: 10 }}>
@@ -206,6 +213,23 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                     </Typography>
 
                     <Typography variant="body2" color="text.secondary" gutterBottom>喜好的運動項目</Typography>
+                    {(bio || hobbies) && (
+                        <Box sx={{ mb: 2.5 }}>
+                            {bio && (
+                                <Box sx={{ mb: hobbies ? 1.5 : 0 }}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>個人簡介</Typography>
+                                    <Typography variant="body2">{bio}</Typography>
+                                </Box>
+                            )}
+                            {hobbies && (
+                                <Box>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>嗜好</Typography>
+                                    <Typography variant="body2">{hobbies}</Typography>
+                                </Box>
+                            )}
+                        </Box>
+                    )}
+
                     {sports.length > 0 ? (
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                             {sports.map((s: string) => (
@@ -219,7 +243,28 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                     )}
 
                     <Typography variant="body2" color="text.secondary" gutterBottom>最高運動程度</Typography>
-                    <Chip label={SKILL_LABELS[skillLevel] || skillLevel} size="small" color="primary" variant="outlined" />
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                        <Chip label={SKILL_LABELS[skillLevel] || skillLevel} size="small" color="primary" variant="outlined" />
+                        {socialPreference && (
+                            <Chip
+                                label={SOCIAL_PREFERENCE_LABELS[socialPreference] || socialPreference}
+                                size="small"
+                                color="secondary"
+                                variant="outlined"
+                            />
+                        )}
+                    </Box>
+
+                    {usualLocations.length > 0 && (
+                        <>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>常去地點</Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                {usualLocations.map((location: string) => (
+                                    <Chip key={location} label={location} size="small" variant="outlined" />
+                                ))}
+                            </Box>
+                        </>
+                    )}
                 </Box>
             </Paper>
         </Container>

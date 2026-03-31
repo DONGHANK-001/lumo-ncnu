@@ -19,7 +19,6 @@ import {
     Alert,
     CircularProgress,
     Divider,
-    IconButton,
     Dialog,
     DialogTitle,
     DialogContent,
@@ -29,7 +28,6 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import { PieChart } from '@mui/x-charts/PieChart';
 import {
     ArrowBack,
-    Edit,
     Save,
     Logout,
     Star,
@@ -37,13 +35,38 @@ import {
     LocalFireDepartment
 } from '@mui/icons-material';
 import CrownBadge from '@/app/components/CrownBadge';
-import { SPORT_NAMES, SPORT_EMOJIS, LEVEL_OPTIONS, TIME_OPTIONS, LOCATION_OPTIONS } from '@/lib/constants';
+import { SPORT_NAMES, SPORT_EMOJIS, LEVEL_OPTIONS, TIME_OPTIONS } from '@/lib/constants';
 
 const SPORT_OPTIONS = Object.entries(SPORT_NAMES)
     .filter(([key]) => !['NIGHT_WALK', 'DINING', 'STUDY'].includes(key))
     .map(([value, label]) => ({ value, label: `${SPORT_EMOJIS[value] || ''} ${label}` }));
 
 const PROFILE_GROUP_HISTORY_LIMIT = 3;
+const PROFILE_LOCATION_OPTIONS = [
+    '暨大體育館',
+    '暨大操場',
+    '暨大健身房',
+    '暨大籃球場',
+    '暨大排球場',
+    '暨大網球場',
+    '暨大羽球館',
+    '暨大桌球室',
+    '暨大游泳池',
+    '綜合球場',
+    '圖書館',
+    '餐廳',
+    '宿舍區',
+    '管理學院',
+    '人文學院',
+    '科技學院',
+    '教育學院',
+    '校園散步路線',
+] as const;
+const SOCIAL_PREFERENCE_OPTIONS = [
+    { value: 'LOW_KEY', label: '慢熟輕鬆型' },
+    { value: 'BALANCED', label: '都可以型' },
+    { value: 'OUTGOING', label: '主動聊天型' },
+] as const;
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -51,29 +74,22 @@ export default function ProfilePage() {
 
     const [form, setForm] = useState({
         nickname: '',
+        bio: '',
+        hobbies: '',
         sports: [] as string[],
         skillLevel: 'BEGINNER',
         availableTimes: [] as string[],
         usualLocations: [] as string[],
+        socialPreference: 'BALANCED' as 'LOW_KEY' | 'BALANCED' | 'OUTGOING',
     });
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const [avatarDialog, setAvatarDialog] = useState(false);
+    const [tempAvatarUrl] = useState('');
+
+    const generateRandomAvatar = () => {};
 
     // Avatar Editor
-    const [avatarDialog, setAvatarDialog] = useState(false);
-    const [tempAvatarStyle, setTempAvatarStyle] = useState('adventurer');
-    const [tempAvatarSeed, setTempAvatarSeed] = useState('');
-    const [tempAvatarUrl, setTempAvatarUrl] = useState('');
-
-    const avatarStyles = ['adventurer', 'bottts', 'fun-emoji', 'identicon', 'lorelei'];
-
-    const generateRandomAvatar = () => {
-        const style = avatarStyles[Math.floor(Math.random() * avatarStyles.length)];
-        const seed = Math.random().toString(36).substring(7);
-        setTempAvatarStyle(style);
-        setTempAvatarSeed(seed);
-        setTempAvatarUrl(`https://api.dicebear.com/9.x/${style}/svg?seed=${seed}`);
-    };
 
     const handleSaveAvatar = async () => {
         if (!user) return;
@@ -163,10 +179,13 @@ export default function ProfilePage() {
         if (user) {
             setForm({
                 nickname: user.nickname || '',
+                bio: user.preferences?.bio || '',
+                hobbies: user.preferences?.hobbies || '',
                 sports: user.preferences?.sports || [],
                 skillLevel: user.preferences?.skillLevel || 'BEGINNER',
                 availableTimes: user.preferences?.availableTimes || [],
                 usualLocations: user.preferences?.usualLocations || [],
+                socialPreference: user.preferences?.socialPreference || 'BALANCED',
             });
         }
     }, [user]);
@@ -185,10 +204,13 @@ export default function ProfilePage() {
         const response = await api.updateProfile(token!, {
             nickname: form.nickname,
             preferences: {
+                bio: form.bio.trim(),
+                hobbies: form.hobbies.trim(),
                 sports: form.sports,
                 skillLevel: form.skillLevel,
                 availableTimes: form.availableTimes,
                 usualLocations: form.usualLocations,
+                socialPreference: form.socialPreference,
             },
         });
 
@@ -276,7 +298,7 @@ export default function ProfilePage() {
             <Grid container spacing={3}>
                 <Grid size={{ xs: 12, md: 4 }}>
                     <Paper sx={{ p: 4, textAlign: 'center', borderRadius: 4, position: 'relative' }}>
-                        <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                        <Box>
                             <Avatar
                                 src={user.avatarUrl || undefined}
                                 sx={{
@@ -293,23 +315,9 @@ export default function ProfilePage() {
                             >
                                 {!user.avatarUrl && (form.nickname || user.email)[0].toUpperCase()}
                             </Avatar>
-                            <IconButton
-                                onClick={() => {
-                                    if (!tempAvatarUrl) generateRandomAvatar();
-                                    setAvatarDialog(true);
-                                }}
-                                color="primary"
-                                sx={{
-                                    position: 'absolute',
-                                    bottom: 12,
-                                    right: 5,
-                                    bgcolor: 'background.paper',
-                                    boxShadow: 2,
-                                    '&:hover': { bgcolor: 'grey.100' }
-                                }}
-                            >
-                                <Edit fontSize="small" />
-                            </IconButton>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                目前同步 Google 原頭像，暫不開放自訂更換。
+                            </Typography>
                         </Box>
                         <Stack alignItems="center" spacing={1}>
                             {user.planType === 'PLUS' && (
@@ -550,6 +558,32 @@ export default function ProfilePage() {
                         </Paper>
 
                         <Paper sx={{ p: 4, borderRadius: 4 }}>
+                            <Typography variant="h6" gutterBottom mb={3}>個人補充資訊</Typography>
+                            <Stack spacing={3}>
+                                <TextField
+                                    label="個人簡介"
+                                    fullWidth
+                                    multiline
+                                    minRows={3}
+                                    value={form.bio}
+                                    onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                                    placeholder="簡單介紹你平常喜歡的活動、出沒時段或揪團風格"
+                                    inputProps={{ maxLength: 300 }}
+                                    helperText={`${form.bio.length}/300`}
+                                />
+                                <TextField
+                                    label="嗜好"
+                                    fullWidth
+                                    value={form.hobbies}
+                                    onChange={(e) => setForm({ ...form, hobbies: e.target.value })}
+                                    placeholder="例如：羽球、桌遊、夜跑、看展、拍照"
+                                    inputProps={{ maxLength: 200 }}
+                                    helperText={`${form.hobbies.length}/200`}
+                                />
+                            </Stack>
+                        </Paper>
+
+                        <Paper sx={{ p: 4, borderRadius: 4 }}>
                             <Typography variant="h6" gutterBottom mb={3}>基本資料</Typography>
                             <TextField
                                 label="暱稱"
@@ -576,6 +610,22 @@ export default function ProfilePage() {
                                                 onClick={() => setForm({ ...form, sports: toggleArrayItem(form.sports, sport.value) })}
                                                 color={form.sports.includes(sport.value) ? 'primary' : 'default'}
                                                 variant={form.sports.includes(sport.value) ? 'filled' : 'outlined'}
+                                            />
+                                        ))}
+                                    </Stack>
+                                </Box>
+
+                                <Box>
+                                    <Typography variant="subtitle2" gutterBottom>喜好社交</Typography>
+                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                        {SOCIAL_PREFERENCE_OPTIONS.map((option) => (
+                                            <Chip
+                                                key={option.value}
+                                                label={option.label}
+                                                clickable
+                                                onClick={() => setForm({ ...form, socialPreference: option.value })}
+                                                color={form.socialPreference === option.value ? 'primary' : 'default'}
+                                                variant={form.socialPreference === option.value ? 'filled' : 'outlined'}
                                             />
                                         ))}
                                     </Stack>
@@ -616,7 +666,7 @@ export default function ProfilePage() {
                                 <Box>
                                     <Typography variant="subtitle2" gutterBottom>常去地點</Typography>
                                     <Stack direction="row" flexWrap="wrap" gap={1}>
-                                        {LOCATION_OPTIONS.map((loc) => (
+                                        {PROFILE_LOCATION_OPTIONS.map((loc) => (
                                             <Chip
                                                 key={loc}
                                                 label={loc}

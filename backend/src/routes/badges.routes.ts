@@ -5,31 +5,49 @@ import { logger } from '../lib/logger.js';
 
 const router = Router();
 
-/**
- * GET /badges
- * 所有勳章列表
- */
+const ADDITIONAL_BADGES = [
+    {
+        code: 'campus_explorer',
+        name: '校園探索家',
+        description: '參與 4 個不同地點的揪團',
+        icon: '🧭',
+    },
+    {
+        code: 'night_owl',
+        name: '夜行動物',
+        description: '參與 5 場晚上 8 點後開始的揪團',
+        icon: '🌙',
+    },
+] as const;
+
+async function ensureAdditionalBadges() {
+    await prisma.badge.createMany({
+        data: [...ADDITIONAL_BADGES],
+        skipDuplicates: true,
+    });
+}
+
 router.get('/', async (_req: Request, res: Response) => {
     try {
+        await ensureAdditionalBadges();
+
         const badges = await prisma.$queryRaw<any[]>`
             SELECT id, code, name, description, icon FROM badges ORDER BY created_at ASC
         `;
+
         res.json({ success: true, data: badges });
     } catch (error) {
         logger.error({ err: error }, 'Badges list error');
         res.status(500).json({
             success: false,
-            error: { code: 'SERVER_ERROR', message: '勳章載入失敗' },
+            error: { code: 'SERVER_ERROR', message: '勳章列表載入失敗' },
         });
     }
 });
 
-/**
- * GET /badges/me
- * 使用者已解鎖勳章
- */
 router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) => {
     try {
+        await ensureAdditionalBadges();
         const userId = req.user!.id;
 
         const userBadges = await prisma.$queryRaw<any[]>`
@@ -45,27 +63,26 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
         req.log.error({ err: error }, 'User badges error');
         res.status(500).json({
             success: false,
-            error: { code: 'SERVER_ERROR', message: '勳章載入失敗' },
+            error: { code: 'SERVER_ERROR', message: '我的勳章載入失敗' },
         });
     }
 });
 
-/**
- * POST /badges/check
- * 檢查並解鎖勳章 (每次出席/加入揪團後呼叫)
- */
 router.post('/check', firebaseAuthMiddleware, async (req: Request, res: Response) => {
     try {
+        await ensureAdditionalBadges();
+
         const userId = req.user!.id;
-        const newlyUnlocked: any[] = [];
+        const newlyUnlocked: string[] = [];
 
-        // 取得使用者已解鎖的勳章
         const existing = await prisma.$queryRaw<{ code: string }[]>`
-            SELECT b.code FROM user_badges ub JOIN badges b ON b.id = ub."badgeId" WHERE ub."userId" = ${userId}
+            SELECT b.code
+            FROM user_badges ub
+            JOIN badges b ON b.id = ub."badgeId"
+            WHERE ub."userId" = ${userId}
         `;
-        const unlockedCodes = new Set(existing.map(e => e.code));
+        const unlockedCodes = new Set(existing.map((item) => item.code));
 
-        // 1. first_step: 完成第一次揪團
         if (!unlockedCodes.has('first_step')) {
             const joinCount = await prisma.groupMember.count({ where: { userId, status: 'JOINED' } });
             if (joinCount >= 1) {
@@ -74,7 +91,6 @@ router.post('/check', firebaseAuthMiddleware, async (req: Request, res: Response
             }
         }
 
-        // 2. social_butterfly: 加入 10 個不同揪團
         if (!unlockedCodes.has('social_butterfly')) {
             const joinCount = await prisma.groupMember.count({ where: { userId, status: 'JOINED' } });
             if (joinCount >= 10) {
@@ -83,7 +99,6 @@ router.post('/check', firebaseAuthMiddleware, async (req: Request, res: Response
             }
         }
 
-        // 3. team_leader: 發起 5 個揪團
         if (!unlockedCodes.has('team_leader')) {
             const createdCount = await prisma.group.count({ where: { createdById: userId } });
             if (createdCount >= 5) {
@@ -92,46 +107,75 @@ router.post('/check', firebaseAuthMiddleware, async (req: Request, res: Response
             }
         }
 
-        // 4. iron_man: 集滿 3 種不同運動
         if (!unlockedCodes.has('iron_man')) {
-            const sportTypes = await prisma.groupMember.findMany({
+            const joinedGroups = await prisma.groupMember.findMany({
                 where: { userId, status: 'JOINED' },
                 include: { group: { select: { sportType: true } } },
             });
-            const uniqueSports = new Set(sportTypes.map(m => m.group.sportType));
+            const uniqueSports = new Set(joinedGroups.map((member) => member.group.sportType));
             if (uniqueSports.size >= 3) {
                 await unlockBadge(userId, 'iron_man');
                 newlyUnlocked.push('iron_man');
             }
         }
 
-        // 5. early_bird: 參加 5 場 08:00 前的運動
         if (!unlockedCodes.has('early_bird')) {
-            const earlyGroups = await prisma.groupMember.findMany({
+            const joinedGroups = await prisma.groupMember.findMany({
                 where: { userId, status: 'JOINED' },
                 include: { group: { select: { time: true } } },
             });
-            const earlyCount = earlyGroups.filter(m => new Date(m.group.time).getHours() < 8).length;
+            const earlyCount = joinedGroups.filter((member) => new Date(member.group.time).getHours() < 8).length;
             if (earlyCount >= 5) {
                 await unlockBadge(userId, 'early_bird');
                 newlyUnlocked.push('early_bird');
             }
         }
 
-        // 6. consistent: 連續 5 場都出席 (基於 attendedCount)
         if (!unlockedCodes.has('consistent')) {
-            const user = await prisma.user.findUnique({ where: { id: userId }, select: { attendedCount: true } });
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { attendedCount: true },
+            });
             if (user && user.attendedCount >= 5) {
                 await unlockBadge(userId, 'consistent');
                 newlyUnlocked.push('consistent');
             }
         }
 
-        // 回傳新解鎖的勳章資訊
+        if (!unlockedCodes.has('campus_explorer')) {
+            const joinedGroups = await prisma.groupMember.findMany({
+                where: { userId, status: 'JOINED' },
+                include: { group: { select: { location: true } } },
+            });
+            const uniqueLocations = new Set(
+                joinedGroups
+                    .map((member) => member.group.location)
+                    .filter((location): location is string => Boolean(location))
+            );
+            if (uniqueLocations.size >= 4) {
+                await unlockBadge(userId, 'campus_explorer');
+                newlyUnlocked.push('campus_explorer');
+            }
+        }
+
+        if (!unlockedCodes.has('night_owl')) {
+            const joinedGroups = await prisma.groupMember.findMany({
+                where: { userId, status: 'JOINED' },
+                include: { group: { select: { time: true } } },
+            });
+            const lateNightCount = joinedGroups.filter((member) => new Date(member.group.time).getHours() >= 20).length;
+            if (lateNightCount >= 5) {
+                await unlockBadge(userId, 'night_owl');
+                newlyUnlocked.push('night_owl');
+            }
+        }
+
         let unlockedBadges: any[] = [];
         if (newlyUnlocked.length > 0) {
             unlockedBadges = await prisma.$queryRaw<any[]>`
-                SELECT id, code, name, description, icon FROM badges WHERE code = ANY(${newlyUnlocked})
+                SELECT id, code, name, description, icon
+                FROM badges
+                WHERE code = ANY(${newlyUnlocked})
             `;
         }
 
@@ -148,7 +192,9 @@ router.post('/check', firebaseAuthMiddleware, async (req: Request, res: Response
 async function unlockBadge(userId: string, badgeCode: string) {
     await prisma.$executeRaw`
         INSERT INTO user_badges ("id", "userId", "badgeId", "unlockedAt")
-        SELECT gen_random_uuid()::text, ${userId}, id, NOW() FROM badges WHERE code = ${badgeCode}
+        SELECT gen_random_uuid()::text, ${userId}, id, NOW()
+        FROM badges
+        WHERE code = ${badgeCode}
         ON CONFLICT ("userId", "badgeId") DO NOTHING
     `;
 }
