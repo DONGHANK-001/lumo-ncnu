@@ -35,6 +35,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 
 const BadmintonScorer = dynamic(() => import('@/app/components/BadmintonScorer'), { ssr: false });
+const GymTracker = dynamic(() => import('@/app/components/GymTracker'), { ssr: false });
 
 interface SportInfo {
     name: string;
@@ -315,6 +316,7 @@ export default function SportGuidePage() {
     const sport = SPORT_DATA[type];
     const darkTheme = createAppTheme('dark');
     const [scorerOpen, setScorerOpen] = useState(false);
+    const [gymOpen, setGymOpen] = useState(false);
 
     if (!sport) {
         return (
@@ -371,6 +373,16 @@ export default function SportGuidePage() {
                         sx={{ mt: 3, borderRadius: 3, px: 4, py: 1.2, fontSize: '1.1rem', fontWeight: 'bold' }}
                     >
                         🏸 開啟計分器
+                    </Button>
+                )}
+                {type === 'GYM' && (
+                    <Button
+                        variant="contained"
+                        size="large"
+                        onClick={() => setGymOpen(true)}
+                        sx={{ mt: 3, borderRadius: 3, px: 4, py: 1.2, fontSize: '1.1rem', fontWeight: 'bold' }}
+                    >
+                        💪 開啟訓練記錄器
                     </Button>
                 )}
             </Paper>
@@ -478,6 +490,9 @@ export default function SportGuidePage() {
 
             {type === 'BADMINTON' && scorerOpen && (
                 <BadmintonScorer open={scorerOpen} onClose={() => setScorerOpen(false)} />
+            )}
+            {type === 'GYM' && gymOpen && (
+                <GymTracker open={gymOpen} onClose={() => setGymOpen(false)} />
             )}
         </Container>
         </Box>
