@@ -878,15 +878,16 @@ export default function LandingPage() {
                     sx={{
                         textDecoration: 'none',
                         borderRadius: 4,
-                        background: mode === 'dark'
+                        bgcolor: 'transparent',
+                        backgroundImage: mode === 'dark'
                             ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, #2E7D32 100%)`
-                            : 'linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%)',
+                            : 'linear-gradient(135deg, #2E7D32 0%, #43A047 100%)',
                         transition: 'transform 0.3s',
                         '&:hover': { transform: 'translateY(-4px)' },
                     }}
                 >
                     <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                        <Restaurant sx={{ fontSize: 40, color: mode === 'dark' ? '#66BB6A' : '#A5D6A7', mb: 1 }} />
+                        <Restaurant sx={{ fontSize: 40, color: mode === 'dark' ? '#66BB6A' : '#C8E6C9', mb: 1 }} />
                         <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ color: mode === 'dark' ? undefined : '#fff' }}>
                             🍽️ 活動飲食指南
                         </Typography>
