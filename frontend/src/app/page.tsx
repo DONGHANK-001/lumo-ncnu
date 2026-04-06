@@ -804,19 +804,17 @@ export default function LandingPage() {
                         sx={{
                             textDecoration: 'none',
                             borderRadius: 4,
-                            background: mode === 'dark'
-                                ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.secondary.dark} 100%)`
-                                : `linear-gradient(135deg, ${theme.palette.secondary.light} 0%, ${theme.palette.secondary.main} 100%)`,
+                            background: `linear-gradient(135deg, #1E1A2E 0%, ${theme.palette.secondary.dark} 100%)`,
                             transition: 'transform 0.3s',
                             '&:hover': { transform: 'translateY(-4px)' },
                         }}
                     >
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <NightsStay sx={{ fontSize: 40, color: theme.palette.secondary.main, mb: 1 }} />
-                            <Typography variant="h6" fontWeight="bold" gutterBottom>
+                            <Typography variant="h6" fontWeight="bold" color="#fff" gutterBottom>
                                 🌙 晚風漫遊
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" color="rgba(255,255,255,0.7)">
                                 星空下走走聊聊，暨大最療癒的校園散步活動
                             </Typography>
                         </CardContent>
@@ -827,19 +825,17 @@ export default function LandingPage() {
                         sx={{
                             textDecoration: 'none',
                             borderRadius: 4,
-                            background: mode === 'dark'
-                                ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.error.dark} 100%)`
-                                : `linear-gradient(135deg, ${theme.palette.error.light} 0%, ${theme.palette.error.main} 100%)`,
+                            background: `linear-gradient(135deg, #1E1A2E 0%, ${theme.palette.error.dark} 100%)`,
                             transition: 'transform 0.3s',
                             '&:hover': { transform: 'translateY(-4px)' },
                         }}
                     >
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <Restaurant sx={{ fontSize: 40, color: theme.palette.error.main, mb: 1 }} />
-                            <Typography variant="h6" fontWeight="bold" gutterBottom>
+                            <Typography variant="h6" fontWeight="bold" color="#fff" gutterBottom>
                                 🍽️ 飯飯之交
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" color="rgba(255,255,255,0.7)">
                                 找人一起吃飯！有伴就更好吃
                             </Typography>
                         </CardContent>
@@ -850,19 +846,17 @@ export default function LandingPage() {
                         sx={{
                             textDecoration: 'none',
                             borderRadius: 4,
-                            background: mode === 'dark'
-                                ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, #1a3a5c 100%)`
-                                : `linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%)`,
+                            background: `linear-gradient(135deg, #1E1A2E 0%, #1a3a5c 100%)`,
                             transition: 'transform 0.3s',
                             '&:hover': { transform: 'translateY(-4px)' },
                         }}
                     >
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <MenuBook sx={{ fontSize: 40, color: '#42A5F5', mb: 1 }} />
-                            <Typography variant="h6" fontWeight="bold" gutterBottom>
+                            <Typography variant="h6" fontWeight="bold" color="#fff" gutterBottom>
                                 📚 讀家回憶
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" color="rgba(255,255,255,0.7)">
                                 期中期末靜心衝刺，覓一知己共赴書海
                             </Typography>
                         </CardContent>
@@ -878,20 +872,17 @@ export default function LandingPage() {
                     sx={{
                         textDecoration: 'none',
                         borderRadius: 4,
-                        backgroundColor: 'transparent',
-                        backgroundImage: mode === 'dark'
-                            ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, #2E7D32 100%)`
-                            : `linear-gradient(135deg, #2E7D32 0%, #43A047 100%)`,
+                        background: `linear-gradient(135deg, #1E1A2E 0%, #2E7D32 100%)`,
                         transition: 'transform 0.3s',
                         '&:hover': { transform: 'translateY(-4px)' },
                     }}
                 >
                     <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                        <Restaurant sx={{ fontSize: 40, color: mode === 'dark' ? '#66BB6A' : '#C8E6C9', mb: 1 }} />
-                        <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ color: mode === 'dark' ? undefined : '#fff' }}>
+                        <Restaurant sx={{ fontSize: 40, color: '#66BB6A', mb: 1 }} />
+                        <Typography variant="h6" fontWeight="bold" color="#fff" gutterBottom>
                             🍽️ 活動飲食指南
                         </Typography>
-                        <Typography variant="body2" sx={{ color: mode === 'dark' ? 'text.secondary' : 'rgba(255,255,255,0.85)' }}>
+                        <Typography variant="body2" color="rgba(255,255,255,0.7)">
                             依活動類型推薦最佳飲食與營養補給建議
                         </Typography>
                     </CardContent>

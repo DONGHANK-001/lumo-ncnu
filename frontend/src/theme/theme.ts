@@ -144,7 +144,6 @@ export function createAppTheme(mode: PaletteMode): Theme {
                     root: {
                         borderRadius: 24,
                         backgroundColor: isLight ? '#FFFFFF' : '#2B2640',
-                        backgroundImage: 'none',
                         ...(isLight && {
                             boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)',
                             border: '1px solid rgba(0,0,0,0.06)',
