@@ -28,6 +28,17 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
+        version: 'v1.11.1',
+        date: '2026-04-06',
+        category: '優化',
+        title: '首頁「最新活動」手機版美化',
+        details: [
+            '手機版標題與描述文字置中顯示',
+            '空狀態區塊增加留白，視覺更舒適',
+            '活動提示文字置中對齊',
+        ],
+    },
+    {
         version: 'v1.11.0',
         date: '2026-04-06',
         category: '新功能',
