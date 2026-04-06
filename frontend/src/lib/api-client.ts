@@ -237,7 +237,7 @@ class ApiClient {
         return this.request<{ message: string; userId: string; newScore: number; banned: boolean; banDays: number | null }>(`/admin/reports/${id}/confirm`, { method: 'POST', token });
     }
 
-    getAdminUsers(token: string, params?: { search?: string; role?: string; banned?: string; identity?: 'complete' | 'incomplete' }) {
+    getAdminUsers(token: string, params?: { search?: string; role?: string; banned?: string; identity?: 'complete' | 'incomplete'; pageSize?: string }) {
         const query = params ? `?${new URLSearchParams(Object.entries(params).filter(([, v]) => v !== undefined) as [string, string][])}` : '';
         return this.request<{ items: any[]; total: number }>(`/admin/users${query}`, { token });
     }

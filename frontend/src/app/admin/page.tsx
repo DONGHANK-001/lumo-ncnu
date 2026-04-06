@@ -181,7 +181,7 @@ export default function AdminPage() {
                 api.getAdminGroups(token),
                 api.getAdminStats(token),
                 api.getAdminReports(token),
-                api.getAdminUsers(token),
+                api.getAdminUsers(token, { pageSize: '9999' }),
             ]);
 
             if (!groupsRes.success || !statsRes.success || !reportsRes.success) {
@@ -211,6 +211,7 @@ export default function AdminPage() {
             const res = await api.getAdminUsers(token, {
                 search: searchValue || undefined,
                 identity: identity === 'all' ? undefined : identity,
+                pageSize: '9999',
             });
 
             if (!res.success) {
