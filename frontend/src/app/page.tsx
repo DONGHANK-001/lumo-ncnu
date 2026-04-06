@@ -878,13 +878,11 @@ export default function LandingPage() {
                     sx={{
                         textDecoration: 'none',
                         borderRadius: 4,
+                        background: mode === 'dark'
+                            ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, #2E7D32 100%)`
+                            : `linear-gradient(135deg, #2E7D32 0%, #43A047 100%)`,
                         transition: 'transform 0.3s',
                         '&:hover': { transform: 'translateY(-4px)' },
-                        '&.MuiCard-root': {
-                            background: mode === 'dark'
-                                ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, #2E7D32 100%)`
-                                : `linear-gradient(135deg, #2E7D32 0%, #43A047 100%)`,
-                        },
                     }}
                 >
                     <CardContent sx={{ textAlign: 'center', py: 3 }}>
