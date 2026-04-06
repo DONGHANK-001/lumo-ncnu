@@ -141,7 +141,9 @@ export default function AdminPage() {
     const [groupPage, setGroupPage] = useState(0);
     const [reportPage, setReportPage] = useState(0);
     const [userPage, setUserPage] = useState(0);
-    const ROWS_PER_PAGE = 20;
+    const [groupRowsPerPage, setGroupRowsPerPage] = useState(20);
+    const [reportRowsPerPage, setReportRowsPerPage] = useState(20);
+    const [userRowsPerPage, setUserRowsPerPage] = useState(20);
 
     // 編輯對話框
     const [editDialog, setEditDialog] = useState(false);
@@ -217,6 +219,7 @@ export default function AdminPage() {
 
             setUsers((res.data?.items as AdminUser[]) || []);
             setUserTotal(res.data?.total || 0);
+            setUserPage(0);
             setError(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : '讀取使用者失敗');
@@ -395,9 +398,9 @@ export default function AdminPage() {
         setTabValue(newValue);
     };
 
-    const paginatedGroups = groups.slice(groupPage * ROWS_PER_PAGE, groupPage * ROWS_PER_PAGE + ROWS_PER_PAGE);
-    const paginatedReports = reports.slice(reportPage * ROWS_PER_PAGE, reportPage * ROWS_PER_PAGE + ROWS_PER_PAGE);
-    const paginatedUsers = users.slice(userPage * ROWS_PER_PAGE, userPage * ROWS_PER_PAGE + ROWS_PER_PAGE);
+    const paginatedGroups = groups.slice(groupPage * groupRowsPerPage, groupPage * groupRowsPerPage + groupRowsPerPage);
+    const paginatedReports = reports.slice(reportPage * reportRowsPerPage, reportPage * reportRowsPerPage + reportRowsPerPage);
+    const paginatedUsers = users.slice(userPage * userRowsPerPage, userPage * userRowsPerPage + userRowsPerPage);
 
     if (loading) {
         return (
@@ -563,8 +566,10 @@ export default function AdminPage() {
                         count={groups.length}
                         page={groupPage}
                         onPageChange={(_, p) => setGroupPage(p)}
-                        rowsPerPage={ROWS_PER_PAGE}
-                        rowsPerPageOptions={[ROWS_PER_PAGE]}
+                        rowsPerPage={groupRowsPerPage}
+                        onRowsPerPageChange={(e) => { setGroupRowsPerPage(parseInt(e.target.value, 10)); setGroupPage(0); }}
+                        rowsPerPageOptions={[10, 20, 50]}
+                        labelRowsPerPage="每頁筆數"
                         labelDisplayedRows={({ from, to, count }) => `${from}-${to} / 共 ${count} 筆`}
                     />
                 </>
@@ -656,8 +661,10 @@ export default function AdminPage() {
                         count={reports.length}
                         page={reportPage}
                         onPageChange={(_, p) => setReportPage(p)}
-                        rowsPerPage={ROWS_PER_PAGE}
-                        rowsPerPageOptions={[ROWS_PER_PAGE]}
+                        rowsPerPage={reportRowsPerPage}
+                        onRowsPerPageChange={(e) => { setReportRowsPerPage(parseInt(e.target.value, 10)); setReportPage(0); }}
+                        rowsPerPageOptions={[10, 20, 50]}
+                        labelRowsPerPage="每頁筆數"
                         labelDisplayedRows={({ from, to, count }) => `${from}-${to} / 共 ${count} 筆`}
                     />
                 </>
@@ -829,8 +836,10 @@ export default function AdminPage() {
                         count={users.length}
                         page={userPage}
                         onPageChange={(_, p) => setUserPage(p)}
-                        rowsPerPage={ROWS_PER_PAGE}
-                        rowsPerPageOptions={[ROWS_PER_PAGE]}
+                        rowsPerPage={userRowsPerPage}
+                        onRowsPerPageChange={(e) => { setUserRowsPerPage(parseInt(e.target.value, 10)); setUserPage(0); }}
+                        rowsPerPageOptions={[10, 20, 50]}
+                        labelRowsPerPage="每頁筆數"
                         labelDisplayedRows={({ from, to, count }) => `${from}-${to} / 共 ${count} 筆`}
                     />
                 </>
