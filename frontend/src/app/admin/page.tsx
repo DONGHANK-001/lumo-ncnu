@@ -12,6 +12,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    TablePagination,
     IconButton,
     Chip,
     Button,
@@ -135,6 +136,12 @@ export default function AdminPage() {
     const [success, setSuccess] = useState<string | null>(null);
 
     const [tabValue, setTabValue] = useState(0);
+
+    // 分頁
+    const [groupPage, setGroupPage] = useState(0);
+    const [reportPage, setReportPage] = useState(0);
+    const [userPage, setUserPage] = useState(0);
+    const ROWS_PER_PAGE = 20;
 
     // 編輯對話框
     const [editDialog, setEditDialog] = useState(false);
@@ -388,6 +395,10 @@ export default function AdminPage() {
         setTabValue(newValue);
     };
 
+    const paginatedGroups = groups.slice(groupPage * ROWS_PER_PAGE, groupPage * ROWS_PER_PAGE + ROWS_PER_PAGE);
+    const paginatedReports = reports.slice(reportPage * ROWS_PER_PAGE, reportPage * ROWS_PER_PAGE + ROWS_PER_PAGE);
+    const paginatedUsers = users.slice(userPage * ROWS_PER_PAGE, userPage * ROWS_PER_PAGE + ROWS_PER_PAGE);
+
     if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
@@ -497,7 +508,7 @@ export default function AdminPage() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {groups.map((group) => (
+                                {paginatedGroups.map((group) => (
                                     <TableRow key={group.id}>
                                         <TableCell>{group.title}</TableCell>
                                         <TableCell>{sportTypeLabels[group.sportType] || group.sportType}</TableCell>
@@ -547,6 +558,15 @@ export default function AdminPage() {
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    <TablePagination
+                        component="div"
+                        count={groups.length}
+                        page={groupPage}
+                        onPageChange={(_, p) => setGroupPage(p)}
+                        rowsPerPage={ROWS_PER_PAGE}
+                        rowsPerPageOptions={[ROWS_PER_PAGE]}
+                        labelDisplayedRows={({ from, to, count }) => `${from}-${to} / 共 ${count} 筆`}
+                    />
                 </>
             )}
 
@@ -572,7 +592,7 @@ export default function AdminPage() {
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    reports.map((report) => (
+                                    paginatedReports.map((report) => (
                                         <TableRow key={report.id}>
                                             <TableCell>{new Date(report.createdAt).toLocaleString('zh-TW', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</TableCell>
                                             <TableCell>
@@ -631,6 +651,15 @@ export default function AdminPage() {
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    <TablePagination
+                        component="div"
+                        count={reports.length}
+                        page={reportPage}
+                        onPageChange={(_, p) => setReportPage(p)}
+                        rowsPerPage={ROWS_PER_PAGE}
+                        rowsPerPageOptions={[ROWS_PER_PAGE]}
+                        labelDisplayedRows={({ from, to, count }) => `${from}-${to} / 共 ${count} 筆`}
+                    />
                 </>
             )}
 
@@ -711,7 +740,7 @@ export default function AdminPage() {
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    users.map((u) => (
+                                    paginatedUsers.map((u) => (
                                         <TableRow key={u.id} sx={{ bgcolor: u.isBanned ? 'rgba(244,67,54,0.06)' : undefined }}>
                                             <TableCell>{u.nickname || '-'}</TableCell>
                                             <TableCell>
@@ -795,6 +824,15 @@ export default function AdminPage() {
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    <TablePagination
+                        component="div"
+                        count={users.length}
+                        page={userPage}
+                        onPageChange={(_, p) => setUserPage(p)}
+                        rowsPerPage={ROWS_PER_PAGE}
+                        rowsPerPageOptions={[ROWS_PER_PAGE]}
+                        labelDisplayedRows={({ from, to, count }) => `${from}-${to} / 共 ${count} 筆`}
+                    />
                 </>
             )}
 
