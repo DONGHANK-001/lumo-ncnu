@@ -28,6 +28,17 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
+        version: 'v1.12.2',
+        date: '2026-04-06',
+        category: '優化',
+        title: '🎨 淺色模式社交卡片 & FAB 修復',
+        details: [
+            '社交活動卡片淺色模式改為深底白字漸層，對比更鮮明',
+            '使用說明 FAB 改為紫色底，淺色模式下清晰可見',
+            '深色模式完全不受影響',
+        ],
+    },
+    {
         version: 'v1.12.1',
         date: '2026-04-06',
         category: '優化',
