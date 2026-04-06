@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import {
     Box,
@@ -481,12 +481,14 @@ export default function LandingPage() {
                         spacing={2}
                         mb={3}
                     >
-                        <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+                        <Box sx={{ textAlign: 'center' }}>
                             <Typography variant="h5" fontWeight="bold" gutterBottom>
                                 最新活動
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                左右滑動看看最近剛發布的揪團，找到順眼的就直接加入。
+                                左右滑動看看最近剛發布的揪團，
+                                <Box component="br" sx={{ display: { xs: 'block', md: 'none' } }} />
+                                找到順眼的就直接加入。
                             </Typography>
                         </Box>
 

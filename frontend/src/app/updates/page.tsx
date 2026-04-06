@@ -28,6 +28,17 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
+        version: 'v1.11.2',
+        date: '2026-04-06',
+        category: '優化',
+        title: '首頁「最新活動」排版優化 & 註冊表單美化',
+        details: [
+            '「最新活動」標題與描述電腦版、手機版皆置中',
+            '手機版描述文字自動換行，閱讀更舒適',
+            '註冊表單移除欄位星號，學號預設文字移除多餘的 S',
+        ],
+    },
+    {
         version: 'v1.11.1',
         date: '2026-04-06',
         category: '優化',
