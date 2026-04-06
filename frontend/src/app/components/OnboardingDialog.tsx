@@ -196,6 +196,7 @@ export default function OnboardingDialog({ open, onComplete, getToken }: Onboard
                             onChange={(e) => setRealName(e.target.value)}
                             fullWidth
                             required
+                            InputLabelProps={{ required: false }}
                             placeholder="王小明"
                         />
                         <TextField
@@ -204,7 +205,8 @@ export default function OnboardingDialog({ open, onComplete, getToken }: Onboard
                             onChange={(e) => setStudentId(e.target.value)}
                             fullWidth
                             required
-                            placeholder="S112212038"
+                            InputLabelProps={{ required: false }}
+                            placeholder="112212038"
                         />
                         <TextField
                             label="系所"
@@ -213,6 +215,7 @@ export default function OnboardingDialog({ open, onComplete, getToken }: Onboard
                             select
                             fullWidth
                             required
+                            InputLabelProps={{ required: false }}
                         >
                             {Object.entries(DEPARTMENT_GROUPS).flatMap(([college, depts]) => [
                                 <ListSubheader key={college} sx={{ fontWeight: 'bold', color: 'text.primary', bgcolor: 'background.paper' }}>
