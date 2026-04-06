@@ -879,17 +879,18 @@ export default function LandingPage() {
                         textDecoration: 'none',
                         borderRadius: 4,
                         background: mode === 'dark'
-                            ? 'linear-gradient(135deg, #1a2e1a 0%, #2d4a1e 100%)'
-                            : 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
+                            ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, #2E7D32 100%)`
+                            : 'linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%)',
                         transition: 'transform 0.3s',
                         '&:hover': { transform: 'translateY(-4px)' },
                     }}
                 >
                     <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                        <Typography variant="h5" fontWeight="bold" gutterBottom>
+                        <Restaurant sx={{ fontSize: 40, color: mode === 'dark' ? '#66BB6A' : '#A5D6A7', mb: 1 }} />
+                        <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ color: mode === 'dark' ? undefined : '#fff' }}>
                             🍽️ 活動飲食指南
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" sx={{ color: mode === 'dark' ? 'text.secondary' : 'rgba(255,255,255,0.85)' }}>
                             依活動類型推薦最佳飲食與營養補給建議
                         </Typography>
                     </CardContent>
@@ -978,6 +979,24 @@ export default function LandingPage() {
                 }}
                 getToken={getToken}
             />
+
+            {/* Guide FAB */}
+            <Fab
+                aria-label="guide"
+                component={Link}
+                href="/guide"
+                sx={{
+                    position: 'fixed',
+                    bottom: 152,
+                    right: 24,
+                    zIndex: 1000,
+                    bgcolor: mode === 'dark' ? '#7E57C2' : '#6A1B9A',
+                    color: '#fff',
+                    '&:hover': { bgcolor: mode === 'dark' ? '#5E35B1' : '#4A148C' },
+                }}
+            >
+                <Typography fontSize="1.4rem">📖</Typography>
+            </Fab>
 
             {/* Updates FAB */}
             <Fab
