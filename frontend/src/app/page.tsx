@@ -741,6 +741,24 @@ export default function LandingPage() {
                 {/* IG Icon & Subscription */}
                 <Box sx={{ textAlign: 'center', mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                     <Button
+                        component={Link}
+                        href="/nutrition"
+                        startIcon={<Restaurant />}
+                        sx={{
+                            background: 'linear-gradient(135deg, #2E7D32 0%, #43A047 100%)',
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            borderRadius: 3,
+                            px: 3,
+                            py: 1,
+                            '&:hover': {
+                                background: 'linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%)',
+                            }
+                        }}
+                    >
+                        🍽️ 活動飲食指南
+                    </Button>
+                    <Button
                         variant="contained"
                         color="secondary"
                         disabled
@@ -864,30 +882,7 @@ export default function LandingPage() {
                 </Stack>
             </Container>
 
-            {/* Nutrition Guide Card */}
-            <Container maxWidth="sm" sx={{ pb: 4 }}>
-                <Card
-                    component={Link}
-                    href="/nutrition"
-                    sx={{
-                        textDecoration: 'none',
-                        borderRadius: 4,
-                        background: `linear-gradient(135deg, #1E1A2E 0%, #2E7D32 100%)`,
-                        transition: 'transform 0.3s',
-                        '&:hover': { transform: 'translateY(-4px)' },
-                    }}
-                >
-                    <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                        <Restaurant sx={{ fontSize: 40, color: '#66BB6A', mb: 1 }} />
-                        <Typography variant="h6" fontWeight="bold" color="#fff" gutterBottom>
-                            🍽️ 活動飲食指南
-                        </Typography>
-                        <Typography variant="body2" color="rgba(255,255,255,0.7)">
-                            依活動類型推薦最佳飲食與營養補給建議
-                        </Typography>
-                    </CardContent>
-                </Card>
-            </Container>
+            {/* Nutrition Guide Card - removed from here, moved to PRO section */}
 
             {/* Features */}
             <Container maxWidth="lg" sx={{ py: 8 }}>
