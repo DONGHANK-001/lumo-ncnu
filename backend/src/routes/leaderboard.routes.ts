@@ -1,9 +1,24 @@
 import { Router, Request, Response } from 'express';
+import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
 import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
 import { isTrialPeriod } from '../utils/trial-period.js';
 
 const router = Router();
+
+// ===== 讀家回憶活動 4/7~4/17 =====
+type EventState = 'normal' | 'study_only' | 'frozen';
+
+const getEventState = (): EventState => {
+    const now = new Date();
+    const eventStart  = new Date('2026-04-07T00:00:00+08:00');
+    const freezeStart = new Date('2026-04-17T12:00:00+08:00');
+    const freezeEnd   = new Date('2026-04-17T13:00:00+08:00');
+
+    if (now >= freezeStart && now < freezeEnd) return 'frozen';
+    if (now >= eventStart && now < freezeStart) return 'study_only';
+    return 'normal';
+};
 
 // 取得結算時間 (預設每月，第一個月由 2026-03-02 起算)
 const getMonthDateRange = (period: 'current' | 'last_month' = 'current') => {
@@ -48,8 +63,13 @@ const COOL_TITLES = [
  */
 router.get('/departments', async (req: Request, res: Response) => {
     try {
+        const eventState = getEventState();
         const period = (req.query.period as string) || 'current';
         const { start, end } = getMonthDateRange(period as 'current' | 'last_month');
+
+        // 活動期間或凍結期間只計算 STUDY
+        const studyOnly = eventState === 'study_only' || eventState === 'frozen';
+        const resultLimit = eventState === 'frozen' ? 3 : 20;
 
         const results = await prisma.$queryRaw<
             { department: string; total_joins: bigint; unique_users: bigint; top_sport: string }[]
@@ -67,9 +87,10 @@ router.get('/departments', async (req: Request, res: Response) => {
               AND gm."joinedAt" <= ${end}
               AND u."department" IS NOT NULL
               AND u."department" != ''
+              ${studyOnly ? Prisma.sql`AND g."sportType" = 'STUDY'` : Prisma.empty}
             GROUP BY u."department"
             ORDER BY total_joins DESC
-            LIMIT 20
+            LIMIT ${resultLimit}
         `;
 
         // Convert BigInt to Number for JSON serialization
@@ -81,7 +102,21 @@ router.get('/departments', async (req: Request, res: Response) => {
             topSport: r.top_sport,
         }));
 
-        res.json({ success: true, data: { period, departments } });
+        res.json({
+            success: true,
+            data: {
+                period,
+                departments,
+                eventState,
+                ...(eventState === 'frozen' && {
+                    frozen: true,
+                    message: '📚 讀家回憶活動結算中！以下是前三名，13:00 恢復完整排行榜',
+                }),
+                ...(eventState === 'study_only' && {
+                    message: '📚 4/7~4/17 讀家回憶活動期間 — 排行榜僅計算讀家回憶揪團！',
+                }),
+            },
+        });
     } catch (error) {
         req.log.error({ err: error }, 'Leaderboard error');
         // Fallback: 用 ORM 查詢
@@ -149,14 +184,27 @@ router.get('/users', firebaseAuthMiddleware, async (req: Request, res: Response)
             });
         }
 
-        const limit = parseInt(req.query.top as string) || 10;
+        const eventState = getEventState();
+        const limit = eventState === 'frozen' ? 3 : (parseInt(req.query.top as string) || 10);
         const { start, end } = getMonthDateRange('current');
+
+        // 活動期間或凍結期間只計算 STUDY 揪團
+        const studyOnly = eventState === 'study_only' || eventState === 'frozen';
+        let groupIdFilter: string[] | undefined;
+        if (studyOnly) {
+            const studyGroups = await prisma.group.findMany({
+                where: { sportType: 'STUDY' },
+                select: { id: true },
+            });
+            groupIdFilter = studyGroups.map(g => g.id);
+        }
 
         const members = await prisma.groupMember.groupBy({
             by: ['userId'],
             where: {
                 status: 'JOINED',
-                joinedAt: { gte: start, lte: end }
+                joinedAt: { gte: start, lte: end },
+                ...(groupIdFilter && { groupId: { in: groupIdFilter } }),
             },
             _count: { id: true },
             orderBy: { _count: { id: 'desc' } },
@@ -191,7 +239,18 @@ router.get('/users', firebaseAuthMiddleware, async (req: Request, res: Response)
             };
         });
 
-        res.json({ success: true, data: rankings });
+        res.json({
+            success: true,
+            data: rankings,
+            eventState,
+            ...(eventState === 'frozen' && {
+                frozen: true,
+                message: '📚 讀家回憶前三名揭曉！13:00 恢復完整排行',
+            }),
+            ...(eventState === 'study_only' && {
+                message: '📚 4/7~4/17 讀家回憶活動期間 — 排行榜僅計算讀家回憶揪團！',
+            }),
+        });
     } catch (error) {
         req.log.error({ err: error }, 'User leaderboard error');
         res.status(500).json({
