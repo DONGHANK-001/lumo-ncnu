@@ -113,7 +113,7 @@ const lightPalette = {
         contrastText: '#FFFFFF',
     },
     background: {
-        default: '#F3EEFA',
+        default: '#F6F2FF',
         paper: '#FFFFFF',
     },
     text: {
@@ -124,6 +124,7 @@ const lightPalette = {
         main: '#B3261E',
         contrastText: '#FFFFFF',
     },
+    divider: 'rgba(0, 0, 0, 0.08)',
 };
 
 /**
@@ -131,6 +132,7 @@ const lightPalette = {
  */
 export function createAppTheme(mode: PaletteMode): Theme {
     const palette = mode === 'dark' ? darkPalette : lightPalette;
+    const isLight = mode === 'light';
 
     return createTheme({
         ...baseThemeOptions,
@@ -141,8 +143,22 @@ export function createAppTheme(mode: PaletteMode): Theme {
                 styleOverrides: {
                     root: {
                         borderRadius: 24,
-                        backgroundColor: mode === 'dark' ? '#2B2640' : '#FFFFFF',
+                        backgroundColor: isLight ? '#FFFFFF' : '#2B2640',
                         backgroundImage: 'none',
+                        ...(isLight && {
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)',
+                            border: '1px solid rgba(0,0,0,0.06)',
+                        }),
+                    },
+                },
+            },
+            MuiPaper: {
+                styleOverrides: {
+                    root: {
+                        backgroundImage: 'none',
+                        ...(isLight && {
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+                        }),
                     },
                 },
             },
@@ -150,8 +166,76 @@ export function createAppTheme(mode: PaletteMode): Theme {
                 styleOverrides: {
                     root: {
                         backgroundImage: 'none',
-                        backgroundColor: mode === 'dark' ? '#1E1A2E' : '#F3EEFA',
+                        backgroundColor: isLight ? '#F6F2FF' : '#1E1A2E',
                         boxShadow: 'none',
+                        ...(isLight && {
+                            borderBottom: '1px solid rgba(0,0,0,0.06)',
+                        }),
+                    },
+                },
+            },
+            MuiTableHead: {
+                styleOverrides: {
+                    root: {
+                        ...(isLight && {
+                            '& .MuiTableCell-head': {
+                                backgroundColor: '#EDE8F5',
+                                fontWeight: 600,
+                                color: '#1C1B1F',
+                            },
+                        }),
+                    },
+                },
+            },
+            MuiTableCell: {
+                styleOverrides: {
+                    root: {
+                        ...(isLight && {
+                            borderBottomColor: 'rgba(0,0,0,0.06)',
+                        }),
+                    },
+                },
+            },
+            MuiChip: {
+                styleOverrides: {
+                    root: {
+                        ...(isLight && {
+                            borderColor: 'rgba(0,0,0,0.12)',
+                        }),
+                    },
+                    filled: {
+                        ...(isLight && {
+                            backgroundColor: '#EDE8F5',
+                            color: '#1C1B1F',
+                        }),
+                    },
+                },
+            },
+            MuiAccordion: {
+                styleOverrides: {
+                    root: {
+                        ...(isLight && {
+                            border: '1px solid rgba(0,0,0,0.06)',
+                            '&:before': { display: 'none' },
+                        }),
+                    },
+                },
+            },
+            MuiFab: {
+                styleOverrides: {
+                    root: {
+                        ...(isLight && {
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        }),
+                    },
+                },
+            },
+            MuiDialog: {
+                styleOverrides: {
+                    paper: {
+                        ...(isLight && {
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                        }),
                     },
                 },
             },

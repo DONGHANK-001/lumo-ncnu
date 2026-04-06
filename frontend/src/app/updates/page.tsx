@@ -28,6 +28,19 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
+        version: 'v1.12.1',
+        date: '2026-04-06',
+        category: '優化',
+        title: '🎨 淺色模式全面美化',
+        details: [
+            '主題系統加強：Card/Paper 陰影與邊框、AppBar 底線、Table 表頭高亮、Chip 填色等',
+            '社交活動卡片淺色漸層改為柔和配色（薰衣草、珊瑚色）',
+            '營養指南頁面淺色模式配色修復',
+            '捲軸樣式適配淺色模式',
+            '深色模式完全不受影響',
+        ],
+    },
+    {
         version: 'v1.12.0',
         date: '2026-04-06',
         category: '新功能',

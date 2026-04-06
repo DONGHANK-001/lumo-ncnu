@@ -465,7 +465,7 @@ export default function NutritionPage() {
                     </Grid>
 
                     {/* General Tips */}
-                    <Paper sx={{ p: 3, mt: 3, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.03)' }}>
+                    <Paper sx={{ p: 3, mt: 3, borderRadius: 3, bgcolor: 'action.hover' }}>
                         <Typography variant="h6" fontWeight="bold" mb={2}>📚 通用飲食原則</Typography>
                         <Stack spacing={1.5}>
                             {[
