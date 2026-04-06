@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import {
     Box,
@@ -477,11 +477,11 @@ export default function LandingPage() {
                     <Stack
                         direction={{ xs: 'column', md: 'row' }}
                         justifyContent="space-between"
-                        alignItems={{ xs: 'flex-start', md: 'center' }}
+                        alignItems="center"
                         spacing={2}
                         mb={3}
                     >
-                        <Box>
+                        <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
                             <Typography variant="h5" fontWeight="bold" gutterBottom>
                                 最新活動
                             </Typography>
@@ -556,7 +556,7 @@ export default function LandingPage() {
                         <Paper
                             variant="outlined"
                             sx={{
-                                p: 4,
+                                p: { xs: 5, md: 4 },
                                 borderRadius: 4,
                                 textAlign: 'center',
                                 bgcolor: 'background.default',
@@ -568,7 +568,7 @@ export default function LandingPage() {
                             <Typography variant="body2" color="text.secondary" mb={3}>
                                 先去逛逛全部揪團，或成為第一個開團的人。
                             </Typography>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center">
+                            <Stack direction="row" spacing={1.5} justifyContent="center">
                                 <Button component={Link} href="/groups" variant="contained">
                                     瀏覽揪團
                                 </Button>
@@ -584,7 +584,7 @@ export default function LandingPage() {
                             <Typography
                                 variant="caption"
                                 color="text.secondary"
-                                sx={{ display: { xs: 'block', md: 'none' }, mb: 1.5 }}
+                                sx={{ display: { xs: 'block', md: 'none' }, mb: 1.5, textAlign: 'center' }}
                             >
                                 左右滑動查看更多活動
                             </Typography>
