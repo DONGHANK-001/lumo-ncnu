@@ -750,7 +750,8 @@ export default function LandingPage() {
                             fontWeight: 'bold',
                             borderRadius: 3,
                             px: 3,
-                            py: 1,
+                            py: 1.5,
+                            minWidth: 280,
                             '&:hover': {
                                 background: 'linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%)',
                             }
@@ -762,7 +763,7 @@ export default function LandingPage() {
                         variant="contained"
                         color="secondary"
                         disabled
-                        sx={{ fontWeight: 'bold', borderRadius: 3, px: 3, py: 1 }}
+                        sx={{ fontWeight: 'bold', borderRadius: 3, px: 3, py: 1.5, minWidth: 280 }}
                     >
                         👑 升級 PRO（敬請期待，暫不開放）
                     </Button>
@@ -776,7 +777,8 @@ export default function LandingPage() {
                             fontWeight: 'bold',
                             borderRadius: 3,
                             px: 3,
-                            py: 1,
+                            py: 1.5,
+                            minWidth: 280,
                             '&:hover': {
                                 background: 'linear-gradient(45deg, #e6683c 0%, #dc2743 25%, #cc2366 50%, #bc1888 75%, #a01472 100%)',
                             }
