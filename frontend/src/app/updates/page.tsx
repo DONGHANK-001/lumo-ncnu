@@ -28,6 +28,17 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
+        version: 'v1.12.0',
+        date: '2026-04-06',
+        category: '新功能',
+        title: '📖 使用規則與說明頁面',
+        details: [
+            '新增「使用規則與說明」頁面（/guide），涵蓋揪團計算、排行榜規則、勳章與稱號、信譽與檢舉、帳號方案等',
+            '支援分類篩選，以 Q&A 手風琴形式呈現',
+            '首頁右下角新增 📖 快捷按鈕，與更新日誌、免責聲明並排',
+        ],
+    },
+    {
         version: 'v1.11.2',
         date: '2026-04-06',
         category: '優化',
