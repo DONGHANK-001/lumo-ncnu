@@ -31,6 +31,10 @@ import {
     LocalDining,
 } from '@mui/icons-material';
 import Link from 'next/link';
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+const BadmintonScorer = dynamic(() => import('@/app/components/BadmintonScorer'), { ssr: false });
 
 interface SportInfo {
     name: string;
@@ -92,7 +96,7 @@ const SPORT_DATA: Record<string, SportInfo> = {
             '環校步道風景優美，適合輕鬆慢跑',
         ],
         equipment: ['跑鞋（最重要！）', '排汗衣物', '水壺', '運動手錶（選配）'],
-        campusSpots: ['操場', '健身房', '校園內'],
+        campusSpots: ['暨大操場', '環校步道', '暨大行政大樓前廣場'],
         nutrition: [
             { food: '🥗 雞肉沙拉 + 全麥麵包', reason: '清爽不膩，蛋白質碳水兼備' },
             { food: '🍜 清湯麵 + 蛋 + 青菜', reason: '補充水分和電解質 + 營養均衡' },
@@ -120,7 +124,7 @@ const SPORT_DATA: Record<string, SportInfo> = {
             '記得攜帶備用羽毛球，戶外球容易損壞',
         ],
         equipment: ['羽球拍', '羽毛球（建議準備多顆）', '運動鞋（止滑底）', '護腕（選配）'],
-        campusSpots: ['暨大體育館(室內場)'],
+        campusSpots: ['暨大體育館（室內場地）', '暨大羽球場'],
         nutrition: [
             { food: '🍱 滷雞腿 + 白飯 + 燙青菜', reason: '經典恢復餐，蛋白質碳水一次到位' },
             { food: '🥩 牛肉麵', reason: '鐵質 + 蛋白質，適合大量出汗後補充' },
@@ -148,7 +152,7 @@ const SPORT_DATA: Record<string, SportInfo> = {
             '多練搓球和防守，初學者最實用',
         ],
         equipment: ['桌球拍（自備品質較好）', '桌球（三星球較耐打）'],
-        campusSpots: ['暨大體育館(室內場)'],
+        campusSpots: ['暨大體育館（室內桌球場）'],
         nutrition: [
             { food: '🍜 乾拌麵 + 荷包蛋', reason: '簡單好吃，低強度運動後剛剛好' },
             { food: '🍙 飯糰 + 味噌湯', reason: '便利商店組合，方便又快速' },
@@ -279,13 +283,13 @@ const SPORT_DATA: Record<string, SportInfo> = {
             '人多的話可以一起叫外送，省運費',
         ],
         equipment: ['好心情', '環保餐具（選配，愛地球）'],
-        campusSpots: ['暨大學生餐廳'],
+        campusSpots: ['暨大學生餐廳', '暨大綜合大樓'],
     },
     STUDY: {
-        name: '讀家回憶',
+        name: '靜謐同頻',
         icon: <MenuBook sx={{ fontSize: 60 }} />,
         color: '#42A5F5',
-        description: '在書頁間尋覓同頻之人——無論是期中備考的專注苦讀、期末衝刺的緊鑼密鼓，或是日常沉浸書海的悠然時光，有志同道合的讀伴相伴，方能走得更遠。',
+        description: '在靜謐中尋覓同頻之人——無論是期中備考的專注苦讀、期末衝刺的緊鑼密鼓，或是日常沉浸書海的悠然時光，有志同道合的讀伴相伴，方能走得更遠。',
         rules: [
             '保持安靜，尊重彼此的閱讀節奏',
             '手機請調靜音或勿擾模式',
@@ -300,7 +304,7 @@ const SPORT_DATA: Record<string, SportInfo> = {
             '可以約定休息時間一起討論問題，互相教學相長',
         ],
         equipment: ['課本/筆記', '筆電/平板', '耳機', '水壺'],
-        campusSpots: ['暨大圖書館', '暨大圖書館自習室'],
+        campusSpots: ['暨大圖書館', '暨大綜合大樓自習室', '暨大各學院討論室'],
     },
 };
 
@@ -310,6 +314,7 @@ export default function SportGuidePage() {
     const type = params.type as string;
     const sport = SPORT_DATA[type];
     const darkTheme = createAppTheme('dark');
+    const [scorerOpen, setScorerOpen] = useState(false);
 
     if (!sport) {
         return (
@@ -358,6 +363,16 @@ export default function SportGuidePage() {
                         <Chip key={spot} label={`📍 ${spot}`} variant="outlined" size="small" />
                     ))}
                 </Stack>
+                {type === 'BADMINTON' && (
+                    <Button
+                        variant="contained"
+                        size="large"
+                        onClick={() => setScorerOpen(true)}
+                        sx={{ mt: 3, borderRadius: 3, px: 4, py: 1.2, fontSize: '1.1rem', fontWeight: 'bold' }}
+                    >
+                        🏸 開啟計分器
+                    </Button>
+                )}
             </Paper>
 
             <Stack spacing={3}>
@@ -460,6 +475,10 @@ export default function SportGuidePage() {
                     </Button>
                 </Box>
             </Stack>
+
+            {type === 'BADMINTON' && scorerOpen && (
+                <BadmintonScorer open={scorerOpen} onClose={() => setScorerOpen(false)} />
+            )}
         </Container>
         </Box>
         </ThemeProvider>
