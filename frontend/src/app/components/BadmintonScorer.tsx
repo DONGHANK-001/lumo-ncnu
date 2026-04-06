@@ -252,13 +252,16 @@ function matchReducer(state: MatchState, action: Action): MatchState {
     switch (action.type) {
         case 'CONFIG': {
             if (state.started) return state;
-            return {
+            const next = {
                 ...state,
                 ...(action.format !== undefined && { format: action.format }),
                 ...(action.matchType !== undefined && { matchType: action.matchType }),
                 ...(action.bestOf !== undefined && { bestOf: action.bestOf }),
                 ...(action.mode !== undefined && { mode: action.mode }),
             };
+            // 隊伍制固定單局制
+            if (next.mode === 'team') next.bestOf = 1;
+            return next;
         }
 
         case 'TEAM_NAME': {
@@ -558,22 +561,24 @@ export default function BadmintonScorer({ open, onClose }: Props) {
                 </Box>
             )}
 
-            {/* 賽制 */}
-            <Box>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    {state.mode === 'team' ? '每場賽制' : '賽制'}
-                </Typography>
-                <ToggleButtonGroup
-                    value={state.bestOf}
-                    exclusive
-                    onChange={(_, v) => v && dispatch({ type: 'CONFIG', bestOf: v })}
-                    size={mobile ? 'small' : 'medium'}
-                >
-                    <ToggleButton value={1}>單局制</ToggleButton>
-                    <ToggleButton value={3}>三局兩勝</ToggleButton>
-                    <ToggleButton value={5}>五局三勝</ToggleButton>
-                </ToggleButtonGroup>
-            </Box>
+            {/* 賽制（隊伍制固定單局，不顯示選擇器） */}
+            {state.mode === 'single' && (
+                <Box>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        賽制
+                    </Typography>
+                    <ToggleButtonGroup
+                        value={state.bestOf}
+                        exclusive
+                        onChange={(_, v) => v && dispatch({ type: 'CONFIG', bestOf: v })}
+                        size={mobile ? 'small' : 'medium'}
+                    >
+                        <ToggleButton value={1}>單局制</ToggleButton>
+                        <ToggleButton value={3}>三局兩勝</ToggleButton>
+                        <ToggleButton value={5}>五局三勝</ToggleButton>
+                    </ToggleButtonGroup>
+                </Box>
+            )}
 
             <Divider />
 
