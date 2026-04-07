@@ -5,6 +5,7 @@ import { requireAdmin } from '../middleware/admin-auth.js';
 import { ApiError } from '../middleware/error-handler.js';
 import { Gender } from '@prisma/client';
 import { applyPenalty } from '../utils/reputation.js';
+import { createNotification } from '../lib/notification.service.js';
 
 const router = Router();
 
@@ -463,6 +464,39 @@ router.patch('/users/:id/role', async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: updated });
+});
+
+/**
+ * POST /admin/notifications/broadcast
+ * 發送系統通知給所有使用者
+ */
+router.post('/notifications/broadcast', async (req: Request, res: Response) => {
+    const { title, body } = req.body;
+
+    if (!title || !body) {
+        throw new ApiError(400, 'MISSING_FIELDS', '需要 title 和 body');
+    }
+
+    const users = await prisma.user.findMany({
+        where: { isBanned: false },
+        select: { id: true },
+    });
+
+    const results = await Promise.allSettled(
+        users.map(u =>
+            createNotification({
+                userId: u.id,
+                type: 'SYSTEM',
+                title,
+                body,
+            })
+        )
+    );
+
+    const sent = results.filter(r => r.status === 'fulfilled').length;
+    const failed = results.filter(r => r.status === 'rejected').length;
+
+    res.json({ success: true, data: { sent, failed, total: users.length } });
 });
 
 export default router;

@@ -28,6 +28,18 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
+        version: 'v1.14.1',
+        date: '2026-04-07',
+        category: '優化',
+        title: '🔔 通知系統優化 & 新手引導修復',
+        details: [
+            '通知訊息將於 3 天後自動清除，保持通知列表乾淨',
+            '新增管理員廣播通知功能（系統公告）',
+            '修復新手引導（Onboarding）在手機切換到 Instagram 後回來變白畫面、需重新填資料的問題',
+            '引導流程的表單進度現會自動暫存，即使頁面被回收也能恢復',
+        ],
+    },
+    {
         version: 'v1.14.0',
         date: '2026-04-07',
         category: '新功能',

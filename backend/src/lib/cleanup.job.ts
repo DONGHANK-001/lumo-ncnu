@@ -138,10 +138,28 @@ export async function sendGroupReminders(): Promise<number> {
 }
 
 /**
+ * 清理超過 3 天的通知
+ */
+export async function cleanupOldNotifications(): Promise<number> {
+    const cutoff = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000); // 3 天前
+
+    const result = await prisma.notification.deleteMany({
+        where: { createdAt: { lt: cutoff } },
+    });
+
+    if (result.count > 0) {
+        cleanupLogger.info({ count: result.count }, 'Deleted old notifications (>3 days)');
+    }
+
+    return result.count;
+}
+
+/**
  * 啟動定時清理任務
  * 清理：每 12 小時執行一次
  * 提醒：每 10 分鐘執行一次
  * 出席結算：每 6 小時執行一次
+ * 通知清理：每 12 小時執行一次
  */
 export function startCleanupJob(): void {
     const CLEANUP_INTERVAL = 12 * 60 * 60 * 1000; // 12 小時
@@ -151,11 +169,13 @@ export function startCleanupJob(): void {
     cleanupLogger.info('Cleanup job started (every 12h)');
     reminderLogger.info('Reminder job started (every 10min)');
     attendanceLogger.info('Attendance finalization job started (every 6h)');
+    cleanupLogger.info('Notification cleanup job started (every 12h)');
 
     // 啟動時先執行一次
     cleanupExpiredGroups().catch(err => cleanupLogger.error({ err }, 'Initial cleanup failed'));
     sendGroupReminders().catch(err => reminderLogger.error({ err }, 'Initial reminders failed'));
     autoFinalizeAttendance().catch(err => attendanceLogger.error({ err }, 'Initial attendance finalization failed'));
+    cleanupOldNotifications().catch(err => cleanupLogger.error({ err }, 'Initial notification cleanup failed'));
 
     // 每 12 小時執行清理
     setInterval(() => {
@@ -171,4 +191,9 @@ export function startCleanupJob(): void {
     setInterval(() => {
         autoFinalizeAttendance().catch(err => attendanceLogger.error({ err }, 'Attendance finalization failed'));
     }, ATTENDANCE_INTERVAL);
+
+    // 每 12 小時清理舊通知
+    setInterval(() => {
+        cleanupOldNotifications().catch(err => cleanupLogger.error({ err }, 'Notification cleanup failed'));
+    }, CLEANUP_INTERVAL);
 }
