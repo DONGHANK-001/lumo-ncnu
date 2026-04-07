@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -80,17 +80,53 @@ interface OnboardingDialogProps {
     getToken: () => Promise<string | null>;
 }
 
+const STORAGE_KEY = 'lumo_onboarding_draft';
+
+function loadDraft(): Record<string, string> {
+    try {
+        const raw = sessionStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+    } catch {
+        return {};
+    }
+}
+
+function saveDraft(patch: Record<string, string>) {
+    try {
+        const prev = loadDraft();
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...prev, ...patch }));
+    } catch { /* quota / SSR */ }
+}
+
+function clearDraft() {
+    try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
+}
+
 export default function OnboardingDialog({ open, onComplete, getToken }: OnboardingDialogProps) {
-    const [activeStep, setActiveStep] = useState(0);
-    const [agreed, setAgreed] = useState(false);
-    const [realName, setRealName] = useState('');
-    const [studentId, setStudentId] = useState('');
-    const [department, setDepartment] = useState('');
-    const [gender, setGender] = useState('');
-    const [gradeLabel, setGradeLabel] = useState('');
+    const [activeStep, setActiveStepRaw] = useState(() => {
+        const d = loadDraft(); return d.activeStep ? Number(d.activeStep) : 0;
+    });
+    const [agreed, setAgreedRaw] = useState(() => loadDraft().agreed === '1');
+    const [realName, setRealNameRaw] = useState(() => loadDraft().realName ?? '');
+    const [studentId, setStudentIdRaw] = useState(() => loadDraft().studentId ?? '');
+    const [department, setDepartmentRaw] = useState(() => loadDraft().department ?? '');
+    const [gender, setGenderRaw] = useState(() => loadDraft().gender ?? '');
+    const [gradeLabel, setGradeLabelRaw] = useState(() => loadDraft().gradeLabel ?? '');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [igClicked, setIgClicked] = useState(false);
+    const [igClicked, setIgClickedRaw] = useState(() => loadDraft().igClicked === '1');
+
+    // Wrapped setters that sync to sessionStorage
+    const setActiveStep = useCallback((v: number | ((p: number) => number)) => {
+        setActiveStepRaw(prev => { const n = typeof v === 'function' ? v(prev) : v; saveDraft({ activeStep: String(n) }); return n; });
+    }, []);
+    const setAgreed = useCallback((v: boolean) => { setAgreedRaw(v); saveDraft({ agreed: v ? '1' : '0' }); }, []);
+    const setRealName = useCallback((v: string) => { setRealNameRaw(v); saveDraft({ realName: v }); }, []);
+    const setStudentId = useCallback((v: string) => { setStudentIdRaw(v); saveDraft({ studentId: v }); }, []);
+    const setDepartment = useCallback((v: string) => { setDepartmentRaw(v); saveDraft({ department: v }); }, []);
+    const setGender = useCallback((v: string) => { setGenderRaw(v); saveDraft({ gender: v }); }, []);
+    const setGradeLabel = useCallback((v: string) => { setGradeLabelRaw(v); saveDraft({ gradeLabel: v }); }, []);
+    const setIgClicked = useCallback((v: boolean) => { setIgClickedRaw(v); saveDraft({ igClicked: v ? '1' : '0' }); }, []);
 
     const steps = ['免責聲明', '個人資料', '追蹤我們'];
 
@@ -115,6 +151,7 @@ export default function OnboardingDialog({ open, onComplete, getToken }: Onboard
                     disclaimerAccepted: true,
                 });
                 if (response.success) {
+                    clearDraft();
                     onComplete();
                 } else {
                     setError(response.error?.message || '提交失敗');
