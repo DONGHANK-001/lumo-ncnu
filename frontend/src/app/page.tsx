@@ -428,7 +428,7 @@ export default function LandingPage() {
 
             {/* 📚 讀家回憶｜系所對抗賽 活動橫幅 (4/7-4/17 12:00 自動消失) */}
             {isReadingEventActive() && (
-                <Container maxWidth="md" sx={{ mt: -4, mb: 4, position: 'relative', zIndex: 3 }}>
+                <Container maxWidth="md" sx={{ mt: { xs: -2, sm: -3 }, mb: 3, position: 'relative', zIndex: 3 }}>
                     <Card
                         sx={{
                             borderRadius: 4,
@@ -530,7 +530,7 @@ export default function LandingPage() {
             )}
 
             {/* Last Month Top 3 Banner */}
-            <Container maxWidth="md" sx={{ mt: -6, mb: 6, position: 'relative', zIndex: 2 }}>
+            <Container maxWidth="md" sx={{ mt: isReadingEventActive() ? 0 : { xs: -2, sm: -3 }, mb: 4, position: 'relative', zIndex: 2 }}>
                 <Card sx={{
                     borderRadius: 4,
                     background: `linear-gradient(135deg, ${theme.palette.warning.main} 0%, ${theme.palette.warning.light} 100%)`,
