@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { api } from '@/lib/api-client';
 import { getSocket } from '@/lib/socket';
+import { shouldShowReadingEventNotification, isReadingEventNotifReadToday } from '@/lib/constants';
 
 interface Notification {
     id: string;
@@ -104,8 +105,13 @@ export function useNotifications() {
         fetchUnreadCount();
     }, [fetchUnreadCount]);
 
+    // 虛擬活動通知的未讀計數（前端 hardcode，不動 DB）
+    const eventNotifUnread = typeof window !== 'undefined'
+        && shouldShowReadingEventNotification()
+        && !isReadingEventNotifReadToday() ? 1 : 0;
+
     return {
-        unreadCount,
+        unreadCount: unreadCount + eventNotifUnread,
         notifications,
         loading,
         fetchNotifications,

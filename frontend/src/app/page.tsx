@@ -65,7 +65,7 @@ import DepartmentUpdateDialog, { DEPARTMENT_VERSION } from './components/Departm
 import IdentityUpdateDialog from './components/IdentityUpdateDialog';
 import PwaInstallDialog from './components/PwaInstallDialog';
 import { useNotifications } from '@/hooks/useNotifications';
-import { SPORT_NAMES, DEPARTMENTS } from '@/lib/constants';
+import { SPORT_NAMES, DEPARTMENTS, isReadingEventActive } from '@/lib/constants';
 
 const SPORTS = [
     { type: 'BASKETBALL', icon: <SportsBasketball fontSize="large" />, name: '籃球' },
@@ -425,6 +425,109 @@ export default function LandingPage() {
                     </Stack>
                 </Container>
             </Box>
+
+            {/* 📚 讀家回憶｜系所對抗賽 活動橫幅 (4/7-4/17 12:00 自動消失) */}
+            {isReadingEventActive() && (
+                <Container maxWidth="md" sx={{ mt: -4, mb: 4, position: 'relative', zIndex: 3 }}>
+                    <Card
+                        sx={{
+                            borderRadius: 4,
+                            background: 'linear-gradient(135deg, #0d1b2a 0%, #1b3a5c 40%, #274c77 100%)',
+                            color: '#fff',
+                            boxShadow: '0 8px 32px rgba(27, 58, 92, 0.4)',
+                            overflow: 'hidden',
+                            position: 'relative',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                        }}
+                    >
+                        {/* 裝飾光暈 */}
+                        <Box sx={{
+                            position: 'absolute',
+                            top: -40,
+                            right: -40,
+                            width: 160,
+                            height: 160,
+                            borderRadius: '50%',
+                            background: 'radial-gradient(circle, rgba(255,215,0,0.15) 0%, transparent 70%)',
+                            pointerEvents: 'none',
+                        }} />
+                        <CardContent sx={{ py: 3, px: { xs: 2.5, sm: 4 }, position: 'relative' }}>
+                            <Typography
+                                variant="h5"
+                                fontWeight="900"
+                                textAlign="center"
+                                sx={{
+                                    mb: 1,
+                                    textShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                                    fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                                }}
+                            >
+                                📚 讀家回憶｜系所對抗賽 🏆
+                            </Typography>
+                            <Typography
+                                variant="body2"
+                                textAlign="center"
+                                sx={{ opacity: 0.85, mb: 2 }}
+                            >
+                                4/7 – 4/17 衝上個人排行榜前三，精美禮券帶走！
+                            </Typography>
+
+                            <Stack
+                                direction="row"
+                                spacing={{ xs: 2, sm: 4 }}
+                                justifyContent="center"
+                                alignItems="center"
+                                sx={{ mb: 2.5 }}
+                            >
+                                <Stack alignItems="center">
+                                    <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1 }}>🥇</Typography>
+                                    <Typography variant="caption" sx={{ opacity: 0.8 }}>300 元</Typography>
+                                </Stack>
+                                <Stack alignItems="center">
+                                    <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1 }}>🥈</Typography>
+                                    <Typography variant="caption" sx={{ opacity: 0.8 }}>200 元</Typography>
+                                </Stack>
+                                <Stack alignItems="center">
+                                    <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1 }}>🥉</Typography>
+                                    <Typography variant="caption" sx={{ opacity: 0.8 }}>100 元</Typography>
+                                </Stack>
+                            </Stack>
+
+                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center">
+                                <Button
+                                    variant="contained"
+                                    component={Link}
+                                    href="/sports/STUDY"
+                                    sx={{
+                                        bgcolor: '#FFD700',
+                                        color: '#0d1b2a',
+                                        fontWeight: 'bold',
+                                        borderRadius: 3,
+                                        px: 3,
+                                        '&:hover': { bgcolor: '#FFC107' },
+                                    }}
+                                >
+                                    立即參賽 🔥
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    component={Link}
+                                    href="/leaderboard"
+                                    sx={{
+                                        borderColor: 'rgba(255,255,255,0.4)',
+                                        color: '#fff',
+                                        borderRadius: 3,
+                                        px: 3,
+                                        '&:hover': { borderColor: '#FFD700', color: '#FFD700' },
+                                    }}
+                                >
+                                    查看排行榜
+                                </Button>
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                </Container>
+            )}
 
             {/* Last Month Top 3 Banner */}
             <Container maxWidth="md" sx={{ mt: -6, mb: 6, position: 'relative', zIndex: 2 }}>

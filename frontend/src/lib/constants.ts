@@ -116,3 +116,40 @@ export const PLANS = [
     { type: 'QUARTERLY', name: '超值季卡', price: 99, period: '季', features: ['包含月租方案功能', '解鎖智慧配對進階條件'] },
     { type: 'LIFETIME', name: '終身黑金卡', price: 199, period: '永久', features: ['專屬「⚜️ 黑金永恆」稱號', '揪團金框標示', '未來所有新功能免費', '未來周邊商品最優惠價格'] },
 ] as const;
+
+// ============================================
+// 讀家回憶｜系所對抗賽 活動設定（4/7 - 4/17）
+// ============================================
+/** 活動開始時間 */
+export const READING_EVENT_START = new Date('2026-04-07T00:00:00+08:00');
+/** 橫幅 & 通知截止時間（4/17 中午 12:00） */
+export const READING_EVENT_END = new Date('2026-04-17T12:00:00+08:00');
+/** 每日通知觸發小時（24h 制） */
+export const READING_EVENT_DAILY_HOUR = 9;
+
+/** 判斷活動期間內且尚未截止 */
+export function isReadingEventActive(): boolean {
+    const now = new Date();
+    return now >= READING_EVENT_START && now < READING_EVENT_END;
+}
+
+/** 判斷今天 9 點後且活動期間內（用於通知觸發） */
+export function shouldShowReadingEventNotification(): boolean {
+    if (!isReadingEventActive()) return false;
+    const now = new Date();
+    return now.getHours() >= READING_EVENT_DAILY_HOUR;
+}
+
+/** 判斷虛擬通知今日是否已讀（localStorage） */
+export function isReadingEventNotifReadToday(): boolean {
+    if (typeof window === 'undefined') return true;
+    const stored = localStorage.getItem('reading_event_notif_read_date');
+    const today = new Date().toDateString();
+    return stored === today;
+}
+
+/** 標記虛擬通知今日已讀 */
+export function markReadingEventNotifRead(): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('reading_event_notif_read_date', new Date().toDateString());
+}
