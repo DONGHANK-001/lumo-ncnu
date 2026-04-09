@@ -28,6 +28,17 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
+        version: 'v1.14.2',
+        date: '2026-04-09',
+        category: '修復',
+        title: '🛠️ 首頁 Banner 重疊修復',
+        details: [
+            '修正「讀家回憶活動橫幅」與「上月最強熱血系所」兩張卡片在手機和電腦上重疊的問題',
+            '活動期間兩張卡片保持正常間距，不再互相遮擋',
+            '非活動期間系所橫幅恢復微浮層次感',
+        ],
+    },
+    {
         version: 'v1.14.1',
         date: '2026-04-07',
         category: '優化',
