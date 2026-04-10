@@ -109,8 +109,7 @@ export default function LeaderboardPage() {
     const [selectedSocial, setSelectedSocial] = useState<string>(SOCIAL_ACTIVITIES[0]);
 
     const [loading, setLoading] = useState(true);
-    const [eventState, setEventState] = useState<string>('normal');
-    const [eventMessage, setEventMessage] = useState<string>('');
+    const [readingEvent, setReadingEvent] = useState(false);
 
     useEffect(() => {
         if (tab === 'DEPT') {
@@ -128,8 +127,7 @@ export default function LeaderboardPage() {
             const json = await res.json();
             if (json.success) {
                 setDepartments(json.data.departments);
-                if (json.data.eventState) setEventState(json.data.eventState);
-                if (json.data.message) setEventMessage(json.data.message);
+                if (json.data.readingEvent) setReadingEvent(true);
             }
         } catch (e) {
             console.error('Leaderboard fetch error:', e);
@@ -144,7 +142,6 @@ export default function LeaderboardPage() {
             const json = await res.json();
             if (json.success) {
                 setActivityRankings(json.data);
-                if (json.eventState) setEventState(json.eventState);
             }
         } catch (e) {
             console.error('Activity leaderboard fetch error:', e);
@@ -296,24 +293,10 @@ export default function LeaderboardPage() {
             </Box>
 
             {/* 讀家回憶活動 Banner */}
-            {eventState === 'frozen' && (
-                <Paper sx={{
-                    p: 3, mb: 3, borderRadius: 4, textAlign: 'center',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    color: 'white',
-                }}>
-                    <Typography variant="h5" fontWeight="bold" gutterBottom>
-                        📚 讀家回憶活動 — 結算公告
-                    </Typography>
-                    <Typography variant="body1">
-                        {eventMessage || '排行榜結算中，以下為讀家回憶前三名！13:00 恢復完整排行榜'}
-                    </Typography>
-                </Paper>
-            )}
-            {eventState === 'study_only' && (
-                <Paper sx={{ p: 2, mb: 2, borderRadius: 3, bgcolor: 'info.main', color: 'white', textAlign: 'center' }}>
+            {readingEvent && (
+                <Paper sx={{ p: 1.5, mb: 2, borderRadius: 3, bgcolor: 'info.main', color: 'white', textAlign: 'center' }}>
                     <Typography variant="body2" fontWeight="bold">
-                        {eventMessage || '📚 4/7~4/17 讀家回憶活動期間 — 排行榜僅計算讀家回憶揪團！'}
+                        📚 4/7~4/17 讀家回憶活動進行中 — 快去「社交排行」查看讀家回憶排名！
                     </Typography>
                 </Paper>
             )}

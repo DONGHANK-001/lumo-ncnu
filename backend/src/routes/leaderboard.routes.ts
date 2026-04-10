@@ -9,18 +9,12 @@ const PURE_SPORTS = ['BASKETBALL', 'RUNNING', 'BADMINTON', 'TABLE_TENNIS', 'GYM'
 const SOCIAL_ACTIVITIES = ['NIGHT_WALK', 'DINING', 'STUDY'] as const;
 const ALL_ACTIVITY_TYPES = [...PURE_SPORTS, ...SOCIAL_ACTIVITIES] as const;
 
-// ===== 讀家回憶活動 4/7~4/17 =====
-type EventState = 'normal' | 'study_only' | 'frozen';
-
-const getEventState = (): EventState => {
+// ===== 讀家回憶活動 4/7~4/17（僅用於前端 Banner 提示） =====
+const isReadingEventActive = (): boolean => {
     const now = new Date();
-    const eventStart  = new Date('2026-04-07T00:00:00+08:00');
-    const freezeStart = new Date('2026-04-17T12:00:00+08:00');
-    const freezeEnd   = new Date('2026-04-17T13:00:00+08:00');
-
-    if (now >= freezeStart && now < freezeEnd) return 'frozen';
-    if (now >= eventStart && now < freezeStart) return 'study_only';
-    return 'normal';
+    const eventStart = new Date('2026-04-07T00:00:00+08:00');
+    const eventEnd   = new Date('2026-04-17T13:00:00+08:00');
+    return now >= eventStart && now < eventEnd;
 };
 
 // 取得結算時間 (預設每月，第一個月由 2026-03-02 起算)
@@ -53,18 +47,9 @@ const DEPT_GLORY_LABELS = ['🌟 之光', '✨ 之光', '💫 之光'];
  */
 router.get('/departments', async (req: Request, res: Response) => {
     try {
-        const eventState = getEventState();
+        const readingEvent = isReadingEventActive();
         const period = (req.query.period as string) || 'current';
         const { start, end } = getMonthDateRange(period as 'current' | 'last_month');
-
-        // 活動期間或凍結期間只計算 STUDY
-        const studyOnly = eventState === 'study_only' || eventState === 'frozen';
-        const resultLimit = eventState === 'frozen' ? 3 : 20;
-
-        // 正常時期只計算純運動，活動時期只計算 STUDY
-        const sportFilter = studyOnly
-            ? Prisma.sql`AND g."sportType" = 'STUDY'`
-            : Prisma.sql`AND g."sportType" IN (${Prisma.join([...PURE_SPORTS])})`;
 
         const results = await prisma.$queryRaw<
             { department: string; total_joins: bigint; unique_users: bigint; top_sport: string }[]
@@ -82,10 +67,10 @@ router.get('/departments', async (req: Request, res: Response) => {
               AND gm."joinedAt" <= ${end}
               AND u."department" IS NOT NULL
               AND u."department" != ''
-              ${sportFilter}
+              AND g."sportType" IN (${Prisma.join([...PURE_SPORTS])})
             GROUP BY u."department"
             ORDER BY total_joins DESC
-            LIMIT ${resultLimit}
+            LIMIT 20
         `;
 
         const departments = results.map((r, index) => ({
@@ -103,13 +88,9 @@ router.get('/departments', async (req: Request, res: Response) => {
             data: {
                 period,
                 departments,
-                eventState,
-                ...(eventState === 'frozen' && {
-                    frozen: true,
-                    message: '📚 讀家回憶活動結算中！以下是前三名，13:00 恢復完整排行榜',
-                }),
-                ...(eventState === 'study_only' && {
-                    message: '📚 4/7~4/17 讀家回憶活動期間 — 排行榜僅計算讀家回憶揪團！',
+                readingEvent,
+                ...(readingEvent && {
+                    message: '📚 4/7~4/17 讀家回憶活動進行中 — 快去社交排行查看讀家回憶排名！',
                 }),
             },
         });
@@ -177,8 +158,6 @@ router.get('/by-activity', async (req: Request, res: Response) => {
             });
         }
 
-        const eventState = getEventState();
-        const limit = eventState === 'frozen' ? 3 : 20;
         const { start, end } = getMonthDateRange('current');
 
         const members = await prisma.$queryRaw<{ userId: string; cnt: bigint }[]>`
@@ -191,7 +170,7 @@ router.get('/by-activity', async (req: Request, res: Response) => {
               AND g."sportType" = ${sportType}
             GROUP BY gm."userId"
             ORDER BY cnt DESC
-            LIMIT ${limit}
+            LIMIT 20
         `;
 
         const userIds = members.map(m => m.userId);
@@ -226,7 +205,6 @@ router.get('/by-activity', async (req: Request, res: Response) => {
             success: true,
             data: rankings,
             sportType,
-            eventState,
         });
     } catch (error) {
         req.log.error({ err: error }, 'Activity leaderboard error');
