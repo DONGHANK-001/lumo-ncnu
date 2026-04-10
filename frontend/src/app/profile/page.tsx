@@ -45,6 +45,8 @@ import {
     DirectionsRun,
     SportsTennis,
     SportsVolleyball,
+    SportsHandball,
+    SportsCricket,
 } from '@mui/icons-material';
 import type { SvgIconProps } from '@mui/material';
 import type { ComponentType } from 'react';
@@ -55,8 +57,8 @@ import React from 'react';
 const SPORT_ICON_MAP: Record<string, React.ReactElement> = {
     BASKETBALL: <SportsBasketball sx={{ fontSize: 18 }} />,
     RUNNING: <DirectionsRun sx={{ fontSize: 18 }} />,
-    BADMINTON: <SportsTennis sx={{ fontSize: 18 }} />,
-    TABLE_TENNIS: <SportsTennis sx={{ fontSize: 18 }} />,
+    BADMINTON: <SportsHandball sx={{ fontSize: 18 }} />,
+    TABLE_TENNIS: <SportsCricket sx={{ fontSize: 18 }} />,
     GYM: <FitnessCenter sx={{ fontSize: 18 }} />,
     VOLLEYBALL: <SportsVolleyball sx={{ fontSize: 18 }} />,
     TENNIS: <SportsTennis sx={{ fontSize: 18 }} />,
