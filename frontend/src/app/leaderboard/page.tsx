@@ -21,7 +21,6 @@ interface DeptRanking {
     totalJoins: number;
     uniqueUsers: number;
     topSport?: string;
-    gloryTitle?: string;
 }
 
 interface ActivityRanking {
@@ -363,22 +362,6 @@ export default function LeaderboardPage() {
                                                             >
                                                                 {dept.department}
                                                             </Typography>
-                                                            {dept.gloryTitle && (
-                                                                <Chip
-                                                                    label={dept.gloryTitle}
-                                                                    size="small"
-                                                                    sx={{
-                                                                        fontWeight: 'bold',
-                                                                        mt: 0.5,
-                                                                        background: idx === 0
-                                                                            ? 'linear-gradient(45deg, #FFD700 30%, #FFA500 90%)'
-                                                                            : idx === 1
-                                                                                ? 'linear-gradient(45deg, #C0C0C0 30%, #E0E0E0 90%)'
-                                                                                : 'linear-gradient(45deg, #CD7F32 30%, #D4A373 90%)',
-                                                                        color: 'white',
-                                                                    }}
-                                                                />
-                                                            )}
                                                             <Typography variant={isMobile ? 'caption' : 'body2'} color="text.secondary">
                                                                 {dept.totalJoins} 次
                                                             </Typography>
@@ -419,23 +402,6 @@ export default function LeaderboardPage() {
                                                     <Typography variant={isMobile ? 'body2' : 'subtitle1'} fontWeight="bold" sx={{ wordBreak: 'break-word' }}>
                                                         {dept.department}
                                                     </Typography>
-                                                    {dept.gloryTitle && (
-                                                        <Chip
-                                                            label={dept.gloryTitle}
-                                                            size="small"
-                                                            sx={{
-                                                                fontWeight: 'bold',
-                                                                background: dept.rank === 1
-                                                                    ? 'linear-gradient(45deg, #FFD700 30%, #FFA500 90%)'
-                                                                    : dept.rank === 2
-                                                                        ? 'linear-gradient(45deg, #C0C0C0 30%, #E0E0E0 90%)'
-                                                                        : 'linear-gradient(45deg, #CD7F32 30%, #D4A373 90%)',
-                                                                color: 'white',
-                                                                height: isMobile ? 20 : 24,
-                                                                fontSize: isMobile ? '0.65rem' : undefined,
-                                                            }}
-                                                        />
-                                                    )}
                                                 </Stack>
                                                 <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap">
                                                     <Groups sx={{ fontSize: 14, color: 'text.secondary' }} />

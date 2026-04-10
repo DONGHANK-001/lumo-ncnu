@@ -38,9 +38,6 @@ const getMonthDateRange = (period: 'current' | 'last_month' = 'current') => {
     return { start, end };
 };
 
-// 系所之光稱號對照
-const DEPT_GLORY_LABELS = ['🌟 之光', '✨ 之光', '💫 之光'];
-
 /**
  * GET /leaderboard/departments
  * 系所排行榜 — 只計算純運動（排除社交活動）
@@ -79,8 +76,6 @@ router.get('/departments', async (req: Request, res: Response) => {
             totalJoins: Number(r.total_joins),
             uniqueUsers: Number(r.unique_users),
             topSport: r.top_sport,
-            // 前 3 名附加系所之光稱號
-            ...(index < 3 && { gloryTitle: `${r.department}${DEPT_GLORY_LABELS[index]}` }),
         }));
 
         res.json({
