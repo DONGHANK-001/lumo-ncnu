@@ -84,7 +84,7 @@ const SPORTS = [
     { type: 'GYM', icon: <FitnessCenter fontSize="large" />, name: '健身' },
     { type: 'VOLLEYBALL', icon: <SportsVolleyball fontSize="large" />, name: '排球' },
     { type: 'TENNIS', icon: <SportsTennis fontSize="large" />, name: '網球' },
-    { type: 'FREE', icon: <SelfImprovement fontSize="large" />, name: '別無所求', href: null as string | null },
+    { type: 'FREE', icon: <SelfImprovement fontSize="large" />, name: '別無所求', href: '/characters' as string | null },
 ];
 
 interface LatestGroup {
