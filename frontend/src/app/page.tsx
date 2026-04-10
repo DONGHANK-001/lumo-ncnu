@@ -51,6 +51,7 @@ import {
     People,
     ArrowForward
 } from '@mui/icons-material';
+import { BadmintonIcon, TableTennisIcon } from './components/SportIcons';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
@@ -71,8 +72,8 @@ import { SPORT_NAMES, DEPARTMENTS, isReadingEventActive, isMidtermFitActive, isA
 const SPORTS = [
     { type: 'BASKETBALL', icon: <SportsBasketball fontSize="large" />, name: '籃球' },
     { type: 'RUNNING', icon: <DirectionsRun fontSize="large" />, name: '跑步' },
-    { type: 'BADMINTON', icon: <SportsTennis fontSize="large" />, name: '羽球' },
-    { type: 'TABLE_TENNIS', icon: <SportsTennis fontSize="large" />, name: '桌球' },
+    { type: 'BADMINTON', icon: <BadmintonIcon fontSize="large" />, name: '羽球' },
+    { type: 'TABLE_TENNIS', icon: <TableTennisIcon fontSize="large" />, name: '桌球' },
     { type: 'GYM', icon: <FitnessCenter fontSize="large" />, name: '健身' },
     { type: 'VOLLEYBALL', icon: <SportsVolleyball fontSize="large" />, name: '排球' },
     { type: 'TENNIS', icon: <SportsTennis fontSize="large" />, name: '網球' },
