@@ -1,10 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
-import { firebaseAuthMiddleware } from '../middleware/firebase-auth.js';
-import { isTrialPeriod } from '../utils/trial-period.js';
 
 const router = Router();
+
+// 純運動 & 社交活動常數
+const PURE_SPORTS = ['BASKETBALL', 'RUNNING', 'BADMINTON', 'TABLE_TENNIS', 'GYM', 'VOLLEYBALL', 'TENNIS'] as const;
+const SOCIAL_ACTIVITIES = ['NIGHT_WALK', 'DINING', 'STUDY'] as const;
+const ALL_ACTIVITY_TYPES = [...PURE_SPORTS, ...SOCIAL_ACTIVITIES] as const;
 
 // ===== 讀家回憶活動 4/7~4/17 =====
 type EventState = 'normal' | 'study_only' | 'frozen';
@@ -28,15 +31,12 @@ const getMonthDateRange = (period: 'current' | 'last_month' = 'current') => {
     if (period === 'current') {
         start = new Date(now.getFullYear(), now.getMonth(), 1);
         if (now.getFullYear() === 2026 && now.getMonth() === 2) {
-            // 2026 年 3 月的起點為 3/2
             start = new Date('2026-03-02T00:00:00+08:00');
         }
         end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
     } else {
-        // last_month
         start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         if (now.getFullYear() === 2026 && now.getMonth() === 3) {
-            // 如果是 4 月想看 3 月的資料，3 月的起點是 3/2
             start = new Date('2026-03-02T00:00:00+08:00');
         }
         end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
@@ -44,22 +44,12 @@ const getMonthDateRange = (period: 'current' | 'last_month' = 'current') => {
     return { start, end };
 };
 
-const COOL_TITLES = [
-    '【傳說】LUMO 霸主',
-    '【無雙】極限強者',
-    '【神域】不敗戰神',
-    '【聖耀】運動狂熱',
-    '【星輝】全能超人',
-    '【輝煌】熱血鬥士',
-    '【閃耀】明日之星',
-    '【精英】系館傳奇',
-    '【卓越】不懈鐵人',
-    '【新銳】黑馬逆襲',
-];
+// 系所之光稱號對照
+const DEPT_GLORY_LABELS = ['🌟 之光', '✨ 之光', '💫 之光'];
 
 /**
  * GET /leaderboard/departments
- * 系所排行榜 — 本週或總計揪團參與次數
+ * 系所排行榜 — 只計算純運動（排除社交活動）
  */
 router.get('/departments', async (req: Request, res: Response) => {
     try {
@@ -70,6 +60,11 @@ router.get('/departments', async (req: Request, res: Response) => {
         // 活動期間或凍結期間只計算 STUDY
         const studyOnly = eventState === 'study_only' || eventState === 'frozen';
         const resultLimit = eventState === 'frozen' ? 3 : 20;
+
+        // 正常時期只計算純運動，活動時期只計算 STUDY
+        const sportFilter = studyOnly
+            ? Prisma.sql`AND g."sportType" = 'STUDY'`
+            : Prisma.sql`AND g."sportType" IN (${Prisma.join([...PURE_SPORTS])})`;
 
         const results = await prisma.$queryRaw<
             { department: string; total_joins: bigint; unique_users: bigint; top_sport: string }[]
@@ -87,19 +82,20 @@ router.get('/departments', async (req: Request, res: Response) => {
               AND gm."joinedAt" <= ${end}
               AND u."department" IS NOT NULL
               AND u."department" != ''
-              ${studyOnly ? Prisma.sql`AND g."sportType" = 'STUDY'` : Prisma.empty}
+              ${sportFilter}
             GROUP BY u."department"
             ORDER BY total_joins DESC
             LIMIT ${resultLimit}
         `;
 
-        // Convert BigInt to Number for JSON serialization
         const departments = results.map((r, index) => ({
             rank: index + 1,
             department: r.department,
             totalJoins: Number(r.total_joins),
             uniqueUsers: Number(r.unique_users),
             topSport: r.top_sport,
+            // 前 3 名附加系所之光稱號
+            ...(index < 3 && { gloryTitle: `${r.department}${DEPT_GLORY_LABELS[index]}` }),
         }));
 
         res.json({
@@ -119,7 +115,6 @@ router.get('/departments', async (req: Request, res: Response) => {
         });
     } catch (error) {
         req.log.error({ err: error }, 'Leaderboard error');
-        // Fallback: 用 ORM 查詢
         try {
             const members = await prisma.groupMember.findMany({
                 where: { status: 'JOINED' },
@@ -129,11 +124,12 @@ router.get('/departments', async (req: Request, res: Response) => {
                 },
             });
 
+            const pureSportsSet = new Set<string>(PURE_SPORTS);
             const deptMap = new Map<string, { joins: number; users: Set<string>; sports: Record<string, number> }>();
             for (const m of members) {
                 const dept = (m as any).user?.department;
                 const sport = (m as any).group?.sportType;
-                if (!dept || !sport) continue;
+                if (!dept || !sport || !pureSportsSet.has(sport)) continue;
 
                 if (!deptMap.has(dept)) deptMap.set(dept, { joins: 0, users: new Set(), sports: {} });
                 const entry = deptMap.get(dept)!;
@@ -144,7 +140,6 @@ router.get('/departments', async (req: Request, res: Response) => {
 
             const departments = Array.from(deptMap.entries())
                 .map(([dept, data], index) => {
-                    // Find the sport with maximum count
                     const topSport = Object.entries(data.sports).sort((a, b) => b[1] - a[1])[0][0];
                     return {
                         rank: index + 1,
@@ -169,90 +164,72 @@ router.get('/departments', async (req: Request, res: Response) => {
 });
 
 /**
- * GET /leaderboard/users
- * 個人排行榜 Top N
+ * GET /leaderboard/by-activity?type=BASKETBALL
+ * 個別運動/社交活動排行榜（公開，無需登入）
  */
-router.get('/users', firebaseAuthMiddleware, async (req: Request, res: Response) => {
+router.get('/by-activity', async (req: Request, res: Response) => {
     try {
-        const user = req.user!;
-
-        // 檢查權限：必須是 PLUS 會員或是處於免費試用期
-        if (user.planType !== 'PLUS' && !isTrialPeriod()) {
-            return res.status(403).json({
+        const sportType = req.query.type as string;
+        if (!sportType || !ALL_ACTIVITY_TYPES.includes(sportType as any)) {
+            return res.status(400).json({
                 success: false,
-                error: { code: 'PRO_REQUIRED', message: '只有 PLUS 會員可以解鎖個人排行榜特權' }
+                error: { code: 'INVALID_TYPE', message: '無效的活動類型' },
             });
         }
 
         const eventState = getEventState();
-        const limit = eventState === 'frozen' ? 3 : (parseInt(req.query.top as string) || 10);
+        const limit = eventState === 'frozen' ? 3 : 20;
         const { start, end } = getMonthDateRange('current');
 
-        // 活動期間或凍結期間只計算 STUDY 揪團
-        const studyOnly = eventState === 'study_only' || eventState === 'frozen';
-        let groupIdFilter: string[] | undefined;
-        if (studyOnly) {
-            const studyGroups = await prisma.group.findMany({
-                where: { sportType: 'STUDY' },
-                select: { id: true },
-            });
-            groupIdFilter = studyGroups.map(g => g.id);
-        }
-
-        const members = await prisma.groupMember.groupBy({
-            by: ['userId'],
-            where: {
-                status: 'JOINED',
-                joinedAt: { gte: start, lte: end },
-                ...(groupIdFilter && { groupId: { in: groupIdFilter } }),
-            },
-            _count: { id: true },
-            orderBy: { _count: { id: 'desc' } },
-            take: limit,
-        });
+        const members = await prisma.$queryRaw<{ userId: string; cnt: bigint }[]>`
+            SELECT gm."userId", COUNT(*)::bigint as cnt
+            FROM group_members gm
+            JOIN groups g ON g.id = gm."groupId"
+            WHERE gm.status = 'JOINED'
+              AND gm."joinedAt" >= ${start}
+              AND gm."joinedAt" <= ${end}
+              AND g."sportType" = ${sportType}
+            GROUP BY gm."userId"
+            ORDER BY cnt DESC
+            LIMIT ${limit}
+        `;
 
         const userIds = members.map(m => m.userId);
         const users = await prisma.user.findMany({
             where: { id: { in: userIds } },
-            select: { id: true, nickname: true, department: true, avatarUrl: true, activeTitle: true, attendedCount: true, noShowCount: true },
+            select: { id: true, nickname: true, department: true, avatarUrl: true, activeTitle: true },
         });
-
         const userMap = new Map(users.map(u => [u.id, u]));
+
+        // 活動稱號 key 前綴
+        const isSocial = (SOCIAL_ACTIVITIES as readonly string[]).includes(sportType);
+        const prefix = isSocial ? 'social' : 'sport';
 
         const rankings = members.map((m, index) => {
             const rank = index + 1;
-            const topTitle = rank <= 10 ? COOL_TITLES[rank - 1] : undefined;
             const dbUser = userMap.get(m.userId);
-            const attended = dbUser?.attendedCount ?? 0;
-            const noShow = dbUser?.noShowCount ?? 0;
-            const total = attended + noShow;
+            const activityTitle = rank <= 3
+                ? `${prefix}_${sportType.toLowerCase()}_${rank}`
+                : undefined;
 
             return {
                 rank,
-                user: dbUser ? { id: dbUser.id, nickname: dbUser.nickname, avatarUrl: dbUser.avatarUrl, activeTitle: dbUser.activeTitle } : { id: m.userId, nickname: '匿名', avatarUrl: null, activeTitle: null },
-                totalJoins: m._count.id,
-                attendedCount: attended,
-                noShowCount: noShow,
-                attendanceRate: total > 0 ? Math.round((attended / total) * 100) : null,
-                topTitle,
-                activeTitle: dbUser?.activeTitle,
+                user: dbUser
+                    ? { id: dbUser.id, nickname: dbUser.nickname, avatarUrl: dbUser.avatarUrl, department: dbUser.department, activeTitle: dbUser.activeTitle }
+                    : { id: m.userId, nickname: '匿名', avatarUrl: null, department: null, activeTitle: null },
+                totalJoins: Number(m.cnt),
+                activityTitle,
             };
         });
 
         res.json({
             success: true,
             data: rankings,
+            sportType,
             eventState,
-            ...(eventState === 'frozen' && {
-                frozen: true,
-                message: '📚 讀家回憶前三名揭曉！13:00 恢復完整排行',
-            }),
-            ...(eventState === 'study_only' && {
-                message: '📚 4/7~4/17 讀家回憶活動期間 — 排行榜僅計算讀家回憶揪團！',
-            }),
         });
     } catch (error) {
-        req.log.error({ err: error }, 'User leaderboard error');
+        req.log.error({ err: error }, 'Activity leaderboard error');
         res.status(500).json({
             success: false,
             error: { code: 'SERVER_ERROR', message: '排行榜載入失敗' },

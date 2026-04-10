@@ -105,7 +105,7 @@ app.use('/groups', groupsRoutes);   // /groups, /groups/:id, etc.
 app.use('/reports', reportsRoutes); // /reports
 app.use('/ai', aiRoutes);           // /ai/status
 app.use('/admin', adminRoutes);     // /admin/*
-app.use('/leaderboard', leaderboardRoutes); // /leaderboard/departments, /leaderboard/users
+app.use('/leaderboard', leaderboardRoutes); // /leaderboard/departments, /leaderboard/by-activity
 app.use('/badges', badgesRoutes);           // /badges, /badges/me, /badges/check
 app.use('/match', matchRoutes);             // /match/partners
 app.use('/payment', paymentRoutes);         // /payment/checkout, /payment/callback

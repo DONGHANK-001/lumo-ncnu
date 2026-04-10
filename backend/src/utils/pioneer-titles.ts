@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prisma.js';
+import { Prisma } from '@prisma/client';
 
 /**
  * 所有可獲得的稱號定義
@@ -8,7 +9,7 @@ export interface TitleEntry {
     key: string;
     label: string;
     icon: string;
-    category: 'pioneer' | 'leaderboard' | 'event' | 'achievement' | 'subscription' | 'reputation';
+    category: 'pioneer' | 'leaderboard' | 'event' | 'achievement' | 'subscription' | 'reputation' | 'sport_rank' | 'social_rank' | 'dept_glory';
     description: string;
 }
 
@@ -26,7 +27,7 @@ const PIONEER_TITLES: TitleEntry[] = [
     { key: 'pioneer_10', label: '#010 巔峰攀登者', icon: '🏔️', category: 'pioneer', description: '第 10 位加入的玩家' },
 ];
 
-// ── 排行榜稱號（Top 10） ──
+// ── 排行榜稱號（舊版 Top 10，保留向後相容） ──
 const LEADERBOARD_TITLES: TitleEntry[] = [
     { key: 'leaderboard_1', label: '【神域】不敗戰神', icon: '⚔️', category: 'leaderboard', description: '個人排行榜第 1 名' },
     { key: 'leaderboard_2', label: '【天界】無雙霸主', icon: '👑', category: 'leaderboard', description: '個人排行榜第 2 名' },
@@ -39,6 +40,61 @@ const LEADERBOARD_TITLES: TitleEntry[] = [
     { key: 'leaderboard_9', label: '【星辰】月影獵人', icon: '🌙', category: 'leaderboard', description: '個人排行榜第 9 名' },
     { key: 'leaderboard_10', label: '【曙光】破曉守望者', icon: '🌅', category: 'leaderboard', description: '個人排行榜第 10 名' },
 ];
+
+// ── 運動排行稱號（每項運動 Top 3） ──
+const SPORT_RANK_TITLES: TitleEntry[] = [
+    // 籃球
+    { key: 'sport_basketball_1', label: '🏀 籃球之王', icon: '🏀', category: 'sport_rank', description: '本月籃球排行第 1 名' },
+    { key: 'sport_basketball_2', label: '🏀 灌籃悍將', icon: '🏀', category: 'sport_rank', description: '本月籃球排行第 2 名' },
+    { key: 'sport_basketball_3', label: '🏀 籃場新星', icon: '🏀', category: 'sport_rank', description: '本月籃球排行第 3 名' },
+    // 跑步
+    { key: 'sport_running_1', label: '🏃 極速飛人', icon: '🏃', category: 'sport_rank', description: '本月跑步排行第 1 名' },
+    { key: 'sport_running_2', label: '🏃 疾風跑者', icon: '🏃', category: 'sport_rank', description: '本月跑步排行第 2 名' },
+    { key: 'sport_running_3', label: '🏃 耐力新星', icon: '🏃', category: 'sport_rank', description: '本月跑步排行第 3 名' },
+    // 羽球
+    { key: 'sport_badminton_1', label: '🏸 羽球至尊', icon: '🏸', category: 'sport_rank', description: '本月羽球排行第 1 名' },
+    { key: 'sport_badminton_2', label: '🏸 殺球悍將', icon: '🏸', category: 'sport_rank', description: '本月羽球排行第 2 名' },
+    { key: 'sport_badminton_3', label: '🏸 羽場新星', icon: '🏸', category: 'sport_rank', description: '本月羽球排行第 3 名' },
+    // 桌球
+    { key: 'sport_table_tennis_1', label: '🏓 桌球至尊', icon: '🏓', category: 'sport_rank', description: '本月桌球排行第 1 名' },
+    { key: 'sport_table_tennis_2', label: '🏓 旋球悍將', icon: '🏓', category: 'sport_rank', description: '本月桌球排行第 2 名' },
+    { key: 'sport_table_tennis_3', label: '🏓 桌場新星', icon: '🏓', category: 'sport_rank', description: '本月桌球排行第 3 名' },
+    // 健身
+    { key: 'sport_gym_1', label: '💪 鐵人霸主', icon: '💪', category: 'sport_rank', description: '本月健身排行第 1 名' },
+    { key: 'sport_gym_2', label: '💪 鋼鐵悍將', icon: '💪', category: 'sport_rank', description: '本月健身排行第 2 名' },
+    { key: 'sport_gym_3', label: '💪 健身新星', icon: '💪', category: 'sport_rank', description: '本月健身排行第 3 名' },
+    // 排球
+    { key: 'sport_volleyball_1', label: '🏐 排球至尊', icon: '🏐', category: 'sport_rank', description: '本月排球排行第 1 名' },
+    { key: 'sport_volleyball_2', label: '🏐 扣殺悍將', icon: '🏐', category: 'sport_rank', description: '本月排球排行第 2 名' },
+    { key: 'sport_volleyball_3', label: '🏐 排場新星', icon: '🏐', category: 'sport_rank', description: '本月排球排行第 3 名' },
+    // 網球
+    { key: 'sport_tennis_1', label: '🎾 網球至尊', icon: '🎾', category: 'sport_rank', description: '本月網球排行第 1 名' },
+    { key: 'sport_tennis_2', label: '🎾 ACE悍將', icon: '🎾', category: 'sport_rank', description: '本月網球排行第 2 名' },
+    { key: 'sport_tennis_3', label: '🎾 網場新星', icon: '🎾', category: 'sport_rank', description: '本月網球排行第 3 名' },
+];
+
+// ── 社交活動排行稱號（每項活動 Top 3） ──
+const SOCIAL_RANK_TITLES: TitleEntry[] = [
+    // 晚風漫遊
+    { key: 'social_night_walk_1', label: '🌙 月夜行者', icon: '🌙', category: 'social_rank', description: '本月晚風漫遊排行第 1 名' },
+    { key: 'social_night_walk_2', label: '🌙 星夜漫遊', icon: '🌙', category: 'social_rank', description: '本月晚風漫遊排行第 2 名' },
+    { key: 'social_night_walk_3', label: '🌙 夜行新星', icon: '🌙', category: 'social_rank', description: '本月晚風漫遊排行第 3 名' },
+    // 飯飯之交
+    { key: 'social_dining_1', label: '🍽️ 美食霸主', icon: '🍽️', category: 'social_rank', description: '本月飯飯之交排行第 1 名' },
+    { key: 'social_dining_2', label: '🍽️ 饕餮使者', icon: '🍽️', category: 'social_rank', description: '本月飯飯之交排行第 2 名' },
+    { key: 'social_dining_3', label: '🍽️ 覓食新星', icon: '🍽️', category: 'social_rank', description: '本月飯飯之交排行第 3 名' },
+    // 讀家回憶
+    { key: 'social_study_1', label: '📚 學霸之王', icon: '📚', category: 'social_rank', description: '本月讀家回憶排行第 1 名' },
+    { key: 'social_study_2', label: '📚 書卷達人', icon: '📚', category: 'social_rank', description: '本月讀家回憶排行第 2 名' },
+    { key: 'social_study_3', label: '📚 學海新星', icon: '📚', category: 'social_rank', description: '本月讀家回憶排行第 3 名' },
+];
+
+// ── 系所之光稱號（動態，前 3 名系所成員可獲得） ──
+const DEPT_GLORY_ICONS = ['🌟', '✨', '💫'];
+
+// 所有活動類型常數
+const PURE_SPORTS = ['BASKETBALL', 'RUNNING', 'BADMINTON', 'TABLE_TENNIS', 'GYM', 'VOLLEYBALL', 'TENNIS'] as const;
+const SOCIAL_ACTIVITIES = ['NIGHT_WALK', 'DINING', 'STUDY'] as const;
 
 // ── 限定活動稱號 ──
 const EVENT_TITLES: TitleEntry[] = [
@@ -60,7 +116,13 @@ const REPUTATION_TITLES: TitleEntry[] = [
 
 // ── 全部稱號 Map ──
 const ALL_TITLES_MAP = new Map<string, TitleEntry>();
-[...PIONEER_TITLES, ...LEADERBOARD_TITLES, ...EVENT_TITLES, ...SUBSCRIPTION_TITLES, ...REPUTATION_TITLES].forEach(t => ALL_TITLES_MAP.set(t.key, t));
+[...PIONEER_TITLES, ...LEADERBOARD_TITLES, ...SPORT_RANK_TITLES, ...SOCIAL_RANK_TITLES, ...EVENT_TITLES, ...SUBSCRIPTION_TITLES, ...REPUTATION_TITLES].forEach(t => ALL_TITLES_MAP.set(t.key, t));
+
+// ── 運動/社交排行稱號快速查詢 ──
+const SPORT_RANK_MAP = new Map<string, TitleEntry>();
+SPORT_RANK_TITLES.forEach(t => SPORT_RANK_MAP.set(t.key, t));
+const SOCIAL_RANK_MAP = new Map<string, TitleEntry>();
+SOCIAL_RANK_TITLES.forEach(t => SOCIAL_RANK_MAP.set(t.key, t));
 
 export function getTitleByKey(key: string): TitleEntry | undefined {
     return ALL_TITLES_MAP.get(key);
@@ -84,6 +146,74 @@ export function clearPioneerCache() {
     pioneerCache = null;
 }
 
+// ── 活動排行快取（60 秒 TTL） ──
+let activityTopCache: { data: Map<string, string[]>; ts: number } | null = null;
+let deptTopCache: { data: { department: string }[]; ts: number } | null = null;
+const CACHE_TTL = 60_000;
+
+function getMonthRange() {
+    const now = new Date();
+    let start = new Date(now.getFullYear(), now.getMonth(), 1);
+    if (now.getFullYear() === 2026 && now.getMonth() === 2) {
+        start = new Date('2026-03-02T00:00:00+08:00');
+    }
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    return { start, end };
+}
+
+/** 每項活動 Top 3 userId（60s 快取） */
+async function getActivityTopUsers(): Promise<Map<string, string[]>> {
+    if (activityTopCache && Date.now() - activityTopCache.ts < CACHE_TTL) return activityTopCache.data;
+    const { start, end } = getMonthRange();
+
+    const rows = await prisma.$queryRaw<{ sportType: string; userId: string; cnt: bigint }[]>`
+        SELECT g."sportType", gm."userId", COUNT(*)::bigint as cnt
+        FROM group_members gm
+        JOIN groups g ON g.id = gm."groupId"
+        WHERE gm.status = 'JOINED'
+          AND gm."joinedAt" >= ${start}
+          AND gm."joinedAt" <= ${end}
+        GROUP BY g."sportType", gm."userId"
+        ORDER BY g."sportType", cnt DESC
+    `;
+
+    const map = new Map<string, string[]>();
+    for (const row of rows) {
+        const list = map.get(row.sportType) || [];
+        if (list.length < 3) list.push(row.userId);
+        map.set(row.sportType, list);
+    }
+    activityTopCache = { data: map, ts: Date.now() };
+    return map;
+}
+
+/** 系所排行 Top 3（只計純運動，60s 快取） */
+async function getDeptTopRanks(): Promise<{ department: string }[]> {
+    if (deptTopCache && Date.now() - deptTopCache.ts < CACHE_TTL) return deptTopCache.data;
+    const { start, end } = getMonthRange();
+    const pureSportsArray = [...PURE_SPORTS];
+
+    const rows = await prisma.$queryRaw<{ department: string; cnt: bigint }[]>`
+        SELECT u."department", COUNT(gm.id)::bigint as cnt
+        FROM group_members gm
+        JOIN users u ON u.id = gm."userId"
+        JOIN groups g ON g.id = gm."groupId"
+        WHERE gm.status = 'JOINED'
+          AND gm."joinedAt" >= ${start}
+          AND gm."joinedAt" <= ${end}
+          AND u."department" IS NOT NULL
+          AND u."department" != ''
+          AND g."sportType" IN (${Prisma.join(pureSportsArray)})
+        GROUP BY u."department"
+        ORDER BY cnt DESC
+        LIMIT 3
+    `;
+
+    const data = rows.map(r => ({ department: r.department }));
+    deptTopCache = { data, ts: Date.now() };
+    return data;
+}
+
 /**
  * 取得使用者的所有已獲得稱號
  */
@@ -97,10 +227,9 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
         titles.push(PIONEER_TITLES[rank]);
     }
 
-    // 2. 排行榜稱號 — 查「上個月」結算結果（稱號持續一個月）
+    // 2. 舊排行榜稱號 — 查「上個月」結算結果（稱號持續一個月）
     const now = new Date();
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    // 2026 年 3 月的起點為 3/2
     const adjustedStart = (lastMonthStart.getFullYear() === 2026 && lastMonthStart.getMonth() === 2)
         ? new Date('2026-03-02T00:00:00+08:00')
         : lastMonthStart;
@@ -121,7 +250,47 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
         titles.push(LEADERBOARD_TITLES[lbRank]);
     }
 
-    // 3. WBC 2026 限定稱號 — 3/5 當天有成功參加或發起揪團
+    // 3. 運動 / 社交活動排行稱號（本月 Top 3）
+    const activityTop = await getActivityTopUsers();
+    for (const sport of PURE_SPORTS) {
+        const topList = activityTop.get(sport) || [];
+        const sportRank = topList.indexOf(userId);
+        if (sportRank !== -1) {
+            const key = `sport_${sport.toLowerCase()}_${sportRank + 1}`;
+            const title = SPORT_RANK_MAP.get(key);
+            if (title) titles.push(title);
+        }
+    }
+    for (const activity of SOCIAL_ACTIVITIES) {
+        const topList = activityTop.get(activity) || [];
+        const actRank = topList.indexOf(userId);
+        if (actRank !== -1) {
+            const key = `social_${activity.toLowerCase()}_${actRank + 1}`;
+            const title = SOCIAL_RANK_MAP.get(key);
+            if (title) titles.push(title);
+        }
+    }
+
+    // 4. 系所之光稱號（本月系所排行 Top 3 的所有成員）
+    const deptTop = await getDeptTopRanks();
+    if (deptTop.length > 0) {
+        const userDept = await prisma.user.findUnique({ where: { id: userId }, select: { department: true } });
+        if (userDept?.department) {
+            const deptIdx = deptTop.findIndex(d => d.department === userDept.department);
+            if (deptIdx !== -1 && deptIdx < 3) {
+                const gloryTitle: TitleEntry = {
+                    key: `dept_glory_${deptIdx + 1}`,
+                    label: `${DEPT_GLORY_ICONS[deptIdx]} ${userDept.department}之光`,
+                    icon: DEPT_GLORY_ICONS[deptIdx],
+                    category: 'dept_glory',
+                    description: `本月系所排行第 ${deptIdx + 1} 名的榮譽`,
+                };
+                titles.push(gloryTitle);
+            }
+        }
+    }
+
+    // 5. WBC 2026 限定稱號 — 3/5 當天有成功參加或發起揪團
     const wbcDate = new Date('2026-03-05T00:00:00+08:00');
     const wbcEnd = new Date('2026-03-06T00:00:00+08:00');
     const wbcParticipation = await prisma.groupMember.count({
@@ -143,7 +312,7 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
         titles.push(EVENT_TITLES[0]); // wbc_2026
     }
 
-    // 4. 終身黑金卡稱號
+    // 6. 終身黑金卡稱號
     const subRow = await prisma.$queryRaw<{ planType: string; endAt: Date | null }[]>`
         SELECT u."planType", ps."endAt"
         FROM users u
@@ -157,13 +326,12 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
         }
     }
 
-    // 5. 信譽稱號 — 連續 N 天信譽 100
+    // 7. 信譽稱號 — 連續 N 天信譽 100
     const userInfo = await prisma.user.findUnique({
         where: { id: userId },
         select: { negativeRatings: true, createdAt: true },
     });
     if (userInfo && userInfo.negativeRatings === 0) {
-        // 查最後一次被 👎 的時間
         const lastNeg = await prisma.memberRating.findFirst({
             where: { ratedUserId: userId, isPositive: false },
             orderBy: { createdAt: 'desc' },
