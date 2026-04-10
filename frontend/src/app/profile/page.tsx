@@ -45,6 +45,13 @@ import {
     DirectionsRun,
     SportsTennis,
     SportsVolleyball,
+    Person,
+    BarChartOutlined,
+    PushPin,
+    Handshake,
+    Assignment,
+    Label,
+    Casino,
 } from '@mui/icons-material';
 import { BadmintonIcon, TableTennisIcon } from '@/app/components/SportIcons';
 import type { SvgIconProps } from '@mui/material';
@@ -325,7 +332,7 @@ export default function ProfilePage() {
     if (!user) {
         return (
             <Container maxWidth="sm" sx={{ py: 10, textAlign: 'center' }}>
-                <Typography variant="h2" mb={2}>👤</Typography>
+                <Person sx={{ fontSize: '4rem', color: 'text.secondary', mb: 2 }} />
                 <Typography variant="h5" fontWeight="bold" gutterBottom>個人檔案</Typography>
                 <Typography variant="body1" color="text.secondary" paragraph>
                     請先登入以查看個人檔案
@@ -416,7 +423,7 @@ export default function ProfilePage() {
                                     />
                                 ) : (
                                     <Chip
-                                        label="🏷️ 無稱號"
+                                        label="無稱號"
                                         size="small"
                                         onClick={() => setTitleDialogOpen(true)}
                                         variant="outlined"
@@ -511,24 +518,27 @@ export default function ProfilePage() {
                         )}
 
                         <Paper sx={{ p: 4, borderRadius: 4 }}>
-                            <Typography variant="h6" fontWeight="bold" mb={3}>📊 我的活動數據</Typography>
+                            <Stack direction="row" spacing={1} alignItems="center" mb={3}>
+                                <BarChartOutlined sx={{ color: 'primary.main' }} />
+                                <Typography variant="h6" fontWeight="bold">我的活動數據</Typography>
+                            </Stack>
 
                             {stats ? (
                                 <Stack spacing={4}>
                                     <Stack direction="row" spacing={3} justifyContent="space-around" sx={{ textAlign: 'center' }}>
                                         <Box>
                                             <Typography variant="h4" color="primary.main" fontWeight="bold">{stats.currentStreak}</Typography>
-                                            <Typography variant="body2" color="text.secondary">🔥 連續登入天數</Typography>
+                                            <Typography variant="body2" color="text.secondary"><LocalFireDepartment sx={{ fontSize: '0.9rem', verticalAlign: 'middle', mr: 0.3, color: '#FF6D00' }} />連續登入天數</Typography>
                                             <Typography variant="caption" color="text.secondary">最高 {stats.longestStreak} 天</Typography>
                                         </Box>
                                         <Box>
                                             <Typography variant="h4" color="warning.main" fontWeight="bold">{stats.totalParticipations}</Typography>
-                                            <Typography variant="body2" color="text.secondary">📌 累計參與次數</Typography>
+                                            <Typography variant="body2" color="text.secondary"><PushPin sx={{ fontSize: '0.9rem', verticalAlign: 'middle', mr: 0.3, color: 'primary.main' }} />累計參與次數</Typography>
                                             <Typography variant="caption" color="text.secondary">歷史總參加揪團次數</Typography>
                                         </Box>
                                         <Box>
                                             <Typography variant="h4" color="success.main" fontWeight="bold">{stats.uniquePeopleMet}</Typography>
-                                            <Typography variant="body2" color="text.secondary">🤝 認識人數</Typography>
+                                            <Typography variant="body2" color="text.secondary"><Handshake sx={{ fontSize: '0.9rem', verticalAlign: 'middle', mr: 0.3, color: '#FFA726' }} />認識人數</Typography>
                                             <Typography variant="caption" color="text.secondary">累計不重複夥伴數</Typography>
                                         </Box>
                                     </Stack>
@@ -563,7 +573,10 @@ export default function ProfilePage() {
 
                         {/* Group History Section */}
                         <Paper sx={{ p: 4, borderRadius: 4 }}>
-                            <Typography variant="h6" fontWeight="bold" mb={2}>📋 揪團紀錄</Typography>
+                            <Stack direction="row" spacing={1} alignItems="center" mb={2}>
+                                <Assignment sx={{ color: 'primary.main' }} />
+                                <Typography variant="h6" fontWeight="bold">揪團紀錄</Typography>
+                            </Stack>
                             <Typography variant="body2" color="text.secondary" mb={3}>
                                 目前僅顯示最近 {PROFILE_GROUP_HISTORY_LIMIT} 筆紀錄，其餘保留於管理員後台。
                             </Typography>
@@ -847,7 +860,12 @@ export default function ProfilePage() {
 
             {/* Title Selector Dialog */}
             <Dialog open={titleDialogOpen} onClose={() => setTitleDialogOpen(false)} maxWidth="xs" fullWidth>
-                <DialogTitle>🏷️ 選擇展示稱號</DialogTitle>
+                <DialogTitle>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                        <Label sx={{ color: 'primary.main' }} />
+                        <span>選擇展示稱號</span>
+                    </Stack>
+                </DialogTitle>
                 <DialogContent>
                     <Stack spacing={1.5} sx={{ mt: 1 }}>
                         {myTitles.length === 0 ? (
@@ -911,7 +929,7 @@ export default function ProfilePage() {
                             fullWidth
                             sx={{ mb: 2, borderRadius: 3 }}
                         >
-                            🎲 隨機產生器 (DiceBear)
+                            <Casino sx={{ fontSize: '1rem', mr: 0.5 }} />隨機產生器 (DiceBear)
                         </Button>
                         <Typography variant="caption" color="text.secondary">
                             點擊按鈕來隨機產生專屬於你的虛擬化身。
