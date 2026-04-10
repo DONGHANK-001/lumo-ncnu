@@ -75,8 +75,8 @@ export default function MountainBackground() {
         >
             <svg
                 viewBox="0 0 1440 900"
-                preserveAspectRatio="xMidYMax slice"
-                style={{ position: 'absolute', bottom: 0, width: '100%', height: '75%' }}
+                preserveAspectRatio="none"
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
             >
                 {isLight ? <LightScene /> : <DarkScene />}
             </svg>
