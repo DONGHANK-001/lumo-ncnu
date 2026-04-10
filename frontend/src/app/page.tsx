@@ -850,18 +850,18 @@ export default function LandingPage() {
                         href="/nutrition"
                         startIcon={<Restaurant />}
                         sx={{
-                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(46, 125, 50, 0.25)' : 'rgba(46, 125, 50, 0.1)',
-                            color: theme.palette.mode === 'dark' ? '#81C784' : '#2E7D32',
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(103, 80, 164, 0.2)' : 'rgba(103, 80, 164, 0.08)',
+                            color: theme.palette.mode === 'dark' ? '#D0BCFF' : '#6750A4',
                             fontWeight: 'bold',
                             borderRadius: 3,
                             px: 3,
                             py: 1.5,
                             minWidth: 280,
                             border: '1px solid',
-                            borderColor: theme.palette.mode === 'dark' ? 'rgba(129, 199, 132, 0.3)' : 'rgba(46, 125, 50, 0.2)',
+                            borderColor: theme.palette.mode === 'dark' ? 'rgba(208, 188, 255, 0.2)' : 'rgba(103, 80, 164, 0.15)',
                             backdropFilter: 'blur(8px)',
                             '&:hover': {
-                                bgcolor: theme.palette.mode === 'dark' ? 'rgba(46, 125, 50, 0.35)' : 'rgba(46, 125, 50, 0.18)',
+                                bgcolor: theme.palette.mode === 'dark' ? 'rgba(103, 80, 164, 0.3)' : 'rgba(103, 80, 164, 0.14)',
                             }
                         }}
                     >
@@ -877,8 +877,9 @@ export default function LandingPage() {
                             px: 3,
                             py: 1.5,
                             minWidth: 280,
-                            borderColor: 'divider',
+                            borderColor: theme.palette.mode === 'dark' ? 'rgba(208, 188, 255, 0.15)' : 'rgba(103, 80, 164, 0.12)',
                             color: 'text.secondary',
+                            backdropFilter: 'blur(8px)',
                         }}
                     >
                         升級 PRO（敬請期待，暫不開放）
@@ -888,18 +889,18 @@ export default function LandingPage() {
                         target="_blank"
                         startIcon={<Instagram />}
                         sx={{
-                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(224, 62, 109, 0.25)' : 'rgba(224, 62, 109, 0.1)',
-                            color: theme.palette.mode === 'dark' ? '#F48FB1' : '#C2185B',
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(171, 71, 188, 0.2)' : 'rgba(171, 71, 188, 0.08)',
+                            color: theme.palette.mode === 'dark' ? '#CE93D8' : '#7B1FA2',
                             fontWeight: 'bold',
                             borderRadius: 3,
                             px: 3,
                             py: 1.5,
                             minWidth: 280,
                             border: '1px solid',
-                            borderColor: theme.palette.mode === 'dark' ? 'rgba(244, 143, 177, 0.3)' : 'rgba(194, 24, 91, 0.2)',
+                            borderColor: theme.palette.mode === 'dark' ? 'rgba(206, 147, 216, 0.2)' : 'rgba(123, 31, 162, 0.15)',
                             backdropFilter: 'blur(8px)',
                             '&:hover': {
-                                bgcolor: theme.palette.mode === 'dark' ? 'rgba(224, 62, 109, 0.35)' : 'rgba(224, 62, 109, 0.18)',
+                                bgcolor: theme.palette.mode === 'dark' ? 'rgba(171, 71, 188, 0.3)' : 'rgba(171, 71, 188, 0.14)',
                             }
                         }}
                     >

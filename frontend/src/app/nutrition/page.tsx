@@ -13,12 +13,9 @@ import {
     Card,
     CardContent,
     Grid,
-    ThemeProvider,
-    CssBaseline,
     Tabs,
     Tab,
 } from '@mui/material';
-import { createAppTheme } from '@/theme/theme';
 import {
     ArrowBack,
     SportsBasketball,
@@ -274,16 +271,12 @@ const NUTRITION_DATA: Record<string, NutritionInfo> = {
 
 const SPORT_TYPES = Object.keys(NUTRITION_DATA);
 
-const darkTheme = createAppTheme('dark');
-
 export default function NutritionPage() {
     const [selectedSport, setSelectedSport] = useState('BASKETBALL');
     const info = NUTRITION_DATA[selectedSport];
 
     return (
-        <ThemeProvider theme={darkTheme}>
-            <CssBaseline />
-            <Box sx={{ minHeight: '100vh' }}>
+        <Box sx={{ minHeight: '100vh' }}>
                 <Container maxWidth="md" sx={{ py: 4, pb: 8 }}>
                     {/* Header */}
                     <Stack direction="row" alignItems="center" spacing={2} mb={3}>
@@ -487,6 +480,6 @@ export default function NutritionPage() {
 
                 </Container>
             </Box>
-        </ThemeProvider>
+        </Box>
     );
 }
