@@ -426,213 +426,107 @@ export default function LandingPage() {
                 </Container>
             </Box>
 
-            {/* 📚 讀家回憶｜系所對抗賽 活動橫幅 (4/7-4/17 12:00 自動消失) */}
-            {isReadingEventActive() && (
-                <Container maxWidth="md" sx={{ mt: { xs: -2, sm: -3 }, mb: 3, position: 'relative', zIndex: 3 }}>
-                    <Card
-                        sx={{
-                            borderRadius: 4,
-                            background: 'linear-gradient(135deg, #0d1b2a 0%, #1b3a5c 40%, #274c77 100%)',
-                            color: '#fff',
-                            boxShadow: '0 8px 32px rgba(27, 58, 92, 0.4)',
-                            overflow: 'hidden',
-                            position: 'relative',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                        }}
-                    >
-                        {/* 裝飾光暈 */}
-                        <Box sx={{
-                            position: 'absolute',
-                            top: -40,
-                            right: -40,
-                            width: 160,
-                            height: 160,
-                            borderRadius: '50%',
-                            background: 'radial-gradient(circle, rgba(255,215,0,0.15) 0%, transparent 70%)',
-                            pointerEvents: 'none',
-                        }} />
-                        <CardContent sx={{ py: 3, px: { xs: 2.5, sm: 4 }, position: 'relative' }}>
-                            <Typography
-                                variant="h5"
-                                fontWeight="900"
-                                textAlign="center"
-                                sx={{
-                                    mb: 1,
-                                    textShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                                    fontSize: { xs: '1.25rem', sm: '1.5rem' },
-                                }}
-                            >
-                                📚 讀家回憶｜系所對抗賽 🏆
-                            </Typography>
-                            <Typography
-                                variant="body2"
-                                textAlign="center"
-                                sx={{ opacity: 0.85, mb: 2 }}
-                            >
-                                4/7 – 4/17 衝上個人排行榜前三，精美禮券帶走！
-                            </Typography>
+            {/* 活動橫幅區：左右並排（手機上下堆疊） */}
+            {isAnyEventActive() && (
+                <Container maxWidth="lg" sx={{ mt: { xs: -2, sm: -3 }, mb: 3, position: 'relative', zIndex: 3 }}>
+                    <Grid container spacing={2}>
+                        {/* 📚 讀家回憶 */}
+                        {isReadingEventActive() && (
+                            <Grid item xs={12} md={isMidtermFitActive() ? 6 : 12}>
+                                <Card sx={{
+                                    borderRadius: 3,
+                                    background: 'linear-gradient(135deg, #0d1b2a 0%, #1b3a5c 40%, #274c77 100%)',
+                                    color: '#fff',
+                                    boxShadow: '0 6px 24px rgba(27, 58, 92, 0.4)',
+                                    overflow: 'hidden',
+                                    position: 'relative',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    height: '100%',
+                                }}>
+                                    <CardContent sx={{ py: 2.5, px: { xs: 2, sm: 3 }, position: 'relative' }}>
+                                        <Typography variant="h6" fontWeight="900" textAlign="center" sx={{ mb: 0.5, fontSize: { xs: '1rem', sm: '1.15rem' } }}>
+                                            📚 讀家回憶｜系所對抗賽 🏆
+                                        </Typography>
+                                        <Typography variant="caption" textAlign="center" display="block" sx={{ opacity: 0.85, mb: 1.5 }}>
+                                            4/7 – 4/17 衝上排行榜前三，禮券帶走！
+                                        </Typography>
+                                        <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 2 }}>
+                                            <Stack alignItems="center">
+                                                <Typography fontSize="1.1rem" fontWeight="bold">🥇</Typography>
+                                                <Typography variant="caption" sx={{ opacity: 0.8 }}>300 元</Typography>
+                                            </Stack>
+                                            <Stack alignItems="center">
+                                                <Typography fontSize="1.1rem" fontWeight="bold">🥈</Typography>
+                                                <Typography variant="caption" sx={{ opacity: 0.8 }}>200 元</Typography>
+                                            </Stack>
+                                            <Stack alignItems="center">
+                                                <Typography fontSize="1.1rem" fontWeight="bold">🥉</Typography>
+                                                <Typography variant="caption" sx={{ opacity: 0.8 }}>100 元</Typography>
+                                            </Stack>
+                                        </Stack>
+                                        <Stack direction="row" spacing={1} justifyContent="center">
+                                            <Button variant="contained" component={Link} href="/sports/STUDY" size="small"
+                                                sx={{ bgcolor: '#FFD700', color: '#0d1b2a', fontWeight: 'bold', borderRadius: 2, px: 2, '&:hover': { bgcolor: '#FFC107' } }}>
+                                                立即參賽 🔥
+                                            </Button>
+                                            <Button variant="outlined" component={Link} href="/leaderboard" size="small"
+                                                sx={{ borderColor: 'rgba(255,255,255,0.4)', color: '#fff', borderRadius: 2, px: 2, '&:hover': { borderColor: '#FFD700', color: '#FFD700' } }}>
+                                                排行榜
+                                            </Button>
+                                        </Stack>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        )}
 
-                            <Stack
-                                direction="row"
-                                spacing={{ xs: 2, sm: 4 }}
-                                justifyContent="center"
-                                alignItems="center"
-                                sx={{ mb: 2.5 }}
-                            >
-                                <Stack alignItems="center">
-                                    <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1 }}>🥇</Typography>
-                                    <Typography variant="caption" sx={{ opacity: 0.8 }}>300 元</Typography>
-                                </Stack>
-                                <Stack alignItems="center">
-                                    <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1 }}>🥈</Typography>
-                                    <Typography variant="caption" sx={{ opacity: 0.8 }}>200 元</Typography>
-                                </Stack>
-                                <Stack alignItems="center">
-                                    <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1 }}>🥉</Typography>
-                                    <Typography variant="caption" sx={{ opacity: 0.8 }}>100 元</Typography>
-                                </Stack>
-                            </Stack>
-
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center">
-                                <Button
-                                    variant="contained"
-                                    component={Link}
-                                    href="/sports/STUDY"
-                                    sx={{
-                                        bgcolor: '#FFD700',
-                                        color: '#0d1b2a',
-                                        fontWeight: 'bold',
-                                        borderRadius: 3,
-                                        px: 3,
-                                        '&:hover': { bgcolor: '#FFC107' },
-                                    }}
-                                >
-                                    立即參賽 🔥
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    component={Link}
-                                    href="/leaderboard"
-                                    sx={{
-                                        borderColor: 'rgba(255,255,255,0.4)',
-                                        color: '#fff',
-                                        borderRadius: 3,
-                                        px: 3,
-                                        '&:hover': { borderColor: '#FFD700', color: '#FFD700' },
-                                    }}
-                                >
-                                    查看排行榜
-                                </Button>
-                            </Stack>
-                        </CardContent>
-                    </Card>
-                </Container>
-            )}
-
-            {/* 🔥 期中燃脂王｜運動排行榜 活動橫幅 (4/13-4/17 12:00 自動消失) */}
-            {isMidtermFitActive() && (
-                <Container maxWidth="md" sx={{ mt: isReadingEventActive() ? 2 : { xs: -2, sm: -3 }, mb: 3, position: 'relative', zIndex: 3 }}>
-                    <Card
-                        sx={{
-                            borderRadius: 4,
-                            background: 'linear-gradient(135deg, #1a0a00 0%, #4a1500 40%, #8B2500 100%)',
-                            color: '#fff',
-                            boxShadow: '0 8px 32px rgba(139, 37, 0, 0.4)',
-                            overflow: 'hidden',
-                            position: 'relative',
-                            border: '1px solid rgba(255,100,0,0.2)',
-                        }}
-                    >
-                        <Box sx={{
-                            position: 'absolute',
-                            top: -40,
-                            right: -40,
-                            width: 160,
-                            height: 160,
-                            borderRadius: '50%',
-                            background: 'radial-gradient(circle, rgba(255,100,0,0.2) 0%, transparent 70%)',
-                            pointerEvents: 'none',
-                        }} />
-                        <CardContent sx={{ py: 3, px: { xs: 2.5, sm: 4 }, position: 'relative' }}>
-                            <Typography
-                                variant="h5"
-                                fontWeight="900"
-                                textAlign="center"
-                                sx={{
-                                    mb: 1,
-                                    textShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                                    fontSize: { xs: '1.25rem', sm: '1.5rem' },
-                                }}
-                            >
-                                🔥 期中燃脂王｜運動排行榜開跑！ 🔥
-                            </Typography>
-                            <Typography
-                                variant="body2"
-                                textAlign="center"
-                                sx={{ opacity: 0.85, mb: 2 }}
-                            >
-                                4/13 – 4/17 揪團運動＋揪新朋友，抽禮券！
-                            </Typography>
-
-                            <Stack
-                                direction="row"
-                                spacing={{ xs: 2, sm: 4 }}
-                                justifyContent="center"
-                                alignItems="center"
-                                sx={{ mb: 2.5 }}
-                            >
-                                <Stack alignItems="center">
-                                    <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1 }}>🥇</Typography>
-                                    <Typography variant="caption" sx={{ opacity: 0.8 }}>500 元 ×2</Typography>
-                                </Stack>
-                                <Stack alignItems="center">
-                                    <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1 }}>🥈</Typography>
-                                    <Typography variant="caption" sx={{ opacity: 0.8 }}>200 元 ×5</Typography>
-                                </Stack>
-                            </Stack>
-
-                            <Typography
-                                variant="caption"
-                                textAlign="center"
-                                display="block"
-                                sx={{ opacity: 0.7, mb: 2 }}
-                            >
-                                揪一位沒用過 LUMO 的朋友 → 拍照打卡 📸 → 標註 @lumo_dailyfit
-                            </Typography>
-
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center">
-                                <Button
-                                    variant="contained"
-                                    component={Link}
-                                    href="/create"
-                                    sx={{
-                                        bgcolor: '#FF6B00',
-                                        color: '#fff',
-                                        fontWeight: 'bold',
-                                        borderRadius: 3,
-                                        px: 3,
-                                        '&:hover': { bgcolor: '#FF8C00' },
-                                    }}
-                                >
-                                    立即揪團 🔥
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    component={Link}
-                                    href="/leaderboard"
-                                    sx={{
-                                        borderColor: 'rgba(255,255,255,0.4)',
-                                        color: '#fff',
-                                        borderRadius: 3,
-                                        px: 3,
-                                        '&:hover': { borderColor: '#FF6B00', color: '#FF6B00' },
-                                    }}
-                                >
-                                    查看排行榜
-                                </Button>
-                            </Stack>
-                        </CardContent>
-                    </Card>
+                        {/* 🔥 期中燃脂王 */}
+                        {isMidtermFitActive() && (
+                            <Grid item xs={12} md={isReadingEventActive() ? 6 : 12}>
+                                <Card sx={{
+                                    borderRadius: 3,
+                                    background: 'linear-gradient(135deg, #1a0a00 0%, #4a1500 40%, #8B2500 100%)',
+                                    color: '#fff',
+                                    boxShadow: '0 6px 24px rgba(139, 37, 0, 0.4)',
+                                    overflow: 'hidden',
+                                    position: 'relative',
+                                    border: '1px solid rgba(255,100,0,0.2)',
+                                    height: '100%',
+                                }}>
+                                    <CardContent sx={{ py: 2.5, px: { xs: 2, sm: 3 }, position: 'relative' }}>
+                                        <Typography variant="h6" fontWeight="900" textAlign="center" sx={{ mb: 0.5, fontSize: { xs: '1rem', sm: '1.15rem' } }}>
+                                            🔥 期中燃脂王｜排行榜開跑！ 🔥
+                                        </Typography>
+                                        <Typography variant="caption" textAlign="center" display="block" sx={{ opacity: 0.85, mb: 1.5 }}>
+                                            4/13 – 4/17 揪團運動＋揪新朋友，抽禮券！
+                                        </Typography>
+                                        <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 1 }}>
+                                            <Stack alignItems="center">
+                                                <Typography fontSize="1.1rem" fontWeight="bold">🥇</Typography>
+                                                <Typography variant="caption" sx={{ opacity: 0.8 }}>500 元 ×2</Typography>
+                                            </Stack>
+                                            <Stack alignItems="center">
+                                                <Typography fontSize="1.1rem" fontWeight="bold">🥈</Typography>
+                                                <Typography variant="caption" sx={{ opacity: 0.8 }}>200 元 ×5</Typography>
+                                            </Stack>
+                                        </Stack>
+                                        <Typography variant="caption" textAlign="center" display="block" sx={{ opacity: 0.65, mb: 1.5 }}>
+                                            揪新朋友 → 拍照 📸 → @lumo_dailyfit
+                                        </Typography>
+                                        <Stack direction="row" spacing={1} justifyContent="center">
+                                            <Button variant="contained" component={Link} href="/create" size="small"
+                                                sx={{ bgcolor: '#FF6B00', color: '#fff', fontWeight: 'bold', borderRadius: 2, px: 2, '&:hover': { bgcolor: '#FF8C00' } }}>
+                                                立即揪團 🔥
+                                            </Button>
+                                            <Button variant="outlined" component={Link} href="/leaderboard" size="small"
+                                                sx={{ borderColor: 'rgba(255,255,255,0.4)', color: '#fff', borderRadius: 2, px: 2, '&:hover': { borderColor: '#FF6B00', color: '#FF6B00' } }}>
+                                                排行榜
+                                            </Button>
+                                        </Stack>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        )}
+                    </Grid>
                 </Container>
             )}
 

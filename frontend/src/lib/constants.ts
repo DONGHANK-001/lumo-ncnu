@@ -148,7 +148,7 @@ export function markReadingEventNotifRead(): void {
 // ============================================
 // 期中燃脂王｜運動排行榜 活動設定（4/13 - 4/17）
 // ============================================
-export const MIDTERM_FIT_START = new Date('2026-04-13T00:00:00+08:00');
+export const MIDTERM_FIT_START = new Date('2026-04-11T00:00:00+08:00');
 export const MIDTERM_FIT_END = new Date('2026-04-17T12:00:00+08:00');
 
 export function isMidtermFitActive(): boolean {
