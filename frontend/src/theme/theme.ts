@@ -147,7 +147,6 @@ export function createAppTheme(mode: PaletteMode): Theme {
                 styleOverrides: {
                     body: {
                         minHeight: '100vh',
-                        color: isLight ? '#1C1B1F' : '#E6E1E5',
                     },
                 },
             },
