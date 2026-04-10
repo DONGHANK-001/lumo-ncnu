@@ -43,6 +43,7 @@ import {
     Restaurant,
     Notifications as NotificationsIcon,
     MenuBook,
+    WorkspacePremium,
     ChevronLeft,
     ChevronRight,
     Event,
@@ -864,11 +865,12 @@ export default function LandingPage() {
                             }
                         }}
                     >
-                        🍽️ 活動飲食指南
+                        活動飲食指南
                     </Button>
                     <Button
                         variant="outlined"
                         disabled
+                        startIcon={<WorkspacePremium />}
                         sx={{
                             fontWeight: 'bold',
                             borderRadius: 3,
@@ -879,7 +881,7 @@ export default function LandingPage() {
                             color: 'text.secondary',
                         }}
                     >
-                        👑 升級 PRO（敬請期待，暫不開放）
+                        升級 PRO（敬請期待，暫不開放）
                     </Button>
                     <Button
                         href="https://www.instagram.com/lumo_dailyfit?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
@@ -952,7 +954,7 @@ export default function LandingPage() {
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <NightsStay sx={{ fontSize: 40, color: theme.palette.secondary.main, mb: 1 }} />
                             <Typography variant="h6" fontWeight="bold" color="text.primary" gutterBottom>
-                                🌙 晚風漫遊
+                                晚風漫遊
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 星空下走走聊聊，暨大最療癒的校園散步活動
@@ -976,7 +978,7 @@ export default function LandingPage() {
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <Restaurant sx={{ fontSize: 40, color: theme.palette.error.main, mb: 1 }} />
                             <Typography variant="h6" fontWeight="bold" color="text.primary" gutterBottom>
-                                🍽️ 飯飯之交
+                                飯飯之交
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 找人一起吃飯！有伴就更好吃
@@ -1000,7 +1002,7 @@ export default function LandingPage() {
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <MenuBook sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
                             <Typography variant="h6" fontWeight="bold" color="text.primary" gutterBottom>
-                                📚 讀家回憶
+                                讀家回憶
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 期中期末靜心衝刺，覓一知己共赴書海
