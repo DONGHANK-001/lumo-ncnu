@@ -67,7 +67,7 @@ router.get('/departments', async (req: Request, res: Response) => {
               AND gm."joinedAt" <= ${end}
               AND u."department" IS NOT NULL
               AND u."department" != ''
-              AND g."sportType" IN (${Prisma.join([...PURE_SPORTS])})
+              AND g."sportType"::text IN (${Prisma.join([...PURE_SPORTS])})
             GROUP BY u."department"
             ORDER BY total_joins DESC
             LIMIT 20
@@ -167,7 +167,7 @@ router.get('/by-activity', async (req: Request, res: Response) => {
             WHERE gm.status = 'JOINED'
               AND gm."joinedAt" >= ${start}
               AND gm."joinedAt" <= ${end}
-              AND g."sportType" = ${sportType}
+              AND g."sportType"::text = ${sportType}
             GROUP BY gm."userId"
             ORDER BY cnt DESC
             LIMIT 20

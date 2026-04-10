@@ -203,7 +203,7 @@ async function getDeptTopRanks(): Promise<{ department: string }[]> {
           AND gm."joinedAt" <= ${end}
           AND u."department" IS NOT NULL
           AND u."department" != ''
-          AND g."sportType" IN (${Prisma.join(pureSportsArray)})
+          AND g."sportType"::text IN (${Prisma.join(pureSportsArray)})
         GROUP BY u."department"
         ORDER BY cnt DESC
         LIMIT 3
