@@ -479,7 +479,6 @@ export default function NutritionPage() {
                     </Paper>
 
                 </Container>
-            </Box>
         </Box>
     );
 }
