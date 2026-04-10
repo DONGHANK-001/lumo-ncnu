@@ -114,7 +114,7 @@ const lightPalette = {
     },
     background: {
         default: '#F6F2FF',
-        paper: '#FFFFFF',
+        paper: 'rgba(255, 255, 255, 0.82)',
     },
     text: {
         primary: '#1C1B1F',
@@ -139,14 +139,40 @@ export function createAppTheme(mode: PaletteMode): Theme {
         palette,
         components: {
             ...baseThemeOptions.components,
+            ...(isLight && {
+                MuiCssBaseline: {
+                    styleOverrides: `
+                        body {
+                            min-height: 100vh;
+                            background:
+                                linear-gradient(180deg, #E8DEF8 0%, #F6F2FF 40%, #F6F2FF 100%);
+                            background-attachment: fixed;
+                        }
+                        body::before {
+                            content: '';
+                            position: fixed;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
+                            height: 45vh;
+                            z-index: -1;
+                            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 400' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0.5' y1='0' x2='0.5' y2='1'%3E%3Cstop offset='0%25' stop-color='%23E8DEF8'/%3E%3Cstop offset='100%25' stop-color='%23F6F2FF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='1100' cy='80' r='60' fill='%23F9E8A0' opacity='0.5'/%3E%3Cpath d='M0 280 Q200 120 400 200 T800 160 T1200 190 T1440 170 L1440 400 L0 400Z' fill='%23C4B0E0' opacity='0.5'/%3E%3Cpath d='M0 320 Q300 200 600 260 T1100 230 T1440 250 L1440 400 L0 400Z' fill='%23B39DDB' opacity='0.55'/%3E%3Cpath d='M0 360 Q250 280 500 320 T1000 300 T1440 330 L1440 400 L0 400Z' fill='%239C8AC2' opacity='0.5'/%3E%3C/svg%3E");
+                            background-size: 100% 100%;
+                            pointer-events: none;
+                        }
+                    `,
+                },
+            }),
             MuiCard: {
                 styleOverrides: {
                     root: {
                         borderRadius: 24,
-                        backgroundColor: isLight ? '#FFFFFF' : '#2B2640',
+                        backgroundColor: isLight ? 'rgba(255, 255, 255, 0.82)' : '#2B2640',
                         ...(isLight && {
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)',
-                            border: '1px solid rgba(0,0,0,0.06)',
+                            backdropFilter: 'blur(16px)',
+                            WebkitBackdropFilter: 'blur(16px)',
+                            boxShadow: '0 2px 12px rgba(103,80,164,0.08)',
+                            border: '1px solid rgba(255,255,255,0.6)',
                         }),
                     },
                 },
@@ -156,7 +182,10 @@ export function createAppTheme(mode: PaletteMode): Theme {
                     root: {
                         backgroundImage: 'none',
                         ...(isLight && {
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+                            backgroundColor: 'rgba(255, 255, 255, 0.82)',
+                            backdropFilter: 'blur(16px)',
+                            WebkitBackdropFilter: 'blur(16px)',
+                            boxShadow: '0 2px 12px rgba(103,80,164,0.08)',
                         }),
                     },
                 },
@@ -165,10 +194,12 @@ export function createAppTheme(mode: PaletteMode): Theme {
                 styleOverrides: {
                     root: {
                         backgroundImage: 'none',
-                        backgroundColor: isLight ? '#F6F2FF' : '#1E1A2E',
+                        backgroundColor: isLight ? 'rgba(246, 242, 255, 0.8)' : '#1E1A2E',
                         boxShadow: 'none',
                         ...(isLight && {
-                            borderBottom: '1px solid rgba(0,0,0,0.06)',
+                            backdropFilter: 'blur(16px)',
+                            WebkitBackdropFilter: 'blur(16px)',
+                            borderBottom: '1px solid rgba(255,255,255,0.4)',
                         }),
                     },
                 },
