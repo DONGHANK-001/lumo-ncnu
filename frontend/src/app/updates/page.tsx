@@ -28,6 +28,20 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
+        version: 'v1.16.0',
+        date: '2026-04-11',
+        category: '重大更新',
+        title: '🏔️ 全站背景主題大改版',
+        details: [
+            '淺色模式：淡紫漸層背景 + 四層薰衣草山脈 + 太陽光暈雲霧裝飾',
+            '深色模式：深紫漸層背景 + 四層暗紫山脈 + 月牙星星裝飾',
+            '深淺色切換時背景、山脈、裝飾、文字色全部即時跟隨切換',
+            '所有頁面統一背景，不再有白底/黑底不一致的問題',
+            '卡片、Paper、AppBar 皆套用毛玻璃效果（backdrop-filter blur）',
+            '預設主題改為淺色模式，新用戶首次進入即為淡紫色介面',
+        ],
+    },
+    {
         version: 'v1.15.0',
         date: '2026-04-10',
         category: '重大更新',
