@@ -37,9 +37,9 @@ function LightMountains() {
 function DarkDecorations() {
     return (
         <>
-            {/* 月牙 — 置中偏右上，手機可見 */}
-            <circle cx="780" cy="100" r="50" fill="#E8DEF8" opacity="0.18" />
-            <circle cx="800" cy="90" r="42" fill="#110E1F" />
+            {/* 月牙 — 置中偏右，落在文字後方 */}
+            <circle cx="780" cy="280" r="50" fill="#E8DEF8" opacity="0.18" />
+            <circle cx="800" cy="270" r="42" fill="#110E1F" />
             {/* 星星 — 上層 */}
             <circle cx="100" cy="60" r="4" fill="#D0BCFF" opacity="0.7" />
             <circle cx="260" cy="130" r="5" fill="#E8DEF8" opacity="0.6" />
