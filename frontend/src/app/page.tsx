@@ -581,35 +581,67 @@ export default function LandingPage() {
             <Container maxWidth="md" sx={{ mt: isAnyEventActive() ? 0 : { xs: -2, sm: -3 }, mb: 4, position: 'relative', zIndex: 2 }}>
                 <Card sx={{
                     borderRadius: 4,
-                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,183,77,0.15)' : 'rgba(255,152,0,0.08)',
-                    border: '1px solid',
-                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255,183,77,0.25)' : 'rgba(255,152,0,0.2)',
+                    background: theme.palette.mode === 'dark'
+                        ? 'linear-gradient(135deg, rgba(255,111,0,0.25) 0%, rgba(255,183,77,0.15) 50%, rgba(255,61,0,0.2) 100%)'
+                        : 'linear-gradient(135deg, rgba(255,152,0,0.18) 0%, rgba(255,224,130,0.25) 50%, rgba(255,111,0,0.15) 100%)',
+                    border: '2px solid',
+                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255,183,77,0.4)' : 'rgba(255,152,0,0.35)',
                     backdropFilter: 'blur(12px)',
-                    boxShadow: theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.2)' : '0 4px 20px rgba(255,152,0,0.08)',
+                    boxShadow: theme.palette.mode === 'dark'
+                        ? '0 4px 24px rgba(255,152,0,0.2), inset 0 1px 0 rgba(255,183,77,0.15)'
+                        : '0 4px 24px rgba(255,152,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: '-50%',
+                        width: '200%',
+                        height: '100%',
+                        background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
+                        animation: 'shimmer 3s infinite',
+                    },
+                    '@keyframes shimmer': {
+                        '0%': { transform: 'translateX(-100%)' },
+                        '100%': { transform: 'translateX(100%)' },
+                    },
                 }}>
-                    <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                    <CardContent sx={{ textAlign: 'center', py: 3, position: 'relative', zIndex: 1 }}>
                         <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center" sx={{ mb: 1 }}>
-                            <EmojiEvents sx={{ fontSize: '1.5rem', color: '#FFD700' }} />
-                            <Typography variant="h5" fontWeight="900" color="text.primary">
+                            <LocalFireDepartment sx={{ fontSize: '1.5rem', color: '#FF6D00' }} />
+                            <Typography variant="h5" fontWeight="900" sx={{
+                                background: theme.palette.mode === 'dark'
+                                    ? 'linear-gradient(90deg, #FFD54F, #FF8F00, #FFD54F)'
+                                    : 'linear-gradient(90deg, #E65100, #FF6D00, #E65100)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}>
                                 上月最強熱血系所
                             </Typography>
-                            <EmojiEvents sx={{ fontSize: '1.5rem', color: '#FFD700' }} />
+                            <LocalFireDepartment sx={{ fontSize: '1.5rem', color: '#FF6D00' }} />
                         </Stack>
                         {lastMonthTopDepts.length >= 3 ? (
                             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
-                                <Stack direction="row" spacing={0.5} alignItems="center">
-                                    <EmojiEvents sx={{ fontSize: '1.3rem', color: '#FFD700' }} />
-                                    <Typography variant="h6" fontWeight="bold" color="text.primary">
+                                <Stack direction="row" spacing={0.5} alignItems="center" sx={{
+                                    px: 2, py: 0.5, borderRadius: 3,
+                                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,215,0,0.15)' : 'rgba(255,215,0,0.2)',
+                                    border: '1px solid',
+                                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255,215,0,0.3)' : 'rgba(255,215,0,0.4)',
+                                }}>
+                                    <EmojiEvents sx={{ fontSize: '1.4rem', color: '#FFD700', filter: 'drop-shadow(0 0 4px rgba(255,215,0,0.5))' }} />
+                                    <Typography variant="h6" fontWeight="900" sx={{ color: theme.palette.mode === 'dark' ? '#FFD54F' : '#E65100' }}>
                                         {lastMonthTopDepts[0].department}
                                     </Typography>
                                 </Stack>
-                                <Stack direction="row" spacing={0.5} alignItems="center">
-                                    <EmojiEvents sx={{ fontSize: '1.2rem', color: '#C0C0C0' }} />
+                                <Stack direction="row" spacing={0.5} alignItems="center" sx={{ px: 1.5, py: 0.3 }}>
+                                    <EmojiEvents sx={{ fontSize: '1.2rem', color: '#B0BEC5' }} />
                                     <Typography variant="subtitle1" fontWeight="bold" color="text.secondary">
                                         {lastMonthTopDepts[1].department}
                                     </Typography>
                                 </Stack>
-                                <Stack direction="row" spacing={0.5} alignItems="center">
+                                <Stack direction="row" spacing={0.5} alignItems="center" sx={{ px: 1.5, py: 0.3 }}>
                                     <EmojiEvents sx={{ fontSize: '1.2rem', color: '#CD7F32' }} />
                                     <Typography variant="subtitle1" fontWeight="bold" color="text.secondary">
                                         {lastMonthTopDepts[2].department}
