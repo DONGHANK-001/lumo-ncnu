@@ -23,6 +23,7 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    Skeleton,
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { PieChart } from '@mui/x-charts/PieChart';
@@ -565,9 +566,21 @@ export default function ProfilePage() {
                                     </Grid>
                                 </Stack>
                             ) : (
-                                <Box display="flex" justifyContent="center" py={4}>
-                                    <CircularProgress size={24} />
-                                </Box>
+                                <Stack spacing={4}>
+                                    <Stack direction="row" spacing={3} justifyContent="space-around" sx={{ textAlign: 'center' }}>
+                                        {[0, 1, 2].map(i => (
+                                            <Box key={i} sx={{ flex: 1 }}>
+                                                <Skeleton variant="text" width="60%" height={48} sx={{ mx: 'auto' }} />
+                                                <Skeleton variant="text" width="80%" height={20} sx={{ mx: 'auto' }} />
+                                                <Skeleton variant="text" width="70%" height={16} sx={{ mx: 'auto' }} />
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                    <Divider />
+                                    <Box display="flex" justifyContent="center">
+                                        <Skeleton variant="circular" width={160} height={160} />
+                                    </Box>
+                                </Stack>
                             )}
                         </Paper>
 
@@ -594,9 +607,11 @@ export default function ProfilePage() {
                             </Stack>
 
                             {groupHistoryLoading && groupHistory.length === 0 ? (
-                                <Box display="flex" justifyContent="center" py={4}>
-                                    <CircularProgress size={24} />
-                                </Box>
+                                <Stack spacing={1.5}>
+                                    {[0, 1, 2].map(i => (
+                                        <Skeleton key={i} variant="rounded" height={72} sx={{ borderRadius: 2 }} />
+                                    ))}
+                                </Stack>
                             ) : groupHistory.length === 0 ? (
                                 <Typography variant="body2" color="text.secondary" textAlign="center" py={4}>
                                     還沒有揪團紀錄，快去參加或發起一個吧！
