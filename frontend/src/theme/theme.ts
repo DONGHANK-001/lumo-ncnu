@@ -144,7 +144,7 @@ export function createAppTheme(mode: PaletteMode): Theme {
                     body: {
                         minHeight: '100vh',
                         background: isLight
-                            ? 'linear-gradient(180deg, #E8DEF8 0%, #F6F2FF 40%, #F6F2FF 100%)'
+                            ? 'linear-gradient(180deg, #F3EEFF 0%, #F6F2FF 30%, #F6F2FF 100%)'
                             : 'linear-gradient(180deg, #110E1F 0%, #1E1A2E 35%, #2B2640 100%)',
                         backgroundAttachment: 'fixed',
                     },
