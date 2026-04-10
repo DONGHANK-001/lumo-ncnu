@@ -125,10 +125,10 @@ export default function CharactersPage() {
                 {/* Character descriptions */}
                 <Stack spacing={2} sx={{ mt: 5, width: '100%' }}>
                     {[
-                        { name: '小暨', trait: '熱愛籃球與排球，是揪團的靈魂人物', color: '#FF7043' },
-                        { name: '小光', trait: '喜歡慢跑和瑜伽，溫柔地照亮每個人', color: '#FFD54F' },
-                        { name: '小南', trait: '羽球和桌球高手，永遠充滿好勝心', color: '#4FC3F7' },
-                        { name: '小大', trait: '健身愛好者，是大家最可靠的後盾', color: '#81C784' },
+                        { name: '李哲恩', trait: '溫柔可靠的大男孩，戴著眼鏡的他總是第一個發起揪團', color: '#5B8BD4' },
+                        { name: '徐曜辰', trait: '酷酷的棒球外套少年，運動場上永遠充滿好勝心', color: '#424242' },
+                        { name: '王佑慧', trait: '活潑開朗的元氣少女，最愛和大家一起動起來', color: '#3F51B5' },
+                        { name: '白語寧', trait: '知性溫暖的工裝女孩，是大家最安心的後盾', color: '#8D6E63' },
                     ].map((c) => (
                         <Box
                             key={c.name}
