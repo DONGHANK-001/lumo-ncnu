@@ -849,25 +849,35 @@ export default function LandingPage() {
                         href="/nutrition"
                         startIcon={<Restaurant />}
                         sx={{
-                            background: 'linear-gradient(135deg, #2E7D32 0%, #43A047 100%)',
-                            color: '#fff',
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(46, 125, 50, 0.25)' : 'rgba(46, 125, 50, 0.1)',
+                            color: theme.palette.mode === 'dark' ? '#81C784' : '#2E7D32',
                             fontWeight: 'bold',
                             borderRadius: 3,
                             px: 3,
                             py: 1.5,
                             minWidth: 280,
+                            border: '1px solid',
+                            borderColor: theme.palette.mode === 'dark' ? 'rgba(129, 199, 132, 0.3)' : 'rgba(46, 125, 50, 0.2)',
+                            backdropFilter: 'blur(8px)',
                             '&:hover': {
-                                background: 'linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%)',
+                                bgcolor: theme.palette.mode === 'dark' ? 'rgba(46, 125, 50, 0.35)' : 'rgba(46, 125, 50, 0.18)',
                             }
                         }}
                     >
                         🍽️ 活動飲食指南
                     </Button>
                     <Button
-                        variant="contained"
-                        color="secondary"
+                        variant="outlined"
                         disabled
-                        sx={{ fontWeight: 'bold', borderRadius: 3, px: 3, py: 1.5, minWidth: 280 }}
+                        sx={{
+                            fontWeight: 'bold',
+                            borderRadius: 3,
+                            px: 3,
+                            py: 1.5,
+                            minWidth: 280,
+                            borderColor: 'divider',
+                            color: 'text.secondary',
+                        }}
                     >
                         👑 升級 PRO（敬請期待，暫不開放）
                     </Button>
@@ -876,15 +886,18 @@ export default function LandingPage() {
                         target="_blank"
                         startIcon={<Instagram />}
                         sx={{
-                            background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
-                            color: '#fff',
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(224, 62, 109, 0.25)' : 'rgba(224, 62, 109, 0.1)',
+                            color: theme.palette.mode === 'dark' ? '#F48FB1' : '#C2185B',
                             fontWeight: 'bold',
                             borderRadius: 3,
                             px: 3,
                             py: 1.5,
                             minWidth: 280,
+                            border: '1px solid',
+                            borderColor: theme.palette.mode === 'dark' ? 'rgba(244, 143, 177, 0.3)' : 'rgba(194, 24, 91, 0.2)',
+                            backdropFilter: 'blur(8px)',
                             '&:hover': {
-                                background: 'linear-gradient(45deg, #e6683c 0%, #dc2743 25%, #cc2366 50%, #bc1888 75%, #a01472 100%)',
+                                bgcolor: theme.palette.mode === 'dark' ? 'rgba(224, 62, 109, 0.35)' : 'rgba(224, 62, 109, 0.18)',
                             }
                         }}
                     >
@@ -928,17 +941,20 @@ export default function LandingPage() {
                         sx={{
                             textDecoration: 'none',
                             borderRadius: 4,
-                            background: `linear-gradient(135deg, #1E1A2E 0%, ${theme.palette.secondary.dark} 100%)`,
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(43, 38, 64, 0.8)' : 'rgba(255, 255, 255, 0.75)',
+                            border: '1px solid',
+                            borderColor: theme.palette.mode === 'dark' ? 'rgba(208, 188, 255, 0.12)' : 'rgba(103, 80, 164, 0.1)',
+                            backdropFilter: 'blur(12px)',
                             transition: 'transform 0.3s',
                             '&:hover': { transform: 'translateY(-4px)' },
                         }}
                     >
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <NightsStay sx={{ fontSize: 40, color: theme.palette.secondary.main, mb: 1 }} />
-                            <Typography variant="h6" fontWeight="bold" color="#fff" gutterBottom>
+                            <Typography variant="h6" fontWeight="bold" color="text.primary" gutterBottom>
                                 🌙 晚風漫遊
                             </Typography>
-                            <Typography variant="body2" color="rgba(255,255,255,0.7)">
+                            <Typography variant="body2" color="text.secondary">
                                 星空下走走聊聊，暨大最療癒的校園散步活動
                             </Typography>
                         </CardContent>
@@ -949,17 +965,20 @@ export default function LandingPage() {
                         sx={{
                             textDecoration: 'none',
                             borderRadius: 4,
-                            background: `linear-gradient(135deg, #1E1A2E 0%, ${theme.palette.error.dark} 100%)`,
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(43, 38, 64, 0.8)' : 'rgba(255, 255, 255, 0.75)',
+                            border: '1px solid',
+                            borderColor: theme.palette.mode === 'dark' ? 'rgba(208, 188, 255, 0.12)' : 'rgba(103, 80, 164, 0.1)',
+                            backdropFilter: 'blur(12px)',
                             transition: 'transform 0.3s',
                             '&:hover': { transform: 'translateY(-4px)' },
                         }}
                     >
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
                             <Restaurant sx={{ fontSize: 40, color: theme.palette.error.main, mb: 1 }} />
-                            <Typography variant="h6" fontWeight="bold" color="#fff" gutterBottom>
+                            <Typography variant="h6" fontWeight="bold" color="text.primary" gutterBottom>
                                 🍽️ 飯飯之交
                             </Typography>
-                            <Typography variant="body2" color="rgba(255,255,255,0.7)">
+                            <Typography variant="body2" color="text.secondary">
                                 找人一起吃飯！有伴就更好吃
                             </Typography>
                         </CardContent>
@@ -970,17 +989,20 @@ export default function LandingPage() {
                         sx={{
                             textDecoration: 'none',
                             borderRadius: 4,
-                            background: `linear-gradient(135deg, #1E1A2E 0%, #1a3a5c 100%)`,
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(43, 38, 64, 0.8)' : 'rgba(255, 255, 255, 0.75)',
+                            border: '1px solid',
+                            borderColor: theme.palette.mode === 'dark' ? 'rgba(208, 188, 255, 0.12)' : 'rgba(103, 80, 164, 0.1)',
+                            backdropFilter: 'blur(12px)',
                             transition: 'transform 0.3s',
                             '&:hover': { transform: 'translateY(-4px)' },
                         }}
                     >
                         <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                            <MenuBook sx={{ fontSize: 40, color: '#42A5F5', mb: 1 }} />
-                            <Typography variant="h6" fontWeight="bold" color="#fff" gutterBottom>
+                            <MenuBook sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
+                            <Typography variant="h6" fontWeight="bold" color="text.primary" gutterBottom>
                                 📚 讀家回憶
                             </Typography>
-                            <Typography variant="body2" color="rgba(255,255,255,0.7)">
+                            <Typography variant="body2" color="text.secondary">
                                 期中期末靜心衝刺，覓一知己共赴書海
                             </Typography>
                         </CardContent>
