@@ -35,6 +35,7 @@ import {
     ExpandMore,
     ExpandLess,
     CheckCircle,
+    Download,
 } from '@mui/icons-material';
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -381,6 +382,41 @@ export default function GymTracker({ open, onClose }: Props) {
     const doneSets = state.exercises.reduce((s, e) => s + e.sets.filter(x => x.done).length, 0);
     const totalVolume = state.exercises.reduce((s, e) =>
         s + e.sets.filter(x => x.done).reduce((a, x) => a + (x.reps ?? 0) * (x.weight ?? 0), 0), 0);
+
+    const handleDownload = useCallback(() => {
+        if (state.phase !== 'done') return;
+        const lines: string[] = [];
+        const now = new Date();
+        const duration = state.startedAt && state.finishedAt ? Math.round((state.finishedAt - state.startedAt) / 1000) : 0;
+        lines.push('💪 LUMO 健身訓練記錄');
+        lines.push(`日期：${now.toLocaleDateString('zh-TW')} ${now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`);
+        lines.push(`訓練時間：${fmt(duration)}｜動作數：${state.exercises.length}｜完成組數：${doneSets}/${totalSets}`);
+        if (totalVolume > 0) lines.push(`總訓練量：${totalVolume.toLocaleString()} kg`);
+        lines.push('');
+        state.exercises.forEach((ex, idx) => {
+            const exDoneSets = ex.sets.filter(s => s.done);
+            const exVol = exDoneSets.reduce((a, s) => a + (s.reps ?? 0) * (s.weight ?? 0), 0);
+            lines.push(`${idx + 1}. ${ex.label} (${exDoneSets.length}/${ex.sets.length} 組)`);
+            exDoneSets.forEach((s, i) => {
+                if (ex.mode === 'reps') {
+                    lines.push(`   第 ${i + 1} 組：${s.weight}kg × ${s.reps}`);
+                } else {
+                    lines.push(`   第 ${i + 1} 組：${fmt(s.duration ?? 0)}`);
+                }
+            });
+            if (ex.mode === 'reps' && exVol > 0) lines.push(`   訓練量：${exVol.toLocaleString()} kg`);
+            if (ex.notes) lines.push(`   備註：${ex.notes}`);
+            lines.push('');
+        });
+        lines.push('— LUMO 暨大運動配對平台 —');
+        const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `健身訓練紀錄_${now.toISOString().slice(0, 10)}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [state, doneSets, totalSets, totalVolume]);
 
     // ════════════════════════════════
     // Setup Phase
@@ -813,15 +849,14 @@ export default function GymTracker({ open, onClose }: Props) {
 
                 <Divider sx={{ width: '100%' }} />
 
-                <Alert severity="info" variant="outlined" sx={{ width: '100%' }}>
-                    <Typography variant="body2">
-                        📸 截圖保存你的訓練記錄吧！
-                    </Typography>
-                </Alert>
-
-                <Button variant="contained" size="large" onClick={() => dispatch({ type: 'RESET' })} sx={{ px: 4 }}>
-                    開始新的訓練
-                </Button>
+                <Stack direction="row" spacing={2} justifyContent="center">
+                    <Button variant="contained" size="large" onClick={() => dispatch({ type: 'RESET' })} sx={{ px: 4 }}>
+                        開始新的訓練
+                    </Button>
+                    <Button variant="outlined" size="large" onClick={handleDownload} startIcon={<Download />} sx={{ px: 3 }}>
+                        下載紀錄
+                    </Button>
+                </Stack>
             </Stack>
         );
     };

@@ -23,7 +23,7 @@ import {
     useTheme,
     useMediaQuery,
 } from '@mui/material';
-import { Undo, RestartAlt, ExpandMore, ExpandLess } from '@mui/icons-material';
+import { Undo, RestartAlt, ExpandMore, ExpandLess, Download } from '@mui/icons-material';
 
 /* ═══════════════════════════════════════════════════════════════════
    Types & Configuration
@@ -497,6 +497,45 @@ export default function BadmintonScorer({ open, onClose }: Props) {
     }, []);
 
     const displayName = (team: 0 | 1) => state.teamNames[team].trim() || (team === 0 ? 'A 隊' : 'B 隊');
+
+    const handleDownload = useCallback(() => {
+        const isOver = isTeam ? state.teamOver : state.subMatchOver;
+        if (!isOver) return;
+        const winner = isTeam ? state.teamWinner! : state.subMatchWinner!;
+        const lines: string[] = [];
+        const now = new Date();
+        lines.push('🏸 LUMO 羽球計分器 — 比賽紀錄');
+        lines.push(`日期：${now.toLocaleDateString('zh-TW')} ${now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`);
+        lines.push(`模式：${isTeam ? '隊伍制' : MATCH_TYPE_LABELS[state.matchType]}｜${config.label}｜${BEST_OF_LABELS[state.bestOf]}`);
+        lines.push(`${displayName(0)} vs ${displayName(1)}`);
+        lines.push('');
+        if (isTeam) {
+            lines.push(`=== 團體戰結果：${displayName(winner)} 勝 (${state.teamWins[0]} : ${state.teamWins[1]}) ===`);
+            lines.push('');
+            state.teamResults.forEach((r) => {
+                const scores = r.games.map(g => `${g.scores[0]}-${g.scores[1]}`).join(', ');
+                lines.push(`${r.short}：${scores}　→ ${displayName(r.winner)} 勝`);
+            });
+        } else {
+            lines.push(`=== 結果：${displayName(winner)} 勝 ===`);
+            if (state.bestOf > 1) {
+                lines.push(`局數：${state.gamesWon[0]} : ${state.gamesWon[1]}`);
+            }
+            lines.push('');
+            state.completedGames.forEach((g, i) => {
+                lines.push(`第 ${i + 1} 局：${g.scores[0]} : ${g.scores[1]}　→ ${displayName(g.winner)} 勝`);
+            });
+        }
+        lines.push('');
+        lines.push('— LUMO 暨大運動配對平台 —');
+        const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `羽球比賽紀錄_${now.toISOString().slice(0, 10)}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [state, isTeam, config, displayName]);
 
     // ════════════════════════════════
     // Config Phase
@@ -991,9 +1030,14 @@ export default function BadmintonScorer({ open, onClose }: Props) {
 
                 <Divider sx={{ width: '100%' }} />
 
-                <Button variant="contained" size="large" onClick={() => dispatch({ type: 'RESET' })} sx={{ px: 4 }}>
-                    開始新比賽
-                </Button>
+                <Stack direction="row" spacing={2} justifyContent="center">
+                    <Button variant="contained" size="large" onClick={() => dispatch({ type: 'RESET' })} sx={{ px: 4 }}>
+                        開始新比賽
+                    </Button>
+                    <Button variant="outlined" size="large" onClick={handleDownload} startIcon={<Download />} sx={{ px: 3 }}>
+                        下載紀錄
+                    </Button>
+                </Stack>
             </Stack>
         );
     };
