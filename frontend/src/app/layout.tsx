@@ -5,6 +5,7 @@ import ThemeRegistry from '@/theme/ThemeRegistry';
 import ErrorBoundary from './components/ErrorBoundary';
 import InAppBrowserOverlay from './components/InAppBrowserOverlay';
 import MountainBackground from './components/MountainBackground';
+import ThemeColorWrapper from './components/ThemeColorWrapper';
 
 export const metadata: Metadata = {
     title: 'LUMO - 暨大揪團平台',
@@ -34,7 +35,9 @@ export default function RootLayout({
                         <AuthProvider>
                             <MountainBackground />
                             <InAppBrowserOverlay />
-                            {children}
+                            <ThemeColorWrapper>
+                                {children}
+                            </ThemeColorWrapper>
                         </AuthProvider>
                     </ErrorBoundary>
                 </ThemeRegistry>
