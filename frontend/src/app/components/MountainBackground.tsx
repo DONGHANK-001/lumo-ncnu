@@ -3,7 +3,7 @@
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 
-function LightScene() {
+function LightDecorations() {
     return (
         <>
             {/* 太陽光暈 */}
@@ -15,6 +15,13 @@ function LightScene() {
             <ellipse cx="790" cy="305" rx="110" ry="24" fill="#fff" opacity="0.22" />
             <ellipse cx="1150" cy="380" rx="130" ry="22" fill="#fff" opacity="0.2" />
             <ellipse cx="180" cy="420" rx="110" ry="20" fill="#fff" opacity="0.18" />
+        </>
+    );
+}
+
+function LightMountains() {
+    return (
+        <>
             {/* 山間薄霧 */}
             <ellipse cx="720" cy="640" rx="500" ry="25" fill="#fff" opacity="0.12" />
             <ellipse cx="350" cy="720" rx="350" ry="20" fill="#fff" opacity="0.1" />
@@ -27,7 +34,7 @@ function LightScene() {
     );
 }
 
-function DarkScene() {
+function DarkDecorations() {
     return (
         <>
             {/* 月牙 */}
@@ -50,7 +57,13 @@ function DarkScene() {
             <circle cx="1300" cy="220" r="3" fill="#D0BCFF" opacity="0.3" />
             <circle cx="340" cy="340" r="2.5" fill="#E8DEF8" opacity="0.25" />
             <circle cx="920" cy="370" r="3" fill="#D0BCFF" opacity="0.2" />
-            {/* 山脈四層 */}
+        </>
+    );
+}
+
+function DarkMountains() {
+    return (
+        <>
             <path d="M0 520 Q200 320 450 430 T900 360 T1300 400 T1440 380 L1440 900 L0 900Z" fill="#1E1A40" opacity="0.45" />
             <path d="M0 600 Q300 440 600 520 T1100 470 T1440 500 L1440 900 L0 900Z" fill="#1A1630" opacity="0.55" />
             <path d="M0 680 Q250 560 500 630 T1000 590 T1440 630 L1440 900 L0 900Z" fill="#151230" opacity="0.65" />
@@ -76,12 +89,21 @@ export default function MountainBackground() {
                     : 'linear-gradient(180deg, #110E1F 0%, #1E1A2E 35%, #2B2640 100%)',
             }}
         >
+            {/* Decorations layer: preserves aspect ratio so circles stay round */}
+            <svg
+                viewBox="0 0 1440 900"
+                preserveAspectRatio="xMidYMid slice"
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+            >
+                {isLight ? <LightDecorations /> : <DarkDecorations />}
+            </svg>
+            {/* Mountains layer: stretches to fill viewport width */}
             <svg
                 viewBox="0 0 1440 900"
                 preserveAspectRatio="none"
                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
             >
-                {isLight ? <LightScene /> : <DarkScene />}
+                {isLight ? <LightMountains /> : <DarkMountains />}
             </svg>
         </Box>
     );
