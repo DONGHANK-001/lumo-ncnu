@@ -12,10 +12,7 @@ import {
     Divider,
     Card,
     CardContent,
-    ThemeProvider,
-    CssBaseline,
 } from '@mui/material';
-import { createAppTheme } from '@/theme/theme';
 import {
     ArrowBack,
     SportsBasketball,
@@ -314,7 +311,6 @@ export default function SportGuidePage() {
     const router = useRouter();
     const type = params.type as string;
     const sport = SPORT_DATA[type];
-    const darkTheme = createAppTheme('dark');
     const [scorerOpen, setScorerOpen] = useState(false);
     const [gymOpen, setGymOpen] = useState(false);
 
@@ -330,8 +326,6 @@ export default function SportGuidePage() {
     }
 
     return (
-        <ThemeProvider theme={darkTheme}>
-        <CssBaseline />
         <Box sx={{ minHeight: '100vh' }}>
         <Container maxWidth="md" sx={{ py: 4, pb: 8 }}>
             <Button
@@ -496,6 +490,5 @@ export default function SportGuidePage() {
             )}
         </Container>
         </Box>
-        </ThemeProvider>
     );
 }
