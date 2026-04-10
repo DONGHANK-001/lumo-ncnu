@@ -802,7 +802,7 @@ export default function ProfilePage() {
                                                     textAlign: 'center',
                                                 }}
                                             >
-                                                {badge.name}
+                                                {badge.name.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{200D}\u{20E3}]/gu, '').trim()}
                                             </Typography>
                                             <Typography
                                                 variant="caption"
