@@ -547,10 +547,10 @@ export default function LandingPage() {
                                 <Typography variant="h6" fontWeight="bold">
                                     🥇 {lastMonthTopDepts[0].department}
                                 </Typography>
-                                <Typography variant="subtitle1" fontWeight="bold" color="rgba(0,0,0,0.7)">
+                                <Typography variant="subtitle1" fontWeight="bold" color="inherit" sx={{ opacity: 0.8 }}>
                                     🥈 {lastMonthTopDepts[1].department}
                                 </Typography>
-                                <Typography variant="subtitle1" fontWeight="bold" color="rgba(0,0,0,0.7)">
+                                <Typography variant="subtitle1" fontWeight="bold" color="inherit" sx={{ opacity: 0.8 }}>
                                     🥉 {lastMonthTopDepts[2].department}
                                 </Typography>
                             </Stack>
