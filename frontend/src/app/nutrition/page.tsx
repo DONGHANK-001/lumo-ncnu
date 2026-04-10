@@ -283,7 +283,7 @@ export default function NutritionPage() {
     return (
         <ThemeProvider theme={darkTheme}>
             <CssBaseline />
-            <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+            <Box sx={{ minHeight: '100vh' }}>
                 <Container maxWidth="md" sx={{ py: 4, pb: 8 }}>
                     {/* Header */}
                     <Stack direction="row" alignItems="center" spacing={2} mb={3}>

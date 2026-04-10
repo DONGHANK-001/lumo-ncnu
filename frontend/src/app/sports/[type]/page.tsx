@@ -332,7 +332,7 @@ export default function SportGuidePage() {
     return (
         <ThemeProvider theme={darkTheme}>
         <CssBaseline />
-        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+        <Box sx={{ minHeight: '100vh' }}>
         <Container maxWidth="md" sx={{ py: 4, pb: 8 }}>
             <Button
                 startIcon={<ArrowBack />}

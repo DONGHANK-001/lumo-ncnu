@@ -294,7 +294,7 @@ export default function LandingPage() {
     }, []);
 
     return (
-        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', color: 'text.primary' }}>
+        <Box sx={{ minHeight: '100vh', color: 'text.primary' }}>
             {/* AppBar */}
             <AppBar
                 position="fixed"
