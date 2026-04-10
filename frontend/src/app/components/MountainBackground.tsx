@@ -31,22 +31,25 @@ function DarkScene() {
     return (
         <>
             {/* 月牙 */}
-            <path d="M1180 140 A30 30 0 1 0 1180 200 A24 24 0 1 1 1180 140" fill="#E8DEF8" opacity="0.22" />
+            <circle cx="1200" cy="120" r="50" fill="#E8DEF8" opacity="0.18" />
+            <circle cx="1220" cy="110" r="42" fill="#110E1F" />
             {/* 星星 — 上層 */}
-            <circle cx="100" cy="60" r="1.8" fill="#D0BCFF" opacity="0.6" />
-            <circle cx="260" cy="130" r="2.2" fill="#E8DEF8" opacity="0.5" />
-            <circle cx="420" cy="50" r="1.2" fill="#D0BCFF" opacity="0.55" />
-            <circle cx="580" cy="110" r="1.8" fill="#E8DEF8" opacity="0.45" />
-            <circle cx="720" cy="40" r="2.5" fill="#D0BCFF" opacity="0.5" />
-            <circle cx="880" cy="90" r="1.2" fill="#E8DEF8" opacity="0.4" />
-            <circle cx="1020" cy="60" r="1.8" fill="#D0BCFF" opacity="0.5" />
-            <circle cx="1350" cy="80" r="2.2" fill="#E8DEF8" opacity="0.45" />
+            <circle cx="100" cy="60" r="4" fill="#D0BCFF" opacity="0.7" />
+            <circle cx="260" cy="130" r="5" fill="#E8DEF8" opacity="0.6" />
+            <circle cx="420" cy="50" r="3.5" fill="#D0BCFF" opacity="0.65" />
+            <circle cx="580" cy="110" r="4" fill="#E8DEF8" opacity="0.55" />
+            <circle cx="720" cy="40" r="5.5" fill="#D0BCFF" opacity="0.6" />
+            <circle cx="880" cy="90" r="3.5" fill="#E8DEF8" opacity="0.5" />
+            <circle cx="1020" cy="60" r="4" fill="#D0BCFF" opacity="0.6" />
+            <circle cx="1350" cy="80" r="5" fill="#E8DEF8" opacity="0.55" />
             {/* 星星 — 中層 */}
-            <circle cx="160" cy="260" r="1.2" fill="#D0BCFF" opacity="0.3" />
-            <circle cx="460" cy="230" r="1.8" fill="#E8DEF8" opacity="0.25" />
-            <circle cx="740" cy="290" r="1.2" fill="#D0BCFF" opacity="0.2" />
-            <circle cx="1060" cy="260" r="1.5" fill="#E8DEF8" opacity="0.25" />
-            <circle cx="1300" cy="220" r="1" fill="#D0BCFF" opacity="0.2" />
+            <circle cx="160" cy="260" r="3" fill="#D0BCFF" opacity="0.4" />
+            <circle cx="460" cy="230" r="4" fill="#E8DEF8" opacity="0.35" />
+            <circle cx="740" cy="290" r="3" fill="#D0BCFF" opacity="0.3" />
+            <circle cx="1060" cy="260" r="3.5" fill="#E8DEF8" opacity="0.35" />
+            <circle cx="1300" cy="220" r="3" fill="#D0BCFF" opacity="0.3" />
+            <circle cx="340" cy="340" r="2.5" fill="#E8DEF8" opacity="0.25" />
+            <circle cx="920" cy="370" r="3" fill="#D0BCFF" opacity="0.2" />
             {/* 山脈四層 */}
             <path d="M0 520 Q200 320 450 430 T900 360 T1300 400 T1440 380 L1440 900 L0 900Z" fill="#1E1A40" opacity="0.45" />
             <path d="M0 600 Q300 440 600 520 T1100 470 T1440 500 L1440 900 L0 900Z" fill="#1A1630" opacity="0.55" />
