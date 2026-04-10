@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Container, Grid, Card, CardContent, Stack, Skeleton } from '@mui/material';
 
 export default function GroupsLoading() {

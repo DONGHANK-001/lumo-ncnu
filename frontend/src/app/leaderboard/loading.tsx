@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Container, Stack, Skeleton } from '@mui/material';
 
 export default function LeaderboardLoading() {
