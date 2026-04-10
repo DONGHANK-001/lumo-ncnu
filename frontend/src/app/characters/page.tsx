@@ -110,7 +110,7 @@ export default function CharactersPage() {
                     />
                     <Box
                         component="img"
-                        src="/characters.webp"
+                        src="/characters.png"
                         alt="LUMO IP 角色 — 四位可愛的吉祥物夥伴"
                         sx={{
                             width: '100%',
