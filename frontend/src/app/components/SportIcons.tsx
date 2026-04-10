@@ -1,19 +1,31 @@
 import { SvgIcon, SvgIconProps } from '@mui/material';
 
-/** 羽毛球（shuttlecock）icon */
+/** 羽毛球 shuttlecock — 5片扇形羽毛 + 圓形底座 */
 export function BadmintonIcon(props: SvgIconProps) {
     return (
         <SvgIcon {...props} viewBox="0 0 24 24">
-            <path d="M12 2C9.8 2 8 3.8 8 6c0 1.5.8 2.8 2 3.5V11h4V9.5c1.2-.7 2-2 2-3.5 0-2.2-1.8-4-4-4zm-1 11l-1 9h4l-1-9h-2z" />
+            {/* 5 片扇形羽毛 */}
+            <ellipse cx="7" cy="7.5" rx="1.8" ry="6" transform="rotate(-30 7 7.5)" />
+            <ellipse cx="9.8" cy="5.5" rx="1.8" ry="6" transform="rotate(-15 9.8 5.5)" />
+            <ellipse cx="12.8" cy="4.8" rx="1.8" ry="6" />
+            <ellipse cx="15.8" cy="5.5" rx="1.8" ry="6" transform="rotate(15 15.8 5.5)" />
+            <ellipse cx="18.5" cy="7.5" rx="1.8" ry="6" transform="rotate(30 18.5 7.5)" />
+            {/* 底座圓弧 */}
+            <ellipse cx="12.8" cy="15" rx="5.5" ry="3.5" />
         </SvgIcon>
     );
 }
 
-/** 乒乓球拍 icon */
+/** 乒乓球拍 — 圓形拍面 + 握把 + 小球 */
 export function TableTennisIcon(props: SvgIconProps) {
     return (
         <SvgIcon {...props} viewBox="0 0 24 24">
-            <path d="M15.5 2C12.46 2 10 4.46 10 7.5c0 1.03.28 1.99.78 2.82L4 17.1V21h3.9l6.78-6.78c.83.5 1.79.78 2.82.78C20.54 15 23 12.54 23 9.5S20.54 2 17.5 2h-2zm2 11c-1.93 0-3.5-1.57-3.5-3.5S15.57 6 17.5 6 21 7.57 21 9.5 19.43 13 17.5 13z" />
+            {/* 拍面 */}
+            <circle cx="13" cy="8" r="7" />
+            {/* 握把 */}
+            <rect x="8" y="14.5" width="4" height="7.5" rx="1.8" transform="rotate(-15 10 18)" />
+            {/* 小球 */}
+            <circle cx="4" cy="18" r="2.5" />
         </SvgIcon>
     );
 }
