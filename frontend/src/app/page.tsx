@@ -583,13 +583,13 @@ export default function LandingPage() {
                     borderRadius: 4,
                     background: theme.palette.mode === 'dark'
                         ? 'linear-gradient(135deg, rgba(255,111,0,0.25) 0%, rgba(255,183,77,0.15) 50%, rgba(255,61,0,0.2) 100%)'
-                        : 'linear-gradient(135deg, rgba(255,152,0,0.18) 0%, rgba(255,224,130,0.25) 50%, rgba(255,111,0,0.15) 100%)',
+                        : 'linear-gradient(135deg, rgba(255,111,0,0.3) 0%, rgba(255,183,77,0.35) 50%, rgba(255,152,0,0.25) 100%)',
                     border: '2px solid',
-                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255,183,77,0.4)' : 'rgba(255,152,0,0.35)',
+                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255,183,77,0.4)' : 'rgba(255,152,0,0.5)',
                     backdropFilter: 'blur(12px)',
                     boxShadow: theme.palette.mode === 'dark'
                         ? '0 4px 24px rgba(255,152,0,0.2), inset 0 1px 0 rgba(255,183,77,0.15)'
-                        : '0 4px 24px rgba(255,152,0,0.15), inset 0 1px 0 rgba(255,255,255,0.5)',
+                        : '0 4px 24px rgba(255,152,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6)',
                     position: 'relative',
                     overflow: 'hidden',
                     '&::before': {
