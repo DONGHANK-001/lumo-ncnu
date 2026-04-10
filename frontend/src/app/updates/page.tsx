@@ -28,6 +28,36 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
+        version: 'v1.18.0',
+        date: '2026-04-11',
+        category: '新功能',
+        title: '🎨 LUMO IP 角色頁面上線',
+        details: [
+            '新增「/characters」IP 角色介紹頁面，展示四位 LUMO 吉祥物：李哲恩、徐曜辰、王佑慧、白語寧',
+            '水彩風插畫搭配 CSS 浮動呼吸動畫（breathe）、柔光脈動（glowPulse）、光點粒子飄升效果',
+            '首頁「別無所求」圖標點擊後直接導向角色頁面',
+            '角色介紹卡片支援 hover 互動效果',
+            '自動適配淺色 / 深色主題',
+        ],
+    },
+    {
+        version: 'v1.17.0',
+        date: '2026-04-11',
+        category: '優化',
+        title: '✨ 全站 Emoji 替換為 MUI 圖標 & UX 改善',
+        details: [
+            '首頁所有 emoji（🏆🥇🔥📚📖📋📜✅📸）替換為對應 MUI Icon（EmojiEvents、LocalFireDepartment、MenuBook 等）',
+            '個人檔案頁所有 emoji 替換為 MUI Icon（Person、BarChartOutlined、PushPin、Handshake 等）',
+            '羽球與桌球圖標重新設計為精緻 SVG（扇形羽毛 / 球拍+球）',
+            '個人檔案頁載入改用 Skeleton 骨架屏，消除版面跳動',
+            '揪團列表、排行榜新增 loading.tsx 路由骨架，導航過渡更流暢',
+            '運動指南頁移除強制深色 ThemeProvider，淺色模式文字正常顯示',
+            '羽球計分器 & 健身記錄器新增「下載紀錄」按鈕，可匯出 .txt 檔',
+            '首頁「上月最強熱血系所」Banner 加強漸層、火焰圖標與微光動畫',
+            '首頁新增「別無所求」（SelfImprovement）圖標入口',
+        ],
+    },
+    {
         version: 'v1.16.0',
         date: '2026-04-11',
         category: '重大更新',
