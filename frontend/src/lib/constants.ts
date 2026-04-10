@@ -120,36 +120,59 @@ export const PLANS = [
 // ============================================
 // 讀家回憶｜系所對抗賽 活動設定（4/7 - 4/17）
 // ============================================
-/** 活動開始時間 */
 export const READING_EVENT_START = new Date('2026-04-07T00:00:00+08:00');
-/** 橫幅 & 通知截止時間（4/17 中午 12:00） */
 export const READING_EVENT_END = new Date('2026-04-17T12:00:00+08:00');
-/** 每日通知觸發小時（24h 制） */
 export const READING_EVENT_DAILY_HOUR = 9;
 
-/** 判斷活動期間內且尚未截止 */
 export function isReadingEventActive(): boolean {
     const now = new Date();
     return now >= READING_EVENT_START && now < READING_EVENT_END;
 }
 
-/** 判斷今天 9 點後且活動期間內（用於通知觸發） */
 export function shouldShowReadingEventNotification(): boolean {
     if (!isReadingEventActive()) return false;
-    const now = new Date();
-    return now.getHours() >= READING_EVENT_DAILY_HOUR;
+    return new Date().getHours() >= READING_EVENT_DAILY_HOUR;
 }
 
-/** 判斷虛擬通知今日是否已讀（localStorage） */
 export function isReadingEventNotifReadToday(): boolean {
     if (typeof window === 'undefined') return true;
     const stored = localStorage.getItem('reading_event_notif_read_date');
-    const today = new Date().toDateString();
-    return stored === today;
+    return stored === new Date().toDateString();
 }
 
-/** 標記虛擬通知今日已讀 */
 export function markReadingEventNotifRead(): void {
     if (typeof window === 'undefined') return;
     localStorage.setItem('reading_event_notif_read_date', new Date().toDateString());
+}
+
+// ============================================
+// 期中燃脂王｜運動排行榜 活動設定（4/13 - 4/17）
+// ============================================
+export const MIDTERM_FIT_START = new Date('2026-04-13T00:00:00+08:00');
+export const MIDTERM_FIT_END = new Date('2026-04-17T12:00:00+08:00');
+
+export function isMidtermFitActive(): boolean {
+    const now = new Date();
+    return now >= MIDTERM_FIT_START && now < MIDTERM_FIT_END;
+}
+
+export function shouldShowMidtermFitNotification(): boolean {
+    if (!isMidtermFitActive()) return false;
+    return new Date().getHours() >= READING_EVENT_DAILY_HOUR;
+}
+
+export function isMidtermFitNotifReadToday(): boolean {
+    if (typeof window === 'undefined') return true;
+    const stored = localStorage.getItem('midterm_fit_notif_read_date');
+    return stored === new Date().toDateString();
+}
+
+export function markMidtermFitNotifRead(): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('midterm_fit_notif_read_date', new Date().toDateString());
+}
+
+/** 任一活動進行中（用於共用判斷） */
+export function isAnyEventActive(): boolean {
+    return isReadingEventActive() || isMidtermFitActive();
 }

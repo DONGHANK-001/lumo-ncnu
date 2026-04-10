@@ -65,7 +65,7 @@ import DepartmentUpdateDialog, { DEPARTMENT_VERSION } from './components/Departm
 import IdentityUpdateDialog from './components/IdentityUpdateDialog';
 import PwaInstallDialog from './components/PwaInstallDialog';
 import { useNotifications } from '@/hooks/useNotifications';
-import { SPORT_NAMES, DEPARTMENTS, isReadingEventActive } from '@/lib/constants';
+import { SPORT_NAMES, DEPARTMENTS, isReadingEventActive, isMidtermFitActive, isAnyEventActive } from '@/lib/constants';
 
 const SPORTS = [
     { type: 'BASKETBALL', icon: <SportsBasketball fontSize="large" />, name: '籃球' },
@@ -529,8 +529,115 @@ export default function LandingPage() {
                 </Container>
             )}
 
+            {/* 🔥 期中燃脂王｜運動排行榜 活動橫幅 (4/13-4/17 12:00 自動消失) */}
+            {isMidtermFitActive() && (
+                <Container maxWidth="md" sx={{ mt: isReadingEventActive() ? 2 : { xs: -2, sm: -3 }, mb: 3, position: 'relative', zIndex: 3 }}>
+                    <Card
+                        sx={{
+                            borderRadius: 4,
+                            background: 'linear-gradient(135deg, #1a0a00 0%, #4a1500 40%, #8B2500 100%)',
+                            color: '#fff',
+                            boxShadow: '0 8px 32px rgba(139, 37, 0, 0.4)',
+                            overflow: 'hidden',
+                            position: 'relative',
+                            border: '1px solid rgba(255,100,0,0.2)',
+                        }}
+                    >
+                        <Box sx={{
+                            position: 'absolute',
+                            top: -40,
+                            right: -40,
+                            width: 160,
+                            height: 160,
+                            borderRadius: '50%',
+                            background: 'radial-gradient(circle, rgba(255,100,0,0.2) 0%, transparent 70%)',
+                            pointerEvents: 'none',
+                        }} />
+                        <CardContent sx={{ py: 3, px: { xs: 2.5, sm: 4 }, position: 'relative' }}>
+                            <Typography
+                                variant="h5"
+                                fontWeight="900"
+                                textAlign="center"
+                                sx={{
+                                    mb: 1,
+                                    textShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                                    fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                                }}
+                            >
+                                🔥 期中燃脂王｜運動排行榜開跑！ 🔥
+                            </Typography>
+                            <Typography
+                                variant="body2"
+                                textAlign="center"
+                                sx={{ opacity: 0.85, mb: 2 }}
+                            >
+                                4/13 – 4/17 揪團運動＋揪新朋友，抽禮券！
+                            </Typography>
+
+                            <Stack
+                                direction="row"
+                                spacing={{ xs: 2, sm: 4 }}
+                                justifyContent="center"
+                                alignItems="center"
+                                sx={{ mb: 2.5 }}
+                            >
+                                <Stack alignItems="center">
+                                    <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1 }}>🥇</Typography>
+                                    <Typography variant="caption" sx={{ opacity: 0.8 }}>500 元 ×2</Typography>
+                                </Stack>
+                                <Stack alignItems="center">
+                                    <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1 }}>🥈</Typography>
+                                    <Typography variant="caption" sx={{ opacity: 0.8 }}>200 元 ×5</Typography>
+                                </Stack>
+                            </Stack>
+
+                            <Typography
+                                variant="caption"
+                                textAlign="center"
+                                display="block"
+                                sx={{ opacity: 0.7, mb: 2 }}
+                            >
+                                揪一位沒用過 LUMO 的朋友 → 拍照打卡 📸 → 標註 @lumo_dailyfit
+                            </Typography>
+
+                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center">
+                                <Button
+                                    variant="contained"
+                                    component={Link}
+                                    href="/create"
+                                    sx={{
+                                        bgcolor: '#FF6B00',
+                                        color: '#fff',
+                                        fontWeight: 'bold',
+                                        borderRadius: 3,
+                                        px: 3,
+                                        '&:hover': { bgcolor: '#FF8C00' },
+                                    }}
+                                >
+                                    立即揪團 🔥
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    component={Link}
+                                    href="/leaderboard"
+                                    sx={{
+                                        borderColor: 'rgba(255,255,255,0.4)',
+                                        color: '#fff',
+                                        borderRadius: 3,
+                                        px: 3,
+                                        '&:hover': { borderColor: '#FF6B00', color: '#FF6B00' },
+                                    }}
+                                >
+                                    查看排行榜
+                                </Button>
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                </Container>
+            )}
+
             {/* Last Month Top 3 Banner */}
-            <Container maxWidth="md" sx={{ mt: isReadingEventActive() ? 0 : { xs: -2, sm: -3 }, mb: 4, position: 'relative', zIndex: 2 }}>
+            <Container maxWidth="md" sx={{ mt: isAnyEventActive() ? 0 : { xs: -2, sm: -3 }, mb: 4, position: 'relative', zIndex: 2 }}>
                 <Card sx={{
                     borderRadius: 4,
                     background: `linear-gradient(135deg, ${theme.palette.warning.main} 0%, ${theme.palette.warning.light} 100%)`,
