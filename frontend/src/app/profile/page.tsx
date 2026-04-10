@@ -32,8 +32,18 @@ import {
     Logout,
     Star,
     AdminPanelSettings,
-    LocalFireDepartment
+    LocalFireDepartment,
+    EmojiEvents,
+    Diversity3,
+    WorkspacePremium,
+    FitnessCenter,
+    WbSunny,
+    Explore,
+    NightsStay,
+    MilitaryTech,
 } from '@mui/icons-material';
+import type { SvgIconProps } from '@mui/material';
+import type { ComponentType } from 'react';
 import CrownBadge from '@/app/components/CrownBadge';
 import { SPORT_NAMES, SPORT_EMOJIS, LEVEL_OPTIONS, TIME_OPTIONS } from '@/lib/constants';
 
@@ -94,6 +104,17 @@ const PREFERENCE_CHIP_SX = {
         fontWeight: 600,
     },
 } as const;
+
+const BADGE_ICON_MAP: Record<string, { Icon: ComponentType<SvgIconProps>; color: string }> = {
+    first_step: { Icon: EmojiEvents, color: '#FFB300' },
+    social_butterfly: { Icon: Diversity3, color: '#AB47BC' },
+    team_leader: { Icon: WorkspacePremium, color: '#FFA726' },
+    iron_man: { Icon: FitnessCenter, color: '#EF5350' },
+    early_bird: { Icon: WbSunny, color: '#FF7043' },
+    consistent: { Icon: LocalFireDepartment, color: '#FF5722' },
+    campus_explorer: { Icon: Explore, color: '#26A69A' },
+    night_owl: { Icon: NightsStay, color: '#7E57C2' },
+};
 
 const BADGE_GRID_SX = {
     display: 'grid',
@@ -736,7 +757,10 @@ export default function ProfilePage() {
 
                         {/* Badges Section */}
                         <Paper sx={{ p: 3, borderRadius: 4 }}>
-                            <Typography variant="h6" fontWeight="bold" mb={2}>🏅 成就勳章</Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                <MilitaryTech sx={{ color: 'primary.main' }} />
+                                <Typography variant="h6" fontWeight="bold">成就勳章</Typography>
+                            </Box>
                             <Box sx={BADGE_GRID_SX}>
                                 {allBadges.map(badge => {
                                     const unlocked = myBadges.some(mb => mb.code === badge.code);
@@ -757,7 +781,14 @@ export default function ProfilePage() {
                                             gap: 1,
                                             transition: 'all 0.3s',
                                         }}>
-                                            <Typography variant="h4" sx={{ lineHeight: 1.1, mt: 0.5 }}>{badge.icon}</Typography>
+                                            {(() => {
+                                                const mapping = BADGE_ICON_MAP[badge.code];
+                                                if (mapping) {
+                                                    const { Icon, color } = mapping;
+                                                    return <Icon sx={{ fontSize: 40, color, mt: 0.5 }} />;
+                                                }
+                                                return <Typography variant="h4" sx={{ lineHeight: 1.1, mt: 0.5 }}>{badge.icon}</Typography>;
+                                            })()}
                                             <Typography
                                                 variant="caption"
                                                 fontWeight="bold"
