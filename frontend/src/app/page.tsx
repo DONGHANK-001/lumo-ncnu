@@ -432,7 +432,7 @@ export default function LandingPage() {
                     <Grid container spacing={2}>
                         {/* 📚 讀家回憶 */}
                         {isReadingEventActive() && (
-                            <Grid item xs={12} md={isMidtermFitActive() ? 6 : 12}>
+                            <Grid size={{ xs: 12, md: isMidtermFitActive() ? 6 : 12 }}>
                                 <Card sx={{
                                     borderRadius: 3,
                                     background: 'linear-gradient(135deg, #0d1b2a 0%, #1b3a5c 40%, #274c77 100%)',
@@ -481,7 +481,7 @@ export default function LandingPage() {
 
                         {/* 🔥 期中燃脂王 */}
                         {isMidtermFitActive() && (
-                            <Grid item xs={12} md={isReadingEventActive() ? 6 : 12}>
+                            <Grid size={{ xs: 12, md: isReadingEventActive() ? 6 : 12 }}>
                                 <Card sx={{
                                     borderRadius: 3,
                                     background: 'linear-gradient(135deg, #1a0a00 0%, #4a1500 40%, #8B2500 100%)',
