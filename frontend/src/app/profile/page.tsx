@@ -41,15 +41,30 @@ import {
     Explore,
     NightsStay,
     MilitaryTech,
+    SportsBasketball,
+    DirectionsRun,
+    SportsTennis,
+    SportsVolleyball,
 } from '@mui/icons-material';
 import type { SvgIconProps } from '@mui/material';
 import type { ComponentType } from 'react';
 import CrownBadge from '@/app/components/CrownBadge';
 import { SPORT_NAMES, SPORT_EMOJIS, LEVEL_OPTIONS, TIME_OPTIONS } from '@/lib/constants';
+import React from 'react';
+
+const SPORT_ICON_MAP: Record<string, React.ReactElement> = {
+    BASKETBALL: <SportsBasketball sx={{ fontSize: 18 }} />,
+    RUNNING: <DirectionsRun sx={{ fontSize: 18 }} />,
+    BADMINTON: <SportsTennis sx={{ fontSize: 18 }} />,
+    TABLE_TENNIS: <SportsTennis sx={{ fontSize: 18 }} />,
+    GYM: <FitnessCenter sx={{ fontSize: 18 }} />,
+    VOLLEYBALL: <SportsVolleyball sx={{ fontSize: 18 }} />,
+    TENNIS: <SportsTennis sx={{ fontSize: 18 }} />,
+};
 
 const SPORT_OPTIONS = Object.entries(SPORT_NAMES)
     .filter(([key]) => !['NIGHT_WALK', 'DINING', 'STUDY'].includes(key))
-    .map(([value, label]) => ({ value, label: `${SPORT_EMOJIS[value] || ''} ${label}` }));
+    .map(([value, label]) => ({ value, label: label as string, icon: SPORT_ICON_MAP[value] }));
 
 const PROFILE_GROUP_HISTORY_LIMIT = 3;
 const PROFILE_LOCATION_OPTIONS = [
@@ -664,6 +679,7 @@ export default function ProfilePage() {
                                         {SPORT_OPTIONS.map((sport) => (
                                             <Chip
                                                 key={sport.value}
+                                                icon={sport.icon}
                                                 label={sport.label}
                                                 clickable
                                                 onClick={() => setForm({ ...form, sports: toggleArrayItem(form.sports, sport.value) })}
