@@ -1003,9 +1003,11 @@ export default function LandingPage() {
                 <Typography variant="h5" fontWeight="bold" textAlign="center" mb={6}>支援活動類型</Typography>
                 <Stack direction="row" flexWrap="wrap" justifyContent="center" gap={4}>
                     {SPORTS.map((sport) => {
-                        const linkProps = ('href' in sport && sport.href === null)
-                            ? {}
+                        const hasCustomHref = 'href' in sport;
+                        const linkProps = hasCustomHref
+                            ? (sport.href ? { component: Link, href: sport.href } : {})
                             : { component: Link, href: `/sports/${sport.type}` };
+                        const isClickable = !!((linkProps as any).href);
                         return (
                             <Paper
                                 key={sport.name}
@@ -1019,8 +1021,8 @@ export default function LandingPage() {
                                     borderRadius: 4,
                                     textDecoration: 'none',
                                     color: 'inherit',
-                                    cursor: linkProps.href ? 'pointer' : 'default',
-                                    '&:hover': linkProps.href ? { transform: 'translateY(-5px)', transition: '0.3s', boxShadow: 3 } : {}
+                                    cursor: isClickable ? 'pointer' : 'default',
+                                    '&:hover': isClickable ? { transform: 'translateY(-5px)', transition: '0.3s', boxShadow: 3 } : {}
                                 }}
                             >
                                 <Box sx={{ color: 'primary.main', mb: 1 }}>{sport.icon}</Box>
