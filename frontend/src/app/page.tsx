@@ -49,7 +49,13 @@ import {
     Event,
     LocationOn,
     People,
-    ArrowForward
+    ArrowForward,
+    EmojiEvents,
+    LocalFireDepartment,
+    CameraAlt,
+    Assignment,
+    Gavel,
+    CheckCircle
 } from '@mui/icons-material';
 import { BadmintonIcon, TableTennisIcon } from './components/SportIcons';
 import Link from 'next/link';
@@ -391,7 +397,14 @@ export default function LandingPage() {
                             size="large"
                             component={Link}
                             href="/groups"
-                            sx={{ fontSize: '1.2rem', py: 1.5, px: 4 }}
+                            sx={{
+                                fontSize: '1.2rem', py: 1.5, px: 4, borderRadius: 3,
+                                bgcolor: theme.palette.mode === 'dark' ? 'rgba(208,188,255,0.2)' : 'primary.main',
+                                color: theme.palette.mode === 'dark' ? '#E8DEF8' : '#fff',
+                                backdropFilter: 'blur(8px)',
+                                boxShadow: 'none',
+                                '&:hover': { bgcolor: theme.palette.mode === 'dark' ? 'rgba(208,188,255,0.3)' : 'primary.dark', boxShadow: 'none' },
+                            }}
                         >
                             瀏覽揪團
                         </Button>
@@ -400,7 +413,13 @@ export default function LandingPage() {
                                 variant="outlined"
                                 size="large"
                                 onClick={signIn}
-                                sx={{ fontSize: '1.2rem', py: 1.5, px: 4 }}
+                                sx={{
+                                    fontSize: '1.2rem', py: 1.5, px: 4, borderRadius: 3,
+                                    borderColor: theme.palette.mode === 'dark' ? 'rgba(208,188,255,0.3)' : 'rgba(103,80,164,0.3)',
+                                    color: theme.palette.mode === 'dark' ? '#D0BCFF' : 'primary.main',
+                                    backdropFilter: 'blur(8px)',
+                                    '&:hover': { bgcolor: theme.palette.mode === 'dark' ? 'rgba(208,188,255,0.1)' : 'rgba(103,80,164,0.06)' },
+                                }}
                             >
                                 學生登入
                             </Button>
@@ -410,7 +429,13 @@ export default function LandingPage() {
                                 size="large"
                                 component={Link}
                                 href="/create"
-                                sx={{ fontSize: '1.2rem', py: 1.5, px: 4 }}
+                                sx={{
+                                    fontSize: '1.2rem', py: 1.5, px: 4, borderRadius: 3,
+                                    borderColor: theme.palette.mode === 'dark' ? 'rgba(208,188,255,0.3)' : 'rgba(103,80,164,0.3)',
+                                    color: theme.palette.mode === 'dark' ? '#D0BCFF' : 'primary.main',
+                                    backdropFilter: 'blur(8px)',
+                                    '&:hover': { bgcolor: theme.palette.mode === 'dark' ? 'rgba(208,188,255,0.1)' : 'rgba(103,80,164,0.06)' },
+                                }}
                             >
                                 發起揪團
                             </Button>
@@ -420,9 +445,17 @@ export default function LandingPage() {
                             size="large"
                             component={Link}
                             href="/leaderboard"
-                            sx={{ fontSize: '1.2rem', py: 1.5, px: 4, borderColor: 'warning.main', color: 'warning.main' }}
+                            startIcon={<EmojiEvents />}
+                            sx={{
+                                fontSize: '1.2rem', py: 1.5, px: 4, borderRadius: 3,
+                                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,183,77,0.15)' : 'rgba(255,152,0,0.08)',
+                                borderColor: theme.palette.mode === 'dark' ? 'rgba(255,183,77,0.3)' : 'rgba(255,152,0,0.25)',
+                                color: theme.palette.mode === 'dark' ? '#FFB74D' : '#E65100',
+                                backdropFilter: 'blur(8px)',
+                                '&:hover': { bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,183,77,0.25)' : 'rgba(255,152,0,0.14)' },
+                            }}
                         >
-                            🏆 排行榜
+                            排行榜
                         </Button>
                     </Stack>
                 </Container>
@@ -432,47 +465,52 @@ export default function LandingPage() {
             {isAnyEventActive() && (
                 <Container maxWidth="lg" sx={{ mt: { xs: -2, sm: -3 }, mb: 3, position: 'relative', zIndex: 3 }}>
                     <Grid container spacing={2}>
-                        {/* 📚 讀家回憶 */}
+                        {/* 讀家回憶 */}
                         {isReadingEventActive() && (
                             <Grid size={{ xs: 12, md: isMidtermFitActive() ? 6 : 12 }}>
                                 <Card sx={{
                                     borderRadius: 3,
-                                    background: 'linear-gradient(135deg, #0d1b2a 0%, #1b3a5c 40%, #274c77 100%)',
-                                    color: '#fff',
-                                    boxShadow: '0 6px 24px rgba(27, 58, 92, 0.4)',
+                                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(43,38,64,0.85)' : 'rgba(255,255,255,0.8)',
+                                    border: '1px solid',
+                                    borderColor: theme.palette.mode === 'dark' ? 'rgba(103,80,164,0.25)' : 'rgba(103,80,164,0.15)',
+                                    backdropFilter: 'blur(12px)',
+                                    boxShadow: theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.3)' : '0 4px 20px rgba(103,80,164,0.1)',
                                     overflow: 'hidden',
                                     position: 'relative',
-                                    border: '1px solid rgba(255,255,255,0.1)',
                                     height: '100%',
                                 }}>
                                     <CardContent sx={{ py: 2.5, px: { xs: 2, sm: 3 }, position: 'relative' }}>
-                                        <Typography variant="h6" fontWeight="900" textAlign="center" sx={{ mb: 0.5, fontSize: { xs: '1rem', sm: '1.15rem' } }}>
-                                            📚 讀家回憶｜系所對抗賽 🏆
-                                        </Typography>
-                                        <Typography variant="caption" textAlign="center" display="block" sx={{ opacity: 0.85, mb: 1.5 }}>
+                                        <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center" sx={{ mb: 0.5 }}>
+                                            <MenuBook sx={{ fontSize: '1.15rem', color: 'primary.main' }} />
+                                            <Typography variant="h6" fontWeight="900" color="text.primary" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>
+                                                讀家回憶｜系所對抗賽
+                                            </Typography>
+                                            <EmojiEvents sx={{ fontSize: '1.15rem', color: '#FFD700' }} />
+                                        </Stack>
+                                        <Typography variant="caption" textAlign="center" display="block" color="text.secondary" sx={{ mb: 1.5 }}>
                                             4/7 – 4/17 衝上排行榜前三，禮券帶走！
                                         </Typography>
                                         <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 2 }}>
                                             <Stack alignItems="center">
-                                                <Typography fontSize="1.1rem" fontWeight="bold">🥇</Typography>
-                                                <Typography variant="caption" sx={{ opacity: 0.8 }}>300 元</Typography>
+                                                <EmojiEvents sx={{ fontSize: '1.3rem', color: '#FFD700' }} />
+                                                <Typography variant="caption" color="text.secondary">300 元</Typography>
                                             </Stack>
                                             <Stack alignItems="center">
-                                                <Typography fontSize="1.1rem" fontWeight="bold">🥈</Typography>
-                                                <Typography variant="caption" sx={{ opacity: 0.8 }}>200 元</Typography>
+                                                <EmojiEvents sx={{ fontSize: '1.3rem', color: '#C0C0C0' }} />
+                                                <Typography variant="caption" color="text.secondary">200 元</Typography>
                                             </Stack>
                                             <Stack alignItems="center">
-                                                <Typography fontSize="1.1rem" fontWeight="bold">🥉</Typography>
-                                                <Typography variant="caption" sx={{ opacity: 0.8 }}>100 元</Typography>
+                                                <EmojiEvents sx={{ fontSize: '1.3rem', color: '#CD7F32' }} />
+                                                <Typography variant="caption" color="text.secondary">100 元</Typography>
                                             </Stack>
                                         </Stack>
                                         <Stack direction="row" spacing={1} justifyContent="center">
                                             <Button variant="contained" component={Link} href="/sports/STUDY" size="small"
-                                                sx={{ bgcolor: '#FFD700', color: '#0d1b2a', fontWeight: 'bold', borderRadius: 2, px: 2, '&:hover': { bgcolor: '#FFC107' } }}>
-                                                立即參賽 🔥
+                                                sx={{ bgcolor: 'primary.main', color: '#fff', fontWeight: 'bold', borderRadius: 2, px: 2, '&:hover': { bgcolor: 'primary.dark' } }}>
+                                                立即參賽 <LocalFireDepartment sx={{ fontSize: '1rem', ml: 0.3 }} />
                                             </Button>
                                             <Button variant="outlined" component={Link} href="/leaderboard" size="small"
-                                                sx={{ borderColor: 'rgba(255,255,255,0.4)', color: '#fff', borderRadius: 2, px: 2, '&:hover': { borderColor: '#FFD700', color: '#FFD700' } }}>
+                                                sx={{ borderColor: 'divider', color: 'text.secondary', borderRadius: 2, px: 2, '&:hover': { borderColor: 'primary.main', color: 'primary.main' } }}>
                                                 排行榜
                                             </Button>
                                         </Stack>
@@ -481,46 +519,51 @@ export default function LandingPage() {
                             </Grid>
                         )}
 
-                        {/* 🔥 期中燃脂王 */}
+                        {/* 期中燃脂王 */}
                         {isMidtermFitActive() && (
                             <Grid size={{ xs: 12, md: isReadingEventActive() ? 6 : 12 }}>
                                 <Card sx={{
                                     borderRadius: 3,
-                                    background: 'linear-gradient(135deg, #1a0a00 0%, #4a1500 40%, #8B2500 100%)',
-                                    color: '#fff',
-                                    boxShadow: '0 6px 24px rgba(139, 37, 0, 0.4)',
+                                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(62,39,20,0.85)' : 'rgba(255,248,240,0.85)',
+                                    border: '1px solid',
+                                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255,152,0,0.25)' : 'rgba(255,152,0,0.2)',
+                                    backdropFilter: 'blur(12px)',
+                                    boxShadow: theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.3)' : '0 4px 20px rgba(255,152,0,0.1)',
                                     overflow: 'hidden',
                                     position: 'relative',
-                                    border: '1px solid rgba(255,100,0,0.2)',
                                     height: '100%',
                                 }}>
                                     <CardContent sx={{ py: 2.5, px: { xs: 2, sm: 3 }, position: 'relative' }}>
-                                        <Typography variant="h6" fontWeight="900" textAlign="center" sx={{ mb: 0.5, fontSize: { xs: '1rem', sm: '1.15rem' } }}>
-                                            🔥 期中燃脂王｜排行榜開跑！ 🔥
-                                        </Typography>
-                                        <Typography variant="caption" textAlign="center" display="block" sx={{ opacity: 0.85, mb: 1.5 }}>
+                                        <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center" sx={{ mb: 0.5 }}>
+                                            <LocalFireDepartment sx={{ fontSize: '1.15rem', color: theme.palette.mode === 'dark' ? '#FF8C00' : '#E65100' }} />
+                                            <Typography variant="h6" fontWeight="900" color="text.primary" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>
+                                                期中燃脂王｜排行榜開跑！
+                                            </Typography>
+                                            <LocalFireDepartment sx={{ fontSize: '1.15rem', color: theme.palette.mode === 'dark' ? '#FF8C00' : '#E65100' }} />
+                                        </Stack>
+                                        <Typography variant="caption" textAlign="center" display="block" color="text.secondary" sx={{ mb: 1.5 }}>
                                             4/13 – 4/17 揪團運動＋揪新朋友，抽禮券！
                                         </Typography>
                                         <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 1 }}>
                                             <Stack alignItems="center">
-                                                <Typography fontSize="1.1rem" fontWeight="bold">🥇</Typography>
-                                                <Typography variant="caption" sx={{ opacity: 0.8 }}>500 元 ×2</Typography>
+                                                <EmojiEvents sx={{ fontSize: '1.3rem', color: '#FFD700' }} />
+                                                <Typography variant="caption" color="text.secondary">500 元 ×2</Typography>
                                             </Stack>
                                             <Stack alignItems="center">
-                                                <Typography fontSize="1.1rem" fontWeight="bold">🥈</Typography>
-                                                <Typography variant="caption" sx={{ opacity: 0.8 }}>200 元 ×5</Typography>
+                                                <EmojiEvents sx={{ fontSize: '1.3rem', color: '#C0C0C0' }} />
+                                                <Typography variant="caption" color="text.secondary">200 元 ×5</Typography>
                                             </Stack>
                                         </Stack>
-                                        <Typography variant="caption" textAlign="center" display="block" sx={{ opacity: 0.65, mb: 1.5 }}>
-                                            揪新朋友 → 拍照 📸 → @lumo_dailyfit
+                                        <Typography variant="caption" textAlign="center" display="block" color="text.secondary" sx={{ mb: 1.5 }}>
+                                            揪新朋友 → 拍照 <CameraAlt sx={{ fontSize: '0.85rem', verticalAlign: 'middle', mx: 0.3 }} /> → @lumo_dailyfit
                                         </Typography>
                                         <Stack direction="row" spacing={1} justifyContent="center">
                                             <Button variant="contained" component={Link} href="/create" size="small"
-                                                sx={{ bgcolor: '#FF6B00', color: '#fff', fontWeight: 'bold', borderRadius: 2, px: 2, '&:hover': { bgcolor: '#FF8C00' } }}>
-                                                立即揪團 🔥
+                                                sx={{ bgcolor: theme.palette.mode === 'dark' ? '#FF8C00' : '#E65100', color: '#fff', fontWeight: 'bold', borderRadius: 2, px: 2, '&:hover': { bgcolor: theme.palette.mode === 'dark' ? '#FFA040' : '#FF6D00' } }}>
+                                                立即揪團 <LocalFireDepartment sx={{ fontSize: '1rem', ml: 0.3 }} />
                                             </Button>
                                             <Button variant="outlined" component={Link} href="/leaderboard" size="small"
-                                                sx={{ borderColor: 'rgba(255,255,255,0.4)', color: '#fff', borderRadius: 2, px: 2, '&:hover': { borderColor: '#FF6B00', color: '#FF6B00' } }}>
+                                                sx={{ borderColor: 'divider', color: 'text.secondary', borderRadius: 2, px: 2, '&:hover': { borderColor: 'warning.main', color: 'warning.main' } }}>
                                                 排行榜
                                             </Button>
                                         </Stack>
@@ -536,25 +579,40 @@ export default function LandingPage() {
             <Container maxWidth="md" sx={{ mt: isAnyEventActive() ? 0 : { xs: -2, sm: -3 }, mb: 4, position: 'relative', zIndex: 2 }}>
                 <Card sx={{
                     borderRadius: 4,
-                    background: `linear-gradient(135deg, ${theme.palette.warning.main} 0%, ${theme.palette.warning.light} 100%)`,
-                    color: theme.palette.warning.contrastText || 'black',
-                    boxShadow: `0 8px 32px ${theme.palette.mode === 'dark' ? 'rgba(255, 165, 0, 0.2)' : 'rgba(255, 165, 0, 0.3)'}`,
+                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,183,77,0.15)' : 'rgba(255,152,0,0.08)',
+                    border: '1px solid',
+                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255,183,77,0.25)' : 'rgba(255,152,0,0.2)',
+                    backdropFilter: 'blur(12px)',
+                    boxShadow: theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.2)' : '0 4px 20px rgba(255,152,0,0.08)',
                 }}>
                     <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                        <Typography variant="h5" fontWeight="900" gutterBottom>
-                            🏆 上月最強熱血系所 🏆
-                        </Typography>
+                        <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center" sx={{ mb: 1 }}>
+                            <EmojiEvents sx={{ fontSize: '1.5rem', color: '#FFD700' }} />
+                            <Typography variant="h5" fontWeight="900" color="text.primary">
+                                上月最強熱血系所
+                            </Typography>
+                            <EmojiEvents sx={{ fontSize: '1.5rem', color: '#FFD700' }} />
+                        </Stack>
                         {lastMonthTopDepts.length >= 3 ? (
                             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
-                                <Typography variant="h6" fontWeight="bold">
-                                    🥇 {lastMonthTopDepts[0].department}
-                                </Typography>
-                                <Typography variant="subtitle1" fontWeight="bold" color="inherit" sx={{ opacity: 0.8 }}>
-                                    🥈 {lastMonthTopDepts[1].department}
-                                </Typography>
-                                <Typography variant="subtitle1" fontWeight="bold" color="inherit" sx={{ opacity: 0.8 }}>
-                                    🥉 {lastMonthTopDepts[2].department}
-                                </Typography>
+                                <Stack direction="row" spacing={0.5} alignItems="center">
+                                    <EmojiEvents sx={{ fontSize: '1.3rem', color: '#FFD700' }} />
+                                    <Typography variant="h6" fontWeight="bold" color="text.primary">
+                                        {lastMonthTopDepts[0].department}
+                                    </Typography>
+                                </Stack>
+                                <Stack direction="row" spacing={0.5} alignItems="center">
+                                    <EmojiEvents sx={{ fontSize: '1.2rem', color: '#C0C0C0' }} />
+                                    <Typography variant="subtitle1" fontWeight="bold" color="text.secondary">
+                                        {lastMonthTopDepts[1].department}
+                                    </Typography>
+                                </Stack>
+                                <Stack direction="row" spacing={0.5} alignItems="center">
+                                    <EmojiEvents sx={{ fontSize: '1.2rem', color: '#CD7F32' }} />
+                                    <Typography variant="subtitle1" fontWeight="bold" color="text.secondary">
+                                        {lastMonthTopDepts[2].department}
+                                    </Typography>
+                                </Stack>
                             </Stack>
                         ) : (
                             <Typography variant="subtitle1" sx={{ mt: 1, opacity: 0.7 }}>
@@ -1114,7 +1172,7 @@ export default function LandingPage() {
                     '&:hover': { bgcolor: mode === 'dark' ? '#5E35B1' : '#4A148C' },
                 }}
             >
-                <Typography fontSize="1.4rem">📖</Typography>
+                <MenuBook sx={{ fontSize: '1.4rem' }} />
             </Fab>
 
             {/* Updates FAB */}
@@ -1130,7 +1188,7 @@ export default function LandingPage() {
                     zIndex: 1000,
                 }}
             >
-                <Typography fontSize="1.4rem">📋</Typography>
+                <Assignment sx={{ fontSize: '1.4rem' }} />
             </Fab>
 
             {/* Terms FAB */}
@@ -1145,11 +1203,16 @@ export default function LandingPage() {
                 }}
                 onClick={() => setTermsOpen(true)}
             >
-                <Typography fontSize="1.4rem">📜</Typography>
+                <Gavel sx={{ fontSize: '1.4rem' }} />
             </Fab>
             {/* Terms Dialog */}
             <Dialog open={termsOpen} onClose={() => setTermsOpen(false)} maxWidth="sm" fullWidth scroll="paper">
-                <DialogTitle sx={{ fontWeight: 'bold' }}>📜 服務條款與免責聲明</DialogTitle>
+                <DialogTitle sx={{ fontWeight: 'bold' }}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                        <Gavel sx={{ fontSize: '1.2rem' }} />
+                        <span>服務條款與免責聲明</span>
+                    </Stack>
+                </DialogTitle>
                 <DialogContent dividers>
                     <Box sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8, fontSize: '0.85rem' }}>
                         {DISCLAIMER_TEXT}
@@ -1157,7 +1220,8 @@ export default function LandingPage() {
                     {user?.disclaimerAcceptedAt && (
                         <Box sx={{ mt: 3, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                             <Typography variant="body2" color="text.secondary">
-                                ✅ 您已於 <strong>{new Date(user.disclaimerAcceptedAt).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</strong> 同意此條款
+                                <CheckCircle sx={{ fontSize: '1rem', color: 'success.main', verticalAlign: 'middle', mr: 0.5 }} />
+                                您已於 <strong>{new Date(user.disclaimerAcceptedAt).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</strong> 同意此條款
                             </Typography>
                         </Box>
                     )}
