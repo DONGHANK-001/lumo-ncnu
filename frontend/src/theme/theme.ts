@@ -91,6 +91,10 @@ const darkPalette = {
         default: '#1E1A2E',
         paper: '#2B2640',
     },
+    text: {
+        primary: '#E6E1E5',
+        secondary: '#CAC4D0',
+    },
     error: {
         main: '#F2B8B5',
         contrastText: '#601410',
