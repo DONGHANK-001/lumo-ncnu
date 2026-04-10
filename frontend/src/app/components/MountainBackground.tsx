@@ -12,18 +12,33 @@ export default function MountainBackground() {
     const isLight = theme.palette.mode === 'light';
 
     return (
-        <Box
-            sx={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: '45vh',
-                zIndex: -1,
-                pointerEvents: 'none',
-                backgroundImage: `url("${isLight ? LIGHT_MOUNTAINS : DARK_MOUNTAINS}")`,
-                backgroundSize: '100% 100%',
-            }}
-        />
+        <>
+            {/* 全頁背景漸層 */}
+            <Box
+                sx={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: -2,
+                    pointerEvents: 'none',
+                    background: isLight
+                        ? 'linear-gradient(180deg, #F3EEFF 0%, #F6F2FF 30%, #F6F2FF 100%)'
+                        : 'linear-gradient(180deg, #110E1F 0%, #1E1A2E 35%, #2B2640 100%)',
+                }}
+            />
+            {/* 山脈 */}
+            <Box
+                sx={{
+                    position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '45vh',
+                    zIndex: -1,
+                    pointerEvents: 'none',
+                    backgroundImage: `url("${isLight ? LIGHT_MOUNTAINS : DARK_MOUNTAINS}")`,
+                    backgroundSize: '100% 100%',
+                }}
+            />
+        </>
     );
 }
