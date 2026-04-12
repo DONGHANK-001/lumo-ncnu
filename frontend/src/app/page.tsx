@@ -1120,10 +1120,21 @@ export default function LandingPage() {
                     {[
                         { icon: <School fontSize="large" />, title: '校園限定', desc: '僅限暨南學生使用，安全有保障' },
                         { icon: <Group fontSize="large" />, title: '智慧配對', desc: '根據程度、時間、地點，找到最適合你的夥伴' },
-                        { icon: <Security fontSize="large" />, title: '安全可靠', desc: '嚴格的身份驗證，杜絕校外人士' },
+                        { icon: <Security fontSize="large" />, title: '安全可靠', desc: '嚴格的身份驗證，杜絕校外人士', href: user?.role === 'ADMIN' ? '/test-attendance' : undefined },
                     ].map((feature, idx) => (
                         <Grid size={{ xs: 12, md: 4 }} key={idx}>
-                            <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
+                            <Card
+                                {...(feature.href ? { component: Link, href: feature.href } : {})}
+                                sx={{
+                                    height: '100%',
+                                    bgcolor: 'background.paper',
+                                    textDecoration: 'none',
+                                    color: 'inherit',
+                                    cursor: feature.href ? 'pointer' : 'default',
+                                    transition: 'transform 0.3s',
+                                    '&:hover': feature.href ? { transform: 'translateY(-4px)', boxShadow: 3 } : {},
+                                }}
+                            >
                                 <CardContent sx={{ textAlign: 'center', p: 4 }}>
                                     <Box sx={{ color: 'secondary.main', mb: 2 }}>{feature.icon}</Box>
                                     <Typography variant="h6" gutterBottom>{feature.title}</Typography>
