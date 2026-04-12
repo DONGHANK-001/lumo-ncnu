@@ -47,37 +47,37 @@ const MEDAL_ICONS = [
 // 活動排行稱號對照表
 const ACTIVITY_TITLE_MAP: Record<string, { label: string; icon: string }> = {
     // 運動
-    'sport_basketball_1': { label: '🏀 籃球之王', icon: '🏀' },
-    'sport_basketball_2': { label: '🏀 灌籃悍將', icon: '🏀' },
-    'sport_basketball_3': { label: '🏀 籃場新星', icon: '🏀' },
-    'sport_running_1': { label: '🏃 極速飛人', icon: '🏃' },
-    'sport_running_2': { label: '🏃 疾風跑者', icon: '🏃' },
-    'sport_running_3': { label: '🏃 耐力新星', icon: '🏃' },
-    'sport_badminton_1': { label: '🏸 羽球至尊', icon: '🏸' },
-    'sport_badminton_2': { label: '🏸 殺球悍將', icon: '🏸' },
-    'sport_badminton_3': { label: '🏸 羽場新星', icon: '🏸' },
-    'sport_table_tennis_1': { label: '🏓 桌球至尊', icon: '🏓' },
-    'sport_table_tennis_2': { label: '🏓 旋球悍將', icon: '🏓' },
-    'sport_table_tennis_3': { label: '🏓 桌場新星', icon: '🏓' },
-    'sport_gym_1': { label: '💪 鐵人霸主', icon: '💪' },
-    'sport_gym_2': { label: '💪 鋼鐵悍將', icon: '💪' },
-    'sport_gym_3': { label: '💪 健身新星', icon: '💪' },
-    'sport_volleyball_1': { label: '🏐 排球至尊', icon: '🏐' },
-    'sport_volleyball_2': { label: '🏐 扣殺悍將', icon: '🏐' },
-    'sport_volleyball_3': { label: '🏐 排場新星', icon: '🏐' },
-    'sport_tennis_1': { label: '🎾 網球至尊', icon: '🎾' },
-    'sport_tennis_2': { label: '🎾 ACE悍將', icon: '🎾' },
-    'sport_tennis_3': { label: '🎾 網場新星', icon: '🎾' },
+    'sport_basketball_1': { label: '籃球之王', icon: '🏀' },
+    'sport_basketball_2': { label: '灌籃悍將', icon: '🏀' },
+    'sport_basketball_3': { label: '籃場新星', icon: '🏀' },
+    'sport_running_1': { label: '極速飛人', icon: '🏃' },
+    'sport_running_2': { label: '疾風跑者', icon: '🏃' },
+    'sport_running_3': { label: '耐力新星', icon: '🏃' },
+    'sport_badminton_1': { label: '羽球至尊', icon: '🏸' },
+    'sport_badminton_2': { label: '殺球悍將', icon: '🏸' },
+    'sport_badminton_3': { label: '羽場新星', icon: '🏸' },
+    'sport_table_tennis_1': { label: '桌球至尊', icon: '🏓' },
+    'sport_table_tennis_2': { label: '旋球悍將', icon: '🏓' },
+    'sport_table_tennis_3': { label: '桌場新星', icon: '🏓' },
+    'sport_gym_1': { label: '鐵人霸主', icon: '💪' },
+    'sport_gym_2': { label: '鋼鐵悍將', icon: '💪' },
+    'sport_gym_3': { label: '健身新星', icon: '💪' },
+    'sport_volleyball_1': { label: '排球至尊', icon: '🏐' },
+    'sport_volleyball_2': { label: '扣殺悍將', icon: '🏐' },
+    'sport_volleyball_3': { label: '排場新星', icon: '🏐' },
+    'sport_tennis_1': { label: '網球至尊', icon: '🎾' },
+    'sport_tennis_2': { label: 'ACE悍將', icon: '🎾' },
+    'sport_tennis_3': { label: '網場新星', icon: '🎾' },
     // 社交
-    'social_night_walk_1': { label: '🌙 月夜行者', icon: '🌙' },
-    'social_night_walk_2': { label: '🌙 星夜漫遊', icon: '🌙' },
-    'social_night_walk_3': { label: '🌙 夜行新星', icon: '🌙' },
-    'social_dining_1': { label: '🍽️ 美食霸主', icon: '🍽️' },
-    'social_dining_2': { label: '🍽️ 饕餮使者', icon: '🍽️' },
-    'social_dining_3': { label: '🍽️ 覓食新星', icon: '🍽️' },
-    'social_study_1': { label: '📚 學霸之王', icon: '📚' },
-    'social_study_2': { label: '📚 書卷達人', icon: '📚' },
-    'social_study_3': { label: '📚 學海新星', icon: '📚' },
+    'social_night_walk_1': { label: '月夜行者', icon: '🌙' },
+    'social_night_walk_2': { label: '星夜漫遊', icon: '🌙' },
+    'social_night_walk_3': { label: '夜行新星', icon: '🌙' },
+    'social_dining_1': { label: '美食霸主', icon: '🍽️' },
+    'social_dining_2': { label: '饕餮使者', icon: '🍽️' },
+    'social_dining_3': { label: '覓食新星', icon: '🍽️' },
+    'social_study_1': { label: '學霸之王', icon: '📚' },
+    'social_study_2': { label: '書卷達人', icon: '📚' },
+    'social_study_3': { label: '學海新星', icon: '📚' },
 };
 
 // 創始會員 / 活動稱號對照表 (前端顯示用)
@@ -214,7 +214,7 @@ export default function LeaderboardPage() {
                                             </Typography>
                                             {ar.activityTitle && ACTIVITY_TITLE_MAP[ar.activityTitle] && (
                                                 <Chip
-                                                    label={ACTIVITY_TITLE_MAP[ar.activityTitle].label}
+                                                    label={`${ACTIVITY_TITLE_MAP[ar.activityTitle].icon} ${ACTIVITY_TITLE_MAP[ar.activityTitle].label}`}
                                                     size="small"
                                                     sx={{
                                                         fontWeight: 'bold',

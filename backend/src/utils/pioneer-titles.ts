@@ -41,52 +41,52 @@ const LEADERBOARD_TITLES: TitleEntry[] = [
     { key: 'leaderboard_10', label: '【曙光】破曉守望者', icon: '🌅', category: 'leaderboard', description: '個人排行榜第 10 名' },
 ];
 
-// ── 運動排行稱號（每項運動 Top 3） ──
+// ── 運動排行稱號（每項運動 Top 3，上月結算） ──
 const SPORT_RANK_TITLES: TitleEntry[] = [
     // 籃球
-    { key: 'sport_basketball_1', label: '🏀 籃球之王', icon: '🏀', category: 'sport_rank', description: '本月籃球排行第 1 名' },
-    { key: 'sport_basketball_2', label: '🏀 灌籃悍將', icon: '🏀', category: 'sport_rank', description: '本月籃球排行第 2 名' },
-    { key: 'sport_basketball_3', label: '🏀 籃場新星', icon: '🏀', category: 'sport_rank', description: '本月籃球排行第 3 名' },
+    { key: 'sport_basketball_1', label: '籃球之王', icon: '🏀', category: 'sport_rank', description: '上月籃球排行第 1 名' },
+    { key: 'sport_basketball_2', label: '灌籃悍將', icon: '🏀', category: 'sport_rank', description: '上月籃球排行第 2 名' },
+    { key: 'sport_basketball_3', label: '籃場新星', icon: '🏀', category: 'sport_rank', description: '上月籃球排行第 3 名' },
     // 跑步
-    { key: 'sport_running_1', label: '🏃 極速飛人', icon: '🏃', category: 'sport_rank', description: '本月跑步排行第 1 名' },
-    { key: 'sport_running_2', label: '🏃 疾風跑者', icon: '🏃', category: 'sport_rank', description: '本月跑步排行第 2 名' },
-    { key: 'sport_running_3', label: '🏃 耐力新星', icon: '🏃', category: 'sport_rank', description: '本月跑步排行第 3 名' },
+    { key: 'sport_running_1', label: '極速飛人', icon: '🏃', category: 'sport_rank', description: '上月跑步排行第 1 名' },
+    { key: 'sport_running_2', label: '疾風跑者', icon: '🏃', category: 'sport_rank', description: '上月跑步排行第 2 名' },
+    { key: 'sport_running_3', label: '耐力新星', icon: '🏃', category: 'sport_rank', description: '上月跑步排行第 3 名' },
     // 羽球
-    { key: 'sport_badminton_1', label: '🏸 羽球至尊', icon: '🏸', category: 'sport_rank', description: '本月羽球排行第 1 名' },
-    { key: 'sport_badminton_2', label: '🏸 殺球悍將', icon: '🏸', category: 'sport_rank', description: '本月羽球排行第 2 名' },
-    { key: 'sport_badminton_3', label: '🏸 羽場新星', icon: '🏸', category: 'sport_rank', description: '本月羽球排行第 3 名' },
+    { key: 'sport_badminton_1', label: '羽球至尊', icon: '🏸', category: 'sport_rank', description: '上月羽球排行第 1 名' },
+    { key: 'sport_badminton_2', label: '殺球悍將', icon: '🏸', category: 'sport_rank', description: '上月羽球排行第 2 名' },
+    { key: 'sport_badminton_3', label: '羽場新星', icon: '🏸', category: 'sport_rank', description: '上月羽球排行第 3 名' },
     // 桌球
-    { key: 'sport_table_tennis_1', label: '🏓 桌球至尊', icon: '🏓', category: 'sport_rank', description: '本月桌球排行第 1 名' },
-    { key: 'sport_table_tennis_2', label: '🏓 旋球悍將', icon: '🏓', category: 'sport_rank', description: '本月桌球排行第 2 名' },
-    { key: 'sport_table_tennis_3', label: '🏓 桌場新星', icon: '🏓', category: 'sport_rank', description: '本月桌球排行第 3 名' },
+    { key: 'sport_table_tennis_1', label: '桌球至尊', icon: '🏓', category: 'sport_rank', description: '上月桌球排行第 1 名' },
+    { key: 'sport_table_tennis_2', label: '旋球悍將', icon: '🏓', category: 'sport_rank', description: '上月桌球排行第 2 名' },
+    { key: 'sport_table_tennis_3', label: '桌場新星', icon: '🏓', category: 'sport_rank', description: '上月桌球排行第 3 名' },
     // 健身
-    { key: 'sport_gym_1', label: '💪 鐵人霸主', icon: '💪', category: 'sport_rank', description: '本月健身排行第 1 名' },
-    { key: 'sport_gym_2', label: '💪 鋼鐵悍將', icon: '💪', category: 'sport_rank', description: '本月健身排行第 2 名' },
-    { key: 'sport_gym_3', label: '💪 健身新星', icon: '💪', category: 'sport_rank', description: '本月健身排行第 3 名' },
+    { key: 'sport_gym_1', label: '鐵人霸主', icon: '💪', category: 'sport_rank', description: '上月健身排行第 1 名' },
+    { key: 'sport_gym_2', label: '鋼鐵悍將', icon: '💪', category: 'sport_rank', description: '上月健身排行第 2 名' },
+    { key: 'sport_gym_3', label: '健身新星', icon: '💪', category: 'sport_rank', description: '上月健身排行第 3 名' },
     // 排球
-    { key: 'sport_volleyball_1', label: '🏐 排球至尊', icon: '🏐', category: 'sport_rank', description: '本月排球排行第 1 名' },
-    { key: 'sport_volleyball_2', label: '🏐 扣殺悍將', icon: '🏐', category: 'sport_rank', description: '本月排球排行第 2 名' },
-    { key: 'sport_volleyball_3', label: '🏐 排場新星', icon: '🏐', category: 'sport_rank', description: '本月排球排行第 3 名' },
+    { key: 'sport_volleyball_1', label: '排球至尊', icon: '🏐', category: 'sport_rank', description: '上月排球排行第 1 名' },
+    { key: 'sport_volleyball_2', label: '扣殺悍將', icon: '🏐', category: 'sport_rank', description: '上月排球排行第 2 名' },
+    { key: 'sport_volleyball_3', label: '排場新星', icon: '🏐', category: 'sport_rank', description: '上月排球排行第 3 名' },
     // 網球
-    { key: 'sport_tennis_1', label: '🎾 網球至尊', icon: '🎾', category: 'sport_rank', description: '本月網球排行第 1 名' },
-    { key: 'sport_tennis_2', label: '🎾 ACE悍將', icon: '🎾', category: 'sport_rank', description: '本月網球排行第 2 名' },
-    { key: 'sport_tennis_3', label: '🎾 網場新星', icon: '🎾', category: 'sport_rank', description: '本月網球排行第 3 名' },
+    { key: 'sport_tennis_1', label: '網球至尊', icon: '🎾', category: 'sport_rank', description: '上月網球排行第 1 名' },
+    { key: 'sport_tennis_2', label: 'ACE悍將', icon: '🎾', category: 'sport_rank', description: '上月網球排行第 2 名' },
+    { key: 'sport_tennis_3', label: '網場新星', icon: '🎾', category: 'sport_rank', description: '上月網球排行第 3 名' },
 ];
 
-// ── 社交活動排行稱號（每項活動 Top 3） ──
+// ── 社交活動排行稱號（每項活動 Top 3，上月結算） ──
 const SOCIAL_RANK_TITLES: TitleEntry[] = [
     // 晚風漫遊
-    { key: 'social_night_walk_1', label: '🌙 月夜行者', icon: '🌙', category: 'social_rank', description: '本月晚風漫遊排行第 1 名' },
-    { key: 'social_night_walk_2', label: '🌙 星夜漫遊', icon: '🌙', category: 'social_rank', description: '本月晚風漫遊排行第 2 名' },
-    { key: 'social_night_walk_3', label: '🌙 夜行新星', icon: '🌙', category: 'social_rank', description: '本月晚風漫遊排行第 3 名' },
+    { key: 'social_night_walk_1', label: '月夜行者', icon: '🌙', category: 'social_rank', description: '上月晚風漫遊排行第 1 名' },
+    { key: 'social_night_walk_2', label: '星夜漫遊', icon: '🌙', category: 'social_rank', description: '上月晚風漫遊排行第 2 名' },
+    { key: 'social_night_walk_3', label: '夜行新星', icon: '🌙', category: 'social_rank', description: '上月晚風漫遊排行第 3 名' },
     // 飯飯之交
-    { key: 'social_dining_1', label: '🍽️ 美食霸主', icon: '🍽️', category: 'social_rank', description: '本月飯飯之交排行第 1 名' },
-    { key: 'social_dining_2', label: '🍽️ 饕餮使者', icon: '🍽️', category: 'social_rank', description: '本月飯飯之交排行第 2 名' },
-    { key: 'social_dining_3', label: '🍽️ 覓食新星', icon: '🍽️', category: 'social_rank', description: '本月飯飯之交排行第 3 名' },
+    { key: 'social_dining_1', label: '美食霸主', icon: '🍽️', category: 'social_rank', description: '上月飯飯之交排行第 1 名' },
+    { key: 'social_dining_2', label: '饕餮使者', icon: '🍽️', category: 'social_rank', description: '上月飯飯之交排行第 2 名' },
+    { key: 'social_dining_3', label: '覓食新星', icon: '🍽️', category: 'social_rank', description: '上月飯飯之交排行第 3 名' },
     // 讀家回憶
-    { key: 'social_study_1', label: '📚 學霸之王', icon: '📚', category: 'social_rank', description: '本月讀家回憶排行第 1 名' },
-    { key: 'social_study_2', label: '📚 書卷達人', icon: '📚', category: 'social_rank', description: '本月讀家回憶排行第 2 名' },
-    { key: 'social_study_3', label: '📚 學海新星', icon: '📚', category: 'social_rank', description: '本月讀家回憶排行第 3 名' },
+    { key: 'social_study_1', label: '學霸之王', icon: '📚', category: 'social_rank', description: '上月讀家回憶排行第 1 名' },
+    { key: 'social_study_2', label: '書卷達人', icon: '📚', category: 'social_rank', description: '上月讀家回憶排行第 2 名' },
+    { key: 'social_study_3', label: '學海新星', icon: '📚', category: 'social_rank', description: '上月讀家回憶排行第 3 名' },
 ];
 
 // ── 系所之光稱號（動態，前 3 名系所成員可獲得） ──
@@ -98,20 +98,20 @@ const SOCIAL_ACTIVITIES = ['NIGHT_WALK', 'DINING', 'STUDY'] as const;
 
 // ── 限定活動稱號 ──
 const EVENT_TITLES: TitleEntry[] = [
-    { key: 'wbc_2026', label: '⚾ 經典賽應援團 2026', icon: '⚾', category: 'event', description: '3/5 經典賽當日成功揪團一次' },
+    { key: 'wbc_2026', label: '經典賽應援團 2026', icon: '⚾', category: 'event', description: '3/5 經典賽當日成功揪團一次' },
 ];
 
 // ── 訂閱方案稱號 ──
 const SUBSCRIPTION_TITLES: TitleEntry[] = [
-    { key: 'lifetime_blackgold', label: '⚜️ 黑金永恆', icon: '⚜️', category: 'subscription', description: '終身黑金卡持有者' },
+    { key: 'lifetime_blackgold', label: '黑金永恆', icon: '⚜️', category: 'subscription', description: '終身黑金卡持有者' },
 ];
 
 // ── 信譽獎勵稱號 ──
 const REPUTATION_TITLES: TitleEntry[] = [
-    { key: 'rep_week', label: '🛡️ 信譽見習生', icon: '🛡️', category: 'reputation', description: '連續 7 天信譽滿分' },
-    { key: 'rep_month', label: '⚔️ 鋼鐵守則', icon: '⚔️', category: 'reputation', description: '連續 30 天信譽滿分' },
-    { key: 'rep_quarter', label: '💎 鑽石意志', icon: '💎', category: 'reputation', description: '連續 90 天信譽滿分' },
-    { key: 'rep_year', label: '🌟 傳說之證', icon: '🌟', category: 'reputation', description: '連續 365 天信譽滿分' },
+    { key: 'rep_week', label: '信譽見習生', icon: '🛡️', category: 'reputation', description: '連續 7 天信譽滿分' },
+    { key: 'rep_month', label: '鋼鐵守則', icon: '⚔️', category: 'reputation', description: '連續 30 天信譽滿分' },
+    { key: 'rep_quarter', label: '鑽石意志', icon: '💎', category: 'reputation', description: '連續 90 天信譽滿分' },
+    { key: 'rep_year', label: '傳說之證', icon: '🌟', category: 'reputation', description: '連續 365 天信譽滿分' },
 ];
 
 // ── 全部稱號 Map ──
@@ -151,20 +151,20 @@ let activityTopCache: { data: Map<string, string[]>; ts: number } | null = null;
 let deptTopCache: { data: { department: string }[]; ts: number } | null = null;
 const CACHE_TTL = 60_000;
 
-function getMonthRange() {
+function getLastMonthRange() {
     const now = new Date();
-    let start = new Date(now.getFullYear(), now.getMonth(), 1);
-    if (now.getFullYear() === 2026 && now.getMonth() === 2) {
+    let start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    if (start.getFullYear() === 2026 && start.getMonth() === 2) {
         start = new Date('2026-03-02T00:00:00+08:00');
     }
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    const end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
     return { start, end };
 }
 
-/** 每項活動 Top 3 userId（60s 快取） */
+/** 每項活動 Top 3 userId — 上月結算（60s 快取） */
 async function getActivityTopUsers(): Promise<Map<string, string[]>> {
     if (activityTopCache && Date.now() - activityTopCache.ts < CACHE_TTL) return activityTopCache.data;
-    const { start, end } = getMonthRange();
+    const { start, end } = getLastMonthRange();
 
     const rows = await prisma.$queryRaw<{ sportType: string; userId: string; cnt: bigint }[]>`
         SELECT g."sportType", gm."userId", COUNT(*)::bigint as cnt
@@ -187,10 +187,10 @@ async function getActivityTopUsers(): Promise<Map<string, string[]>> {
     return map;
 }
 
-/** 系所排行 Top 3（只計純運動，60s 快取） */
+/** 系所排行 Top 3 — 上月結算（只計純運動，60s 快取） */
 async function getDeptTopRanks(): Promise<{ department: string }[]> {
     if (deptTopCache && Date.now() - deptTopCache.ts < CACHE_TTL) return deptTopCache.data;
-    const { start, end } = getMonthRange();
+    const { start, end } = getLastMonthRange();
     const pureSportsArray = [...PURE_SPORTS];
 
     const rows = await prisma.$queryRaw<{ department: string; cnt: bigint }[]>`
@@ -250,7 +250,7 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
         titles.push(LEADERBOARD_TITLES[lbRank]);
     }
 
-    // 3. 運動 / 社交活動排行稱號（本月 Top 3）
+    // 3. 運動 / 社交活動排行稱號（上月 Top 3）
     const activityTop = await getActivityTopUsers();
     for (const sport of PURE_SPORTS) {
         const topList = activityTop.get(sport) || [];
@@ -271,7 +271,7 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
         }
     }
 
-    // 4. 系所之光稱號（本月系所排行 Top 3 的所有成員）
+    // 4. 系所之光稱號（上月系所排行 Top 3 的所有成員）
     const deptTop = await getDeptTopRanks();
     if (deptTop.length > 0) {
         const userDept = await prisma.user.findUnique({ where: { id: userId }, select: { department: true } });
@@ -280,10 +280,10 @@ export async function getUserTitles(userId: string): Promise<TitleEntry[]> {
             if (deptIdx !== -1 && deptIdx < 3) {
                 const gloryTitle: TitleEntry = {
                     key: `dept_glory_${deptIdx + 1}`,
-                    label: `${DEPT_GLORY_ICONS[deptIdx]} ${userDept.department}之光`,
+                    label: `${userDept.department}之光`,
                     icon: DEPT_GLORY_ICONS[deptIdx],
                     category: 'dept_glory',
-                    description: `本月系所排行第 ${deptIdx + 1} 名的榮譽`,
+                    description: `上月系所排行第 ${deptIdx + 1} 名的榮譽`,
                 };
                 titles.push(gloryTitle);
             }
