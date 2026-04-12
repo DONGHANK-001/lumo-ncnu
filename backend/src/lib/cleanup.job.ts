@@ -1,6 +1,6 @@
 import { prisma } from './prisma.js';
 import { createNotification } from './notification.service.js';
-import { cleanupLogger, attendanceLogger, reminderLogger } from './logger.js';
+import { cleanupLogger, reminderLogger } from './logger.js';
 
 /**
  * 清理過期揪團
