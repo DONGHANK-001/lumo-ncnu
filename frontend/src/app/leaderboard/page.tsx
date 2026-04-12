@@ -83,16 +83,16 @@ const ACTIVITY_TITLE_MAP: Record<string, { label: string; icon: string }> = {
 
 // 創始會員 / 活動稱號對照表 (前端顯示用)
 const TITLE_MAP: Record<string, { label: string; icon: string }> = {
-    'pioneer_1': { label: '創始先鋒 #001', icon: 'WbTwilight' },
-    'pioneer_2': { label: '創始先鋒 #002', icon: 'Bolt' },
-    'pioneer_3': { label: '創始先鋒 #003', icon: 'LocalFireDepartment' },
-    'pioneer_4': { label: '創始先鋒 #004', icon: 'Explore' },
-    'pioneer_5': { label: '創始先鋒 #005', icon: 'Shield' },
-    'pioneer_6': { label: '創始先鋒 #006', icon: 'Waves' },
-    'pioneer_7': { label: '創始先鋒 #007', icon: 'GpsFixed' },
-    'pioneer_8': { label: '創始先鋒 #008', icon: 'Park' },
-    'pioneer_9': { label: '創始先鋒 #009', icon: 'AutoAwesome' },
-    'pioneer_10': { label: '創始先鋒 #010', icon: 'Terrain' },
+    'pioneer_1': { label: '#001 破曉先驅', icon: 'WbTwilight' },
+    'pioneer_2': { label: '#002 閃電拓荒者', icon: 'Bolt' },
+    'pioneer_3': { label: '#003 燎原星火', icon: 'LocalFireDepartment' },
+    'pioneer_4': { label: '#004 航路開拓者', icon: 'Explore' },
+    'pioneer_5': { label: '#005 基石守護者', icon: 'Shield' },
+    'pioneer_6': { label: '#006 破浪遠征軍', icon: 'Waves' },
+    'pioneer_7': { label: '#007 精準狙擊手', icon: 'GpsFixed' },
+    'pioneer_8': { label: '#008 萌芽培育師', icon: 'Park' },
+    'pioneer_9': { label: '#009 未來預見者', icon: 'AutoAwesome' },
+    'pioneer_10': { label: '#010 巔峰攀登者', icon: 'Terrain' },
     'wbc_2026': { label: '經典賽應援團 2026', icon: 'SportsBaseball' },
     ...ACTIVITY_TITLE_MAP,
 };
