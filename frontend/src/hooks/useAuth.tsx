@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { auth, googleProvider, firebase } from '@/lib/firebase';
 import { api } from '@/lib/api-client';
 import { isTrialPeriod } from '@/lib/trial-period';
+import { prefetchAfterLogin, clearSWRCache } from './useSWRApi';
 
 // 使用 compat 類型
 type FirebaseUser = firebase.User;
@@ -92,6 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     firebaseUser,
                 });
                 setError(null);
+                // 登入成功後預載 SWR cache
+                prefetchAfterLogin(() => firebaseUser.getIdToken());
             } else {
                 setError(response.error?.message || '無法取得使用者資料');
                 // 如果是 domain 錯誤，登出並顯示明確提示
@@ -149,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await auth.signOut();
             setUser(null);
             setError(null);
+            clearSWRCache();
         } catch (err) {
             console.error('Sign out error:', err);
         }

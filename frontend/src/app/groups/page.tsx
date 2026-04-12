@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
+import { useGroups } from '@/hooks/useSWRApi';
 import { getSocket, joinRoom, leaveRoom } from '@/lib/socket';
 import { SportType, SkillLevel } from '@/types';
 import { SPORT_NAMES, LEVEL_NAMES } from '@/lib/constants';
@@ -92,39 +93,48 @@ function CountdownChip({ time }: { time: string }) {
 
 export default function GroupsPage() {
     const { user } = useAuth();
-    const [groups, setGroups] = useState<Group[]>([]);
-    const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState({
         sportType: '',
         level: '',
         hasSlot: false,
     });
 
-    useEffect(() => {
-        fetchGroups();
+    // 轉換 filters 為 query string
+    const query = useMemo(() => {
+        const q: Record<string, string> = {};
+        if (filters.sportType) q.sportType = filters.sportType;
+        if (filters.level) q.level = filters.level;
+        if (filters.hasSlot) q.hasSlot = 'true';
+        return q;
     }, [filters]);
+
+    // ─── SWR Hook（自動快取 + 去重） ───
+    const { data: groups = [], mutate: mutateGroups, isLoading: loading } = useGroups(query);
 
     useEffect(() => {
         const socket = getSocket();
         joinRoom('groups');
 
         const handleGroupUpdated = (updatedGroup: { id: string; currentCount: number; status: string }) => {
-            setGroups((prev) =>
-                prev.map((g) =>
+            mutateGroups(
+                (current: any) => current?.map((g: any) =>
                     g.id === updatedGroup.id
                         ? { ...g, currentCount: updatedGroup.currentCount, status: updatedGroup.status }
                         : g
-                )
+                ),
+                false
             );
         };
 
         const handleGroupCreated = (newGroup: Group) => {
-            // 有新揪團時，直接加到列表最前面 (若需精細過濾可再判斷 sportType 等)
-            setGroups((prev) => {
-                // 避免重複
-                if (prev.find(g => g.id === newGroup.id)) return prev;
-                return [newGroup, ...prev];
-            });
+            mutateGroups(
+                (current: any) => {
+                    if (!current) return [newGroup];
+                    if (current.find((g: any) => g.id === newGroup.id)) return current;
+                    return [newGroup, ...current];
+                },
+                false
+            );
         };
 
         socket.on('group_updated', handleGroupUpdated);
@@ -135,21 +145,7 @@ export default function GroupsPage() {
             socket.off('group_created', handleGroupCreated);
             leaveRoom('groups');
         };
-    }, []);
-
-    const fetchGroups = async () => {
-        setLoading(true);
-        const query: Record<string, string> = {};
-        if (filters.sportType) query.sportType = filters.sportType;
-        if (filters.level) query.level = filters.level;
-        if (filters.hasSlot) query.hasSlot = 'true';
-
-        const response = await api.getGroups(query);
-        if (response.success && response.data) {
-            setGroups(response.data.items as Group[]);
-        }
-        setLoading(false);
-    };
+    }, [mutateGroups]);
 
     const formatDate = (dateStr: string) => {
         const date = new Date(dateStr);

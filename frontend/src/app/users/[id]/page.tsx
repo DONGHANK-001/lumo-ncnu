@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
+import { useUserProfile, useAllBadges, useUserBadges } from '@/hooks/useSWRApi';
 import {
     Box,
     Container,
@@ -69,27 +70,11 @@ const SOCIAL_PREFERENCE_LABELS: Record<string, string> = {
 export default function PublicProfilePage({ params }: { params: { id: string } }) {
     const { id } = params;
 
-    const [profile, setProfile] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [allBadges, setAllBadges] = useState<any[]>([]);
-    const [userBadges, setUserBadges] = useState<any[]>([]);
-
-    useEffect(() => {
-        const fetchProfile = async () => {
-            setLoading(true);
-            const response = await api.getUserProfile(id);
-            if (response.success && response.data) {
-                setProfile(response.data);
-            } else {
-                setError(response.error?.message || '檔案載入失敗或無此用戶');
-            }
-            setLoading(false);
-        };
-        fetchProfile();
-        api.getBadges().then(res => { if (res.success && res.data) setAllBadges(res.data as any[]); });
-        api.getUserBadges(id).then(res => { if (res.success && res.data) setUserBadges(res.data as any[]); });
-    }, [id]);
+    // ─── SWR Hooks（自動快取 + 去重） ───
+    const { data: profile, error: profileError, isLoading: loading } = useUserProfile(id);
+    const { data: allBadges = [] } = useAllBadges();
+    const { data: userBadges = [] } = useUserBadges(id);
+    const error = profileError?.message || null;
 
     if (loading) {
         return (

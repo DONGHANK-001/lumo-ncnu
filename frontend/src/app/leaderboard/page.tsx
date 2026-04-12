@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
     Container, Typography, Box, Card, CardContent, Stack, Chip,
     Avatar, Skeleton, Paper, useMediaQuery, useTheme
@@ -13,8 +13,7 @@ import {
 import Link from 'next/link';
 import { Button, Tab, Tabs } from '@mui/material';
 import { TITLE_ICON_MAP } from '@/lib/title-icons';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
+import { useDeptLeaderboard, useActivityLeaderboard } from '@/hooks/useSWRApi';
 
 interface DeptRanking {
     rank: number;
@@ -102,52 +101,18 @@ export default function LeaderboardPage() {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const [tab, setTab] = useState<'DEPT' | 'SPORT' | 'SOCIAL'>('DEPT');
-    const [departments, setDepartments] = useState<DeptRanking[]>([]);
-    const [activityRankings, setActivityRankings] = useState<ActivityRanking[]>([]);
-
     const [selectedSport, setSelectedSport] = useState<string>(PURE_SPORTS[0]);
     const [selectedSocial, setSelectedSocial] = useState<string>(SOCIAL_ACTIVITIES[0]);
 
-    const [loading, setLoading] = useState(true);
-    const [readingEvent, setReadingEvent] = useState(false);
+    // ─── SWR Hooks ───
+    const { data: deptData, isLoading: deptLoading } = useDeptLeaderboard();
+    const activityType = tab !== 'DEPT' ? (tab === 'SPORT' ? selectedSport : selectedSocial) : null;
+    const { data: activityData, isLoading: activityLoading } = useActivityLeaderboard(activityType);
+    const activityRankings: ActivityRanking[] = activityData || [];
 
-    useEffect(() => {
-        if (tab === 'DEPT') {
-            fetchDeptLeaderboard();
-        } else {
-            const type = tab === 'SPORT' ? selectedSport : selectedSocial;
-            fetchActivityLeaderboard(type);
-        }
-    }, [tab, selectedSport, selectedSocial]);
-
-    const fetchDeptLeaderboard = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch(`${API_BASE_URL}/leaderboard/departments?period=current`);
-            const json = await res.json();
-            if (json.success) {
-                setDepartments(json.data.departments);
-                if (json.data.readingEvent) setReadingEvent(true);
-            }
-        } catch (e) {
-            console.error('Leaderboard fetch error:', e);
-        }
-        setLoading(false);
-    };
-
-    const fetchActivityLeaderboard = async (type: string) => {
-        setLoading(true);
-        try {
-            const res = await fetch(`${API_BASE_URL}/leaderboard/by-activity?type=${type}`);
-            const json = await res.json();
-            if (json.success) {
-                setActivityRankings(json.data);
-            }
-        } catch (e) {
-            console.error('Activity leaderboard fetch error:', e);
-        }
-        setLoading(false);
-    };
+    const departments: DeptRanking[] = deptData?.departments || [];
+    const readingEvent = deptData?.readingEvent || false;
+    const loading = tab === 'DEPT' ? deptLoading : activityLoading;
 
     const renderActivitySelector = (types: readonly string[], selected: string, onSelect: (t: string) => void) => (
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>

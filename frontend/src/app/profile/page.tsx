@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api-client';
 import { useAuth } from '@/hooks/useAuth';
+import { useAllBadges, useMyBadges, useMyStats, useMyTitles, useMyGroups } from '@/hooks/useSWRApi';
 import {
     Box,
     Container,
@@ -156,6 +157,27 @@ export default function ProfilePage() {
     const router = useRouter();
     const { user, loading, signIn, signOut, getToken, refreshUser } = useAuth();
 
+    // ─── SWR Hooks（自動快取 + 去重） ───
+    const { data: allBadges = [] } = useAllBadges();
+    const { data: myBadges = [] } = useMyBadges();
+    const { data: stats = null } = useMyStats();
+    const { data: titlesData, mutate: mutateTitles } = useMyTitles();
+    const myTitles = titlesData?.titles || [];
+    const [activeTitleKey, setActiveTitleKey] = useState<string | null>(null);
+    const [titleDialogOpen, setTitleDialogOpen] = useState(false);
+
+    // Group History
+    const [groupHistoryTab, setGroupHistoryTab] = useState<'all' | 'hosted' | 'joined'>('all');
+    const { data: groupHistoryRaw, isLoading: groupHistoryLoading } = useMyGroups(groupHistoryTab);
+    const groupHistory = (groupHistoryRaw || []).slice(0, PROFILE_GROUP_HISTORY_LIMIT);
+
+    // 同步 activeTitle from SWR data
+    useEffect(() => {
+        if (titlesData?.activeTitle !== undefined) {
+            setActiveTitleKey(titlesData.activeTitle);
+        }
+    }, [titlesData]);
+
     const [form, setForm] = useState({
         nickname: '',
         bio: '',
@@ -191,63 +213,6 @@ export default function ProfilePage() {
         setSaving(false);
     };
 
-    // Badges
-    const [allBadges, setAllBadges] = useState<any[]>([]);
-    const [myBadges, setMyBadges] = useState<any[]>([]);
-    const [stats, setStats] = useState<any>(null);
-
-    // Titles
-    const [myTitles, setMyTitles] = useState<any[]>([]);
-    const [activeTitleKey, setActiveTitleKey] = useState<string | null>(null);
-    const [titleDialogOpen, setTitleDialogOpen] = useState(false);
-
-    // Group History
-    const [groupHistory, setGroupHistory] = useState<any[]>([]);
-    const [groupHistoryTab, setGroupHistoryTab] = useState<'all' | 'hosted' | 'joined'>('all');
-    const [groupHistoryLoading, setGroupHistoryLoading] = useState(false);
-
-    useEffect(() => {
-        // Fetch all badges
-        api.getBadges().then(res => { if (res.success && res.data) setAllBadges(res.data as any[]); });
-    }, []);
-
-    useEffect(() => {
-        if (user) {
-            getToken().then(token => {
-                if (token) {
-                    api.getMyBadges(token).then(res => { if (res.success && res.data) setMyBadges(res.data as any[]); });
-                    api.getMyStats(token).then(res => { if (res.success && res.data) setStats(res.data); });
-                    api.getMyTitles(token).then(res => {
-                        console.log('[Titles API]', res);
-                        if (res.success && res.data) {
-                            setMyTitles(res.data.titles || []);
-                            setActiveTitleKey(res.data.activeTitle || null);
-                        }
-                    });
-                    api.checkBadges(token); // auto-check
-                }
-            });
-        }
-    }, [user]);
-
-    // Fetch group history
-    const fetchGroupHistory = async (tab: string) => {
-        setGroupHistoryLoading(true);
-        const token = await getToken();
-        if (!token) { setGroupHistoryLoading(false); return; }
-        const res = await api.getMyGroups(token, tab === 'all' ? undefined : tab);
-        if (res.success && res.data) {
-            setGroupHistory(res.data.items.slice(0, PROFILE_GROUP_HISTORY_LIMIT));
-        }
-        setGroupHistoryLoading(false);
-    };
-
-    useEffect(() => {
-        if (user) {
-            fetchGroupHistory(groupHistoryTab);
-        }
-    }, [user, groupHistoryTab]);
-
     const handleSetTitle = async (titleKey: string) => {
         const token = await getToken();
         if (!token) return;
@@ -255,6 +220,7 @@ export default function ProfilePage() {
         if (res.success) {
             setActiveTitleKey(titleKey);
             setTitleDialogOpen(false);
+            mutateTitles();
             await refreshUser();
         }
     };
