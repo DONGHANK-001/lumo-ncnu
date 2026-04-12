@@ -271,6 +271,10 @@ class ApiClient {
         return this.request<any[]>('/badges/me', { token });
     }
 
+    getUserBadges(userId: string) {
+        return this.request<any[]>(`/badges/user/${userId}`);
+    }
+
     checkBadges(token: string) {
         return this.request<{ newlyUnlocked: any[] }>('/badges/check', { method: 'POST', token });
     }

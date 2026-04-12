@@ -68,6 +68,29 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
     }
 });
 
+router.get('/user/:id', async (req: Request, res: Response) => {
+    try {
+        await ensureAdditionalBadges();
+        const userId = req.params.id;
+
+        const userBadges = await prisma.$queryRaw<any[]>`
+            SELECT b.id, b.code, b.name, b.description, b.icon, ub."unlockedAt"
+            FROM user_badges ub
+            JOIN badges b ON b.id = ub."badgeId"
+            WHERE ub."userId" = ${userId}
+            ORDER BY ub."unlockedAt" DESC
+        `;
+
+        res.json({ success: true, data: userBadges });
+    } catch (error) {
+        logger.error({ err: error }, 'Public user badges error');
+        res.status(500).json({
+            success: false,
+            error: { code: 'SERVER_ERROR', message: '勳章載入失敗' },
+        });
+    }
+});
+
 router.post('/check', firebaseAuthMiddleware, async (req: Request, res: Response) => {
     try {
         await ensureAdditionalBadges();
