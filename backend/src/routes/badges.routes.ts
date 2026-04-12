@@ -68,10 +68,115 @@ router.get('/me', firebaseAuthMiddleware, async (req: Request, res: Response) =>
     }
 });
 
+/** 檢查並解鎖符合條件的勳章（共用邏輯） */
+async function checkAndUnlockBadges(userId: string): Promise<string[]> {
+    const newlyUnlocked: string[] = [];
+
+    const existing = await prisma.$queryRaw<{ code: string }[]>`
+        SELECT b.code
+        FROM user_badges ub
+        JOIN badges b ON b.id = ub."badgeId"
+        WHERE ub."userId" = ${userId}
+    `;
+    const unlockedCodes = new Set(existing.map((item) => item.code));
+
+    if (!unlockedCodes.has('first_step')) {
+        const joinCount = await prisma.groupMember.count({ where: { userId, status: 'JOINED' } });
+        if (joinCount >= 1) {
+            await unlockBadge(userId, 'first_step');
+            newlyUnlocked.push('first_step');
+        }
+    }
+
+    if (!unlockedCodes.has('social_butterfly')) {
+        const joinCount = await prisma.groupMember.count({ where: { userId, status: 'JOINED' } });
+        if (joinCount >= 10) {
+            await unlockBadge(userId, 'social_butterfly');
+            newlyUnlocked.push('social_butterfly');
+        }
+    }
+
+    if (!unlockedCodes.has('team_leader')) {
+        const createdCount = await prisma.group.count({ where: { createdById: userId } });
+        if (createdCount >= 5) {
+            await unlockBadge(userId, 'team_leader');
+            newlyUnlocked.push('team_leader');
+        }
+    }
+
+    if (!unlockedCodes.has('iron_man')) {
+        const joinedGroups = await prisma.groupMember.findMany({
+            where: { userId, status: 'JOINED' },
+            include: { group: { select: { sportType: true } } },
+        });
+        const uniqueSports = new Set(joinedGroups.map((member) => member.group.sportType));
+        if (uniqueSports.size >= 3) {
+            await unlockBadge(userId, 'iron_man');
+            newlyUnlocked.push('iron_man');
+        }
+    }
+
+    if (!unlockedCodes.has('early_bird')) {
+        const joinedGroups = await prisma.groupMember.findMany({
+            where: { userId, status: 'JOINED' },
+            include: { group: { select: { time: true } } },
+        });
+        const earlyCount = joinedGroups.filter((member) => new Date(member.group.time).getHours() < 8).length;
+        if (earlyCount >= 5) {
+            await unlockBadge(userId, 'early_bird');
+            newlyUnlocked.push('early_bird');
+        }
+    }
+
+    if (!unlockedCodes.has('consistent')) {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { attendedCount: true },
+        });
+        if (user && user.attendedCount >= 5) {
+            await unlockBadge(userId, 'consistent');
+            newlyUnlocked.push('consistent');
+        }
+    }
+
+    if (!unlockedCodes.has('campus_explorer')) {
+        const joinedGroups = await prisma.groupMember.findMany({
+            where: { userId, status: 'JOINED' },
+            include: { group: { select: { location: true } } },
+        });
+        const uniqueLocations = new Set(
+            joinedGroups
+                .map((member) => member.group.location)
+                .filter((location): location is string => Boolean(location))
+        );
+        if (uniqueLocations.size >= 4) {
+            await unlockBadge(userId, 'campus_explorer');
+            newlyUnlocked.push('campus_explorer');
+        }
+    }
+
+    if (!unlockedCodes.has('night_owl')) {
+        const joinedGroups = await prisma.groupMember.findMany({
+            where: { userId, status: 'JOINED' },
+            include: { group: { select: { time: true } } },
+        });
+        const lateNightCount = joinedGroups.filter((member) => new Date(member.group.time).getHours() >= 20).length;
+        if (lateNightCount >= 5) {
+            await unlockBadge(userId, 'night_owl');
+            newlyUnlocked.push('night_owl');
+        }
+    }
+
+    return newlyUnlocked;
+}
+
 router.get('/user/:id', async (req: Request, res: Response) => {
     try {
         await ensureAdditionalBadges();
         const userId = req.params.id;
+
+        // 先跑一次 badge check，確保該使用者的勳章狀態是最新的
+        await checkAndUnlockBadges(userId);
 
         const userBadges = await prisma.$queryRaw<any[]>`
             SELECT b.id, b.code, b.name, b.description, b.icon, ub."unlockedAt"
@@ -96,102 +201,7 @@ router.post('/check', firebaseAuthMiddleware, async (req: Request, res: Response
         await ensureAdditionalBadges();
 
         const userId = req.user!.id;
-        const newlyUnlocked: string[] = [];
-
-        const existing = await prisma.$queryRaw<{ code: string }[]>`
-            SELECT b.code
-            FROM user_badges ub
-            JOIN badges b ON b.id = ub."badgeId"
-            WHERE ub."userId" = ${userId}
-        `;
-        const unlockedCodes = new Set(existing.map((item) => item.code));
-
-        if (!unlockedCodes.has('first_step')) {
-            const joinCount = await prisma.groupMember.count({ where: { userId, status: 'JOINED' } });
-            if (joinCount >= 1) {
-                await unlockBadge(userId, 'first_step');
-                newlyUnlocked.push('first_step');
-            }
-        }
-
-        if (!unlockedCodes.has('social_butterfly')) {
-            const joinCount = await prisma.groupMember.count({ where: { userId, status: 'JOINED' } });
-            if (joinCount >= 10) {
-                await unlockBadge(userId, 'social_butterfly');
-                newlyUnlocked.push('social_butterfly');
-            }
-        }
-
-        if (!unlockedCodes.has('team_leader')) {
-            const createdCount = await prisma.group.count({ where: { createdById: userId } });
-            if (createdCount >= 5) {
-                await unlockBadge(userId, 'team_leader');
-                newlyUnlocked.push('team_leader');
-            }
-        }
-
-        if (!unlockedCodes.has('iron_man')) {
-            const joinedGroups = await prisma.groupMember.findMany({
-                where: { userId, status: 'JOINED' },
-                include: { group: { select: { sportType: true } } },
-            });
-            const uniqueSports = new Set(joinedGroups.map((member) => member.group.sportType));
-            if (uniqueSports.size >= 3) {
-                await unlockBadge(userId, 'iron_man');
-                newlyUnlocked.push('iron_man');
-            }
-        }
-
-        if (!unlockedCodes.has('early_bird')) {
-            const joinedGroups = await prisma.groupMember.findMany({
-                where: { userId, status: 'JOINED' },
-                include: { group: { select: { time: true } } },
-            });
-            const earlyCount = joinedGroups.filter((member) => new Date(member.group.time).getHours() < 8).length;
-            if (earlyCount >= 5) {
-                await unlockBadge(userId, 'early_bird');
-                newlyUnlocked.push('early_bird');
-            }
-        }
-
-        if (!unlockedCodes.has('consistent')) {
-            const user = await prisma.user.findUnique({
-                where: { id: userId },
-                select: { attendedCount: true },
-            });
-            if (user && user.attendedCount >= 5) {
-                await unlockBadge(userId, 'consistent');
-                newlyUnlocked.push('consistent');
-            }
-        }
-
-        if (!unlockedCodes.has('campus_explorer')) {
-            const joinedGroups = await prisma.groupMember.findMany({
-                where: { userId, status: 'JOINED' },
-                include: { group: { select: { location: true } } },
-            });
-            const uniqueLocations = new Set(
-                joinedGroups
-                    .map((member) => member.group.location)
-                    .filter((location): location is string => Boolean(location))
-            );
-            if (uniqueLocations.size >= 4) {
-                await unlockBadge(userId, 'campus_explorer');
-                newlyUnlocked.push('campus_explorer');
-            }
-        }
-
-        if (!unlockedCodes.has('night_owl')) {
-            const joinedGroups = await prisma.groupMember.findMany({
-                where: { userId, status: 'JOINED' },
-                include: { group: { select: { time: true } } },
-            });
-            const lateNightCount = joinedGroups.filter((member) => new Date(member.group.time).getHours() >= 20).length;
-            if (lateNightCount >= 5) {
-                await unlockBadge(userId, 'night_owl');
-                newlyUnlocked.push('night_owl');
-            }
-        }
+        const newlyUnlocked = await checkAndUnlockBadges(userId);
 
         let unlockedBadges: any[] = [];
         if (newlyUnlocked.length > 0) {
