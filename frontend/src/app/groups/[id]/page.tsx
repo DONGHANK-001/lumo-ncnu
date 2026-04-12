@@ -42,8 +42,6 @@ import {
     Send as SendIcon,
     ChatBubbleOutline,
     Share as ShareIcon,
-    ThumbUp,
-    ThumbDown,
     Flag
 } from '@mui/icons-material';
 import SafetyNoticeDialog from '@/app/components/SafetyNoticeDialog';
@@ -95,7 +93,6 @@ export default function GroupDetailPage() {
 
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
     const [attendanceRecords, setAttendanceRecords] = useState<Record<string, boolean | null>>({});
-    const [myRatings, setMyRatings] = useState<Record<string, boolean>>({});
     const [showSafetyNotice, setShowSafetyNotice] = useState(false);
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
     const [showReportRules, setShowReportRules] = useState(false);
@@ -110,7 +107,6 @@ export default function GroupDetailPage() {
     useEffect(() => {
         fetchGroup();
         fetchComments();
-        fetchRatings();
 
         // Socket.io for Real-time Comments
         const socket = getSocket();
@@ -139,24 +135,6 @@ export default function GroupDetailPage() {
         const response = await api.getGroupComments(id);
         if (response.success && response.data) {
             setComments(response.data);
-        }
-    };
-
-    const fetchRatings = async () => {
-        if (!user) return;
-        const token = await getToken();
-        if (!token) return;
-        const res = await api.getGroupRatings(token, id);
-        if (res.success && res.data) setMyRatings(res.data);
-    };
-
-    const handleRate = async (ratedUserId: string, isPositive: boolean) => {
-        const token = await getToken();
-        if (!token) return;
-        const res = await api.rateGroupMember(token, id, ratedUserId, isPositive);
-        if (res.success) {
-            setMyRatings(prev => ({ ...prev, [ratedUserId]: isPositive }));
-            setSnackbarMessage(isPositive ? '已給予 👍' : '已給予 👎');
         }
     };
 
@@ -586,7 +564,7 @@ export default function GroupDetailPage() {
                             </Typography>
                         </Stack>
 
-                        {isCreator && group && (new Date(group.time) < new Date() || group.status === 'COMPLETED') && (
+                        {isCreator && group && (Date.now() > new Date(group.time).getTime() + 30 * 60 * 1000 || group.status === 'COMPLETED') && (
                             <Button
                                 variant="contained"
                                 color="primary"
@@ -630,16 +608,7 @@ export default function GroupDetailPage() {
                                                     variant="outlined"
                                                 />
                                             )}
-                                            {((member.user.positiveRatings || 0) + (member.user.negativeRatings || 0)) > 0 && (
-                                                <Chip
-                                                    size="small"
-                                                    label={`👍 ${member.user.positiveRatings || 0}`}
-                                                    sx={{ ml: 0.5, height: 20, fontSize: '0.7rem' }}
-                                                    color="info"
-                                                    variant="outlined"
-                                                />
-                                            )}
-                                        </Typography>
+                                                        </Typography>
                                         <Typography variant="caption" color="text.secondary">
                                             {index === 0 ? '第一位' : `第 ${index + 1} 位`}
                                         </Typography>
@@ -647,7 +616,7 @@ export default function GroupDetailPage() {
                                 </Stack>
 
                                 <Stack direction="column" spacing={0.5} alignItems="flex-end">
-                                    {isCreator && group && (new Date(group.time) < new Date() || group.status === 'COMPLETED') && member.user.id !== user?.id && (
+                                    {isCreator && group && (Date.now() > new Date(group.time).getTime() + 30 * 60 * 1000 || group.status === 'COMPLETED') && member.user.id !== user?.id && (
                                         <Stack direction="row" spacing={1}>
                                             <Button
                                                 size="small"
@@ -667,25 +636,6 @@ export default function GroupDetailPage() {
                                             >
                                                 缺席
                                             </Button>
-                                        </Stack>
-                                    )}
-                                    {user && member.user.id !== user.id && isJoined
-                                        && (new Date(group.time) < new Date() || group.status === 'COMPLETED') && (
-                                        <Stack direction="row" spacing={0.5}>
-                                            <IconButton
-                                                size="small"
-                                                color={myRatings[member.user.id] === true ? 'success' : 'default'}
-                                                onClick={() => handleRate(member.user.id, true)}
-                                            >
-                                                <ThumbUp fontSize="small" />
-                                            </IconButton>
-                                            <IconButton
-                                                size="small"
-                                                color={myRatings[member.user.id] === false ? 'error' : 'default'}
-                                                onClick={() => handleRate(member.user.id, false)}
-                                            >
-                                                <ThumbDown fontSize="small" />
-                                            </IconButton>
                                         </Stack>
                                     )}
                                 </Stack>

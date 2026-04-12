@@ -25,65 +25,6 @@ export async function cleanupExpiredGroups(): Promise<number> {
 }
 
 /**
- * 自動結算出席紀錄
- * 活動結束超過 24 小時後，將未標記（isAttended=null）的 JOINED 成員自動標記為出席
- * 並更新對應 user 的 attendedCount
- */
-export async function autoFinalizeAttendance(): Promise<number> {
-    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 小時前
-
-    // 找出已完成 / 已逾時、且有未標記出席成員的揪團
-    const groups = await prisma.group.findMany({
-        where: {
-            status: { in: ['COMPLETED', 'CANCELLED'] },
-            time: { lt: cutoff },
-            members: {
-                some: { status: 'JOINED', isAttended: null },
-            },
-        },
-        include: {
-            members: {
-                where: { status: 'JOINED', isAttended: null },
-                select: { id: true, userId: true },
-            },
-        },
-    });
-
-    if (groups.length === 0) return 0;
-
-    let updatedCount = 0;
-
-    for (const group of groups) {
-        await prisma.$transaction(async (tx) => {
-            // 批次將未標記成員設為出席
-            const memberIds = group.members.map(m => m.id);
-            await tx.groupMember.updateMany({
-                where: { id: { in: memberIds } },
-                data: { isAttended: true },
-            });
-
-            // 逐一更新 user.attendedCount（同一使用者可能出現在多個揪團）
-            const userIds = [...new Set(group.members.map(m => m.userId))];
-            for (const userId of userIds) {
-                const count = group.members.filter(m => m.userId === userId).length;
-                await tx.user.update({
-                    where: { id: userId },
-                    data: { attendedCount: { increment: count } },
-                });
-            }
-
-            updatedCount += memberIds.length;
-        });
-    }
-
-    if (updatedCount > 0) {
-        attendanceLogger.info({ updatedCount, groupCount: groups.length }, 'Auto-finalized attendance records');
-    }
-
-    return updatedCount;
-}
-
-/**
  * 揪團即將開始提醒（30 分鐘前）
  * 檢查即將在 30 分鐘內開始的揪團，發送提醒通知
  */
@@ -164,17 +105,14 @@ export async function cleanupOldNotifications(): Promise<number> {
 export function startCleanupJob(): void {
     const CLEANUP_INTERVAL = 12 * 60 * 60 * 1000; // 12 小時
     const REMINDER_INTERVAL = 10 * 60 * 1000; // 10 分鐘
-    const ATTENDANCE_INTERVAL = 6 * 60 * 60 * 1000; // 6 小時
 
     cleanupLogger.info('Cleanup job started (every 12h)');
     reminderLogger.info('Reminder job started (every 10min)');
-    attendanceLogger.info('Attendance finalization job started (every 6h)');
     cleanupLogger.info('Notification cleanup job started (every 12h)');
 
     // 啟動時先執行一次
     cleanupExpiredGroups().catch(err => cleanupLogger.error({ err }, 'Initial cleanup failed'));
     sendGroupReminders().catch(err => reminderLogger.error({ err }, 'Initial reminders failed'));
-    autoFinalizeAttendance().catch(err => attendanceLogger.error({ err }, 'Initial attendance finalization failed'));
     cleanupOldNotifications().catch(err => cleanupLogger.error({ err }, 'Initial notification cleanup failed'));
 
     // 每 12 小時執行清理
@@ -186,11 +124,6 @@ export function startCleanupJob(): void {
     setInterval(() => {
         sendGroupReminders().catch(err => reminderLogger.error({ err }, 'Reminders failed'));
     }, REMINDER_INTERVAL);
-
-    // 每 6 小時自動結算出席
-    setInterval(() => {
-        autoFinalizeAttendance().catch(err => attendanceLogger.error({ err }, 'Attendance finalization failed'));
-    }, ATTENDANCE_INTERVAL);
 
     // 每 12 小時清理舊通知
     setInterval(() => {
