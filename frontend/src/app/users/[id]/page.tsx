@@ -309,6 +309,7 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                         gridTemplateColumns: {
                             xs: 'repeat(2, minmax(0, 1fr))',
                             sm: 'repeat(3, minmax(0, 1fr))',
+                            lg: 'repeat(4, minmax(0, 1fr))',
                         },
                         alignItems: 'stretch',
                     }}>
@@ -323,7 +324,7 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                                     opacity: unlocked ? 1 : 0.4,
                                     border: '1px solid',
                                     borderColor: unlocked ? 'primary.main' : 'divider',
-                                    minHeight: { xs: 150, sm: 164 },
+                                    minHeight: { xs: 176, sm: 188 },
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
@@ -335,16 +336,19 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                                         const mapping = BADGE_ICON_MAP[badge.code];
                                         if (mapping) {
                                             const { Icon, color } = mapping;
-                                            return <Icon sx={{ fontSize: 36, color, mt: 0.5 }} />;
+                                            return <Icon sx={{ fontSize: 40, color, mt: 0.5 }} />;
                                         }
                                         return <Typography variant="h4" sx={{ lineHeight: 1.1, mt: 0.5 }}>{badge.icon}</Typography>;
                                     })()}
                                     <Typography
                                         variant="caption"
                                         fontWeight="bold"
+                                        display="flex"
+                                        alignItems="center"
+                                        justifyContent="center"
                                         sx={{
-                                            minHeight: 32,
-                                            fontSize: '0.82rem',
+                                            minHeight: 36,
+                                            fontSize: '0.85rem',
                                             lineHeight: 1.35,
                                             textAlign: 'center',
                                         }}
@@ -355,7 +359,7 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                                         variant="caption"
                                         color="text.secondary"
                                         sx={{
-                                            fontSize: '0.7rem',
+                                            fontSize: '0.72rem',
                                             lineHeight: 1.5,
                                             textAlign: 'center',
                                             display: '-webkit-box',
