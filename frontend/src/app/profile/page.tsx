@@ -410,10 +410,13 @@ export default function ProfilePage() {
                             {(() => {
                                 const activeT = myTitles.find((t: any) => t.key === activeTitleKey);
                                 const iconEntry = activeT ? TITLE_ICON_MAP[activeT.icon] : null;
+                                const titleText = activeT
+                                    ? (activeT.label || '').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{200D}\u{20E3}]/gu, '').trim()
+                                    : '';
                                 return activeT ? (
                                     <Chip
                                         icon={iconEntry ? <iconEntry.Icon sx={{ fontSize: 16, color: 'white !important' }} /> : undefined}
-                                        label={activeT.label}
+                                        label={titleText}
                                         size="small"
                                         onClick={() => setTitleDialogOpen(true)}
                                         sx={{
@@ -914,7 +917,9 @@ export default function ProfilePage() {
                                                 : <MilitaryTech sx={{ fontSize: 28, color: 'text.secondary' }} />;
                                         })()}
                                         <Box>
-                                            <Typography variant="subtitle2" fontWeight="bold">{t.label}</Typography>
+                                            <Typography variant="subtitle2" fontWeight="bold">
+                                                {(t.label || '').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{200D}\u{20E3}]/gu, '').trim()}
+                                            </Typography>
                                             <Typography variant="caption" color="text.secondary">{t.description}</Typography>
                                         </Box>
                                         {activeTitleKey === t.key && (

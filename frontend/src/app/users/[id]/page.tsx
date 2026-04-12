@@ -169,10 +169,12 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                     )}
                     {profile.pioneerTitle && (() => {
                         const iconEntry = TITLE_ICON_MAP[profile.pioneerTitle.icon];
+                        const titleText = (profile.pioneerTitle.title || profile.pioneerTitle.label || '')
+                            .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{200D}\u{20E3}]/gu, '').trim();
                         return (
                             <Chip
                                 icon={iconEntry ? <iconEntry.Icon sx={{ fontSize: 16, color: 'white !important' }} /> : undefined}
-                                label={profile.pioneerTitle.label}
+                                label={titleText}
                                 size="small"
                                 sx={{
                                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
