@@ -377,7 +377,7 @@ export async function getPioneerTitle(userId: string) {
         number: '',
         title: active.label,
         icon: active.icon,
-        label: `${active.icon} ${active.label}`,
+        label: active.label,
         key: active.key,
     };
 }
