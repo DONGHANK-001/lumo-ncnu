@@ -59,6 +59,7 @@ import type { SvgIconProps } from '@mui/material';
 import type { ComponentType } from 'react';
 import CrownBadge from '@/app/components/CrownBadge';
 import { SPORT_NAMES, SPORT_EMOJIS, LEVEL_OPTIONS, TIME_OPTIONS } from '@/lib/constants';
+import { TITLE_ICON_MAP } from '@/lib/title-icons';
 import React from 'react';
 
 const SPORT_ICON_MAP: Record<string, React.ReactElement> = {
@@ -408,9 +409,11 @@ export default function ProfilePage() {
                             )}
                             {(() => {
                                 const activeT = myTitles.find((t: any) => t.key === activeTitleKey);
+                                const iconEntry = activeT ? TITLE_ICON_MAP[activeT.icon] : null;
                                 return activeT ? (
                                     <Chip
-                                        label={`${activeT.icon} ${activeT.label}`}
+                                        icon={iconEntry ? <iconEntry.Icon sx={{ fontSize: 16, color: 'white !important' }} /> : undefined}
+                                        label={activeT.label}
                                         size="small"
                                         onClick={() => setTitleDialogOpen(true)}
                                         sx={{
@@ -904,7 +907,12 @@ export default function ProfilePage() {
                                     }}
                                 >
                                     <Stack direction="row" alignItems="center" spacing={1.5}>
-                                        <Typography variant="h5">{t.icon}</Typography>
+                                        {(() => {
+                                            const iconEntry = TITLE_ICON_MAP[t.icon];
+                                            return iconEntry
+                                                ? <iconEntry.Icon sx={{ fontSize: 28, color: iconEntry.color }} />
+                                                : <MilitaryTech sx={{ fontSize: 28, color: 'text.secondary' }} />;
+                                        })()}
                                         <Box>
                                             <Typography variant="subtitle2" fontWeight="bold">{t.label}</Typography>
                                             <Typography variant="caption" color="text.secondary">{t.description}</Typography>

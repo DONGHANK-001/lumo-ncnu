@@ -16,8 +16,26 @@ import {
     Divider,
     IconButton
 } from '@mui/material';
-import { ArrowBack, Star, LocalFireDepartment, InfoOutlined } from '@mui/icons-material';
+import type { ComponentType } from 'react';
+import type { SvgIconProps } from '@mui/material';
+import {
+    ArrowBack, Star, LocalFireDepartment, InfoOutlined, MilitaryTech,
+    EmojiEvents, Diversity3, WorkspacePremium, FitnessCenter, WbSunny,
+    Explore, NightsStay,
+} from '@mui/icons-material';
 import CrownBadge from '@/app/components/CrownBadge';
+import { TITLE_ICON_MAP } from '@/lib/title-icons';
+
+const BADGE_ICON_MAP: Record<string, { Icon: ComponentType<SvgIconProps>; color: string }> = {
+    first_step: { Icon: EmojiEvents, color: '#FFB300' },
+    social_butterfly: { Icon: Diversity3, color: '#AB47BC' },
+    team_leader: { Icon: WorkspacePremium, color: '#FFA726' },
+    iron_man: { Icon: FitnessCenter, color: '#EF5350' },
+    early_bird: { Icon: WbSunny, color: '#FF7043' },
+    consistent: { Icon: LocalFireDepartment, color: '#FF5722' },
+    campus_explorer: { Icon: Explore, color: '#26A69A' },
+    night_owl: { Icon: NightsStay, color: '#7E57C2' },
+};
 
 const SPORT_LABELS: Record<string, string> = {
     BASKETBALL: '🏀 籃球',
@@ -54,6 +72,8 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [allBadges, setAllBadges] = useState<any[]>([]);
+    const [userBadges, setUserBadges] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -67,6 +87,8 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
             setLoading(false);
         };
         fetchProfile();
+        api.getBadges().then(res => { if (res.success && res.data) setAllBadges(res.data as any[]); });
+        api.getUserBadges(id).then(res => { if (res.success && res.data) setUserBadges(res.data as any[]); });
     }, [id]);
 
     if (loading) {
@@ -145,18 +167,22 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                     {profile.planType === 'PLUS' && (
                         <Chip label="PLUS 尊爵會員" size="small" color="secondary" icon={<Star />} sx={{ fontWeight: 'bold' }} />
                     )}
-                    {profile.pioneerTitle && (
-                        <Chip
-                            label={profile.pioneerTitle.label}
-                            size="small"
-                            sx={{
-                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                color: '#fff',
-                                fontWeight: 'bold',
-                                fontSize: '0.75rem',
-                            }}
-                        />
-                    )}
+                    {profile.pioneerTitle && (() => {
+                        const iconEntry = TITLE_ICON_MAP[profile.pioneerTitle.icon];
+                        return (
+                            <Chip
+                                icon={iconEntry ? <iconEntry.Icon sx={{ fontSize: 16, color: 'white !important' }} /> : undefined}
+                                label={profile.pioneerTitle.label}
+                                size="small"
+                                sx={{
+                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    color: '#fff',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.75rem',
+                                }}
+                            />
+                        );
+                    })()}
                     <Typography variant="h4" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center' }}>
                         {profile.nickname || '匿名使用者'}
                         <CrownBadge isPlus={profile.planType === 'PLUS'} />
@@ -267,6 +293,83 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                     )}
                 </Box>
             </Paper>
+
+            {/* 成就勳章 */}
+            {allBadges.length > 0 && (
+                <Paper sx={{ p: 3, borderRadius: 4, mt: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                        <MilitaryTech sx={{ color: 'primary.main' }} />
+                        <Typography variant="h6" fontWeight="bold">成就勳章</Typography>
+                    </Box>
+                    <Box sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: {
+                            xs: 'repeat(2, minmax(0, 1fr))',
+                            sm: 'repeat(3, minmax(0, 1fr))',
+                        },
+                        alignItems: 'stretch',
+                    }}>
+                        {allBadges.map(badge => {
+                            const unlocked = userBadges.some((ub: any) => ub.code === badge.code);
+                            return (
+                                <Box key={badge.code} sx={{
+                                    textAlign: 'center',
+                                    p: { xs: 2, sm: 2.5 },
+                                    borderRadius: 3,
+                                    bgcolor: unlocked ? 'action.hover' : 'transparent',
+                                    opacity: unlocked ? 1 : 0.4,
+                                    border: '1px solid',
+                                    borderColor: unlocked ? 'primary.main' : 'divider',
+                                    minHeight: { xs: 150, sm: 164 },
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'flex-start',
+                                    gap: 1,
+                                    transition: 'all 0.3s',
+                                }}>
+                                    {(() => {
+                                        const mapping = BADGE_ICON_MAP[badge.code];
+                                        if (mapping) {
+                                            const { Icon, color } = mapping;
+                                            return <Icon sx={{ fontSize: 36, color, mt: 0.5 }} />;
+                                        }
+                                        return <Typography variant="h4" sx={{ lineHeight: 1.1, mt: 0.5 }}>{badge.icon}</Typography>;
+                                    })()}
+                                    <Typography
+                                        variant="caption"
+                                        fontWeight="bold"
+                                        sx={{
+                                            minHeight: 32,
+                                            fontSize: '0.82rem',
+                                            lineHeight: 1.35,
+                                            textAlign: 'center',
+                                        }}
+                                    >
+                                        {badge.name.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{200D}\u{20E3}]/gu, '').trim()}
+                                    </Typography>
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{
+                                            fontSize: '0.7rem',
+                                            lineHeight: 1.5,
+                                            textAlign: 'center',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                        }}
+                                    >
+                                        {badge.description}
+                                    </Typography>
+                                </Box>
+                            );
+                        })}
+                    </Box>
+                </Paper>
+            )}
         </Container>
     );
 }

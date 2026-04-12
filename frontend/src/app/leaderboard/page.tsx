@@ -12,6 +12,7 @@ import {
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { Button, Tab, Tabs } from '@mui/material';
+import { TITLE_ICON_MAP } from '@/lib/title-icons';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
 
@@ -47,52 +48,52 @@ const MEDAL_ICONS = [
 // 活動排行稱號對照表
 const ACTIVITY_TITLE_MAP: Record<string, { label: string; icon: string }> = {
     // 運動
-    'sport_basketball_1': { label: '籃球之王', icon: '🏀' },
-    'sport_basketball_2': { label: '灌籃悍將', icon: '🏀' },
-    'sport_basketball_3': { label: '籃場新星', icon: '🏀' },
-    'sport_running_1': { label: '極速飛人', icon: '🏃' },
-    'sport_running_2': { label: '疾風跑者', icon: '🏃' },
-    'sport_running_3': { label: '耐力新星', icon: '🏃' },
-    'sport_badminton_1': { label: '羽球至尊', icon: '🏸' },
-    'sport_badminton_2': { label: '殺球悍將', icon: '🏸' },
-    'sport_badminton_3': { label: '羽場新星', icon: '🏸' },
-    'sport_table_tennis_1': { label: '桌球至尊', icon: '🏓' },
-    'sport_table_tennis_2': { label: '旋球悍將', icon: '🏓' },
-    'sport_table_tennis_3': { label: '桌場新星', icon: '🏓' },
-    'sport_gym_1': { label: '鐵人霸主', icon: '💪' },
-    'sport_gym_2': { label: '鋼鐵悍將', icon: '💪' },
-    'sport_gym_3': { label: '健身新星', icon: '💪' },
-    'sport_volleyball_1': { label: '排球至尊', icon: '🏐' },
-    'sport_volleyball_2': { label: '扣殺悍將', icon: '🏐' },
-    'sport_volleyball_3': { label: '排場新星', icon: '🏐' },
-    'sport_tennis_1': { label: '網球至尊', icon: '🎾' },
-    'sport_tennis_2': { label: 'ACE悍將', icon: '🎾' },
-    'sport_tennis_3': { label: '網場新星', icon: '🎾' },
+    'sport_basketball_1': { label: '籃球之王', icon: 'SportsBasketball' },
+    'sport_basketball_2': { label: '灌籃悍將', icon: 'SportsBasketball' },
+    'sport_basketball_3': { label: '籃場新星', icon: 'SportsBasketball' },
+    'sport_running_1': { label: '極速飛人', icon: 'DirectionsRun' },
+    'sport_running_2': { label: '疾風跑者', icon: 'DirectionsRun' },
+    'sport_running_3': { label: '耐力新星', icon: 'DirectionsRun' },
+    'sport_badminton_1': { label: '羽球至尊', icon: 'SportsTennis' },
+    'sport_badminton_2': { label: '殺球悍將', icon: 'SportsTennis' },
+    'sport_badminton_3': { label: '羽場新星', icon: 'SportsTennis' },
+    'sport_table_tennis_1': { label: '桌球至尊', icon: 'SportsCricket' },
+    'sport_table_tennis_2': { label: '旋球悍將', icon: 'SportsCricket' },
+    'sport_table_tennis_3': { label: '桌場新星', icon: 'SportsCricket' },
+    'sport_gym_1': { label: '鐵人霸主', icon: 'FitnessCenter' },
+    'sport_gym_2': { label: '鋼鐵悍將', icon: 'FitnessCenter' },
+    'sport_gym_3': { label: '健身新星', icon: 'FitnessCenter' },
+    'sport_volleyball_1': { label: '排球至尊', icon: 'SportsVolleyball' },
+    'sport_volleyball_2': { label: '扣殺悍將', icon: 'SportsVolleyball' },
+    'sport_volleyball_3': { label: '排場新星', icon: 'SportsVolleyball' },
+    'sport_tennis_1': { label: '網球至尊', icon: 'SportsTennis' },
+    'sport_tennis_2': { label: 'ACE悍將', icon: 'SportsTennis' },
+    'sport_tennis_3': { label: '網場新星', icon: 'SportsTennis' },
     // 社交
-    'social_night_walk_1': { label: '月夜行者', icon: '🌙' },
-    'social_night_walk_2': { label: '星夜漫遊', icon: '🌙' },
-    'social_night_walk_3': { label: '夜行新星', icon: '🌙' },
-    'social_dining_1': { label: '美食霸主', icon: '🍽️' },
-    'social_dining_2': { label: '饕餮使者', icon: '🍽️' },
-    'social_dining_3': { label: '覓食新星', icon: '🍽️' },
-    'social_study_1': { label: '學霸之王', icon: '📚' },
-    'social_study_2': { label: '書卷達人', icon: '📚' },
-    'social_study_3': { label: '學海新星', icon: '📚' },
+    'social_night_walk_1': { label: '月夜行者', icon: 'NightsStay' },
+    'social_night_walk_2': { label: '星夜漫遊', icon: 'NightsStay' },
+    'social_night_walk_3': { label: '夜行新星', icon: 'NightsStay' },
+    'social_dining_1': { label: '美食霸主', icon: 'Restaurant' },
+    'social_dining_2': { label: '饕餮使者', icon: 'Restaurant' },
+    'social_dining_3': { label: '覓食新星', icon: 'Restaurant' },
+    'social_study_1': { label: '學霸之王', icon: 'MenuBook' },
+    'social_study_2': { label: '書卷達人', icon: 'MenuBook' },
+    'social_study_3': { label: '學海新星', icon: 'MenuBook' },
 };
 
 // 創始會員 / 活動稱號對照表 (前端顯示用)
 const TITLE_MAP: Record<string, { label: string; icon: string }> = {
-    'pioneer_1': { label: '創始先鋒 #001', icon: '💎' },
-    'pioneer_2': { label: '創始先鋒 #002', icon: '💎' },
-    'pioneer_3': { label: '創始先鋒 #003', icon: '💎' },
-    'pioneer_4': { label: '創始先鋒 #004', icon: '💎' },
-    'pioneer_5': { label: '創始先鋒 #005', icon: '💎' },
-    'pioneer_6': { label: '創始先鋒 #006', icon: '💎' },
-    'pioneer_7': { label: '創始先鋒 #007', icon: '💎' },
-    'pioneer_8': { label: '創始先鋒 #008', icon: '💎' },
-    'pioneer_9': { label: '創始先鋒 #009', icon: '💎' },
-    'pioneer_10': { label: '創始先鋒 #010', icon: '💎' },
-    'wbc_2026': { label: '經典賽應援團 2026', icon: '⚾' },
+    'pioneer_1': { label: '創始先鋒 #001', icon: 'WbTwilight' },
+    'pioneer_2': { label: '創始先鋒 #002', icon: 'Bolt' },
+    'pioneer_3': { label: '創始先鋒 #003', icon: 'LocalFireDepartment' },
+    'pioneer_4': { label: '創始先鋒 #004', icon: 'Explore' },
+    'pioneer_5': { label: '創始先鋒 #005', icon: 'Shield' },
+    'pioneer_6': { label: '創始先鋒 #006', icon: 'Waves' },
+    'pioneer_7': { label: '創始先鋒 #007', icon: 'GpsFixed' },
+    'pioneer_8': { label: '創始先鋒 #008', icon: 'Park' },
+    'pioneer_9': { label: '創始先鋒 #009', icon: 'AutoAwesome' },
+    'pioneer_10': { label: '創始先鋒 #010', icon: 'Terrain' },
+    'wbc_2026': { label: '經典賽應援團 2026', icon: 'SportsBaseball' },
     ...ACTIVITY_TITLE_MAP,
 };
 
@@ -212,35 +213,45 @@ export default function LeaderboardPage() {
                                             >
                                                 {ar.user.nickname || '匿名使用者'}
                                             </Typography>
-                                            {ar.activityTitle && ACTIVITY_TITLE_MAP[ar.activityTitle] && (
-                                                <Chip
-                                                    label={`${ACTIVITY_TITLE_MAP[ar.activityTitle].icon} ${ACTIVITY_TITLE_MAP[ar.activityTitle].label}`}
-                                                    size="small"
-                                                    sx={{
-                                                        fontWeight: 'bold',
-                                                        background: ar.rank === 1
-                                                            ? 'linear-gradient(45deg, #FFD700 30%, #FFA500 90%)'
-                                                            : ar.rank === 2
-                                                                ? 'linear-gradient(45deg, #C0C0C0 30%, #E0E0E0 90%)'
-                                                                : 'linear-gradient(45deg, #CD7F32 30%, #D4A373 90%)',
-                                                        color: 'white',
-                                                        height: isMobile ? 20 : 24,
-                                                        fontSize: isMobile ? '0.65rem' : undefined,
-                                                    }}
-                                                />
-                                            )}
-                                            {ar.user.activeTitle && TITLE_MAP[ar.user.activeTitle] && (
-                                                <Chip
-                                                    label={`${TITLE_MAP[ar.user.activeTitle].icon} ${TITLE_MAP[ar.user.activeTitle].label}`}
-                                                    size="small"
-                                                    variant="outlined"
-                                                    sx={{
-                                                        fontWeight: '500',
-                                                        height: isMobile ? 20 : 24,
-                                                        fontSize: isMobile ? '0.65rem' : undefined,
-                                                    }}
-                                                />
-                                            )}
+                                            {ar.activityTitle && ACTIVITY_TITLE_MAP[ar.activityTitle] && (() => {
+                                                const entry = ACTIVITY_TITLE_MAP[ar.activityTitle!];
+                                                const iconEntry = TITLE_ICON_MAP[entry.icon];
+                                                return (
+                                                    <Chip
+                                                        icon={iconEntry ? <iconEntry.Icon sx={{ fontSize: 14, color: 'white !important' }} /> : undefined}
+                                                        label={entry.label}
+                                                        size="small"
+                                                        sx={{
+                                                            fontWeight: 'bold',
+                                                            background: ar.rank === 1
+                                                                ? 'linear-gradient(45deg, #FFD700 30%, #FFA500 90%)'
+                                                                : ar.rank === 2
+                                                                    ? 'linear-gradient(45deg, #C0C0C0 30%, #E0E0E0 90%)'
+                                                                    : 'linear-gradient(45deg, #CD7F32 30%, #D4A373 90%)',
+                                                            color: 'white',
+                                                            height: isMobile ? 20 : 24,
+                                                            fontSize: isMobile ? '0.65rem' : undefined,
+                                                        }}
+                                                    />
+                                                );
+                                            })()}
+                                            {ar.user.activeTitle && TITLE_MAP[ar.user.activeTitle] && (() => {
+                                                const entry = TITLE_MAP[ar.user.activeTitle!];
+                                                const iconEntry = TITLE_ICON_MAP[entry.icon];
+                                                return (
+                                                    <Chip
+                                                        icon={iconEntry ? <iconEntry.Icon sx={{ fontSize: 14, color: iconEntry.color }} /> : undefined}
+                                                        label={entry.label}
+                                                        size="small"
+                                                        variant="outlined"
+                                                        sx={{
+                                                            fontWeight: '500',
+                                                            height: isMobile ? 20 : 24,
+                                                            fontSize: isMobile ? '0.65rem' : undefined,
+                                                        }}
+                                                    />
+                                                );
+                                            })()}
                                         </Stack>
                                         {ar.user.department && (
                                             <Typography variant="caption" color="text.secondary" display="block" sx={{ wordBreak: 'break-word' }}>
