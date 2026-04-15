@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { api } from '@/lib/api-client';
 import { getSocket } from '@/lib/socket';
-import { shouldShowReadingEventNotification, isReadingEventNotifReadToday, shouldShowMidtermFitNotification, isMidtermFitNotifReadToday } from '@/lib/constants';
 
 interface Notification {
     id: string;
@@ -62,11 +61,12 @@ export function useNotifications() {
 
     // 全部標記已讀
     const markAllAsRead = useCallback(async () => {
+        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+        setUnreadCount(0);
+
         const token = await getToken();
         if (!token) return;
         await api.markAllNotificationsRead(token);
-        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-        setUnreadCount(0);
     }, [getToken]);
 
     // 刪除所有已讀通知
@@ -105,16 +105,8 @@ export function useNotifications() {
         fetchUnreadCount();
     }, [fetchUnreadCount]);
 
-    // 虛擬活動通知的未讀計數（前端 hardcode，不動 DB）
-    const readingNotifUnread = typeof window !== 'undefined'
-        && shouldShowReadingEventNotification()
-        && !isReadingEventNotifReadToday() ? 1 : 0;
-    const midtermFitNotifUnread = typeof window !== 'undefined'
-        && shouldShowMidtermFitNotification()
-        && !isMidtermFitNotifReadToday() ? 1 : 0;
-
     return {
-        unreadCount: unreadCount + readingNotifUnread + midtermFitNotifUnread,
+        unreadCount,
         notifications,
         loading,
         fetchNotifications,

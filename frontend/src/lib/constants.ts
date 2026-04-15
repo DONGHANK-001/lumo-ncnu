@@ -136,13 +136,12 @@ export function shouldShowReadingEventNotification(): boolean {
 
 export function isReadingEventNotifReadToday(): boolean {
     if (typeof window === 'undefined') return true;
-    const stored = localStorage.getItem('reading_event_notif_read_date');
-    return stored === new Date().toDateString();
+    return localStorage.getItem('reading_event_notif_read') === 'true';
 }
 
 export function markReadingEventNotifRead(): void {
     if (typeof window === 'undefined') return;
-    localStorage.setItem('reading_event_notif_read_date', new Date().toDateString());
+    localStorage.setItem('reading_event_notif_read', 'true');
 }
 
 // ============================================
@@ -163,13 +162,12 @@ export function shouldShowMidtermFitNotification(): boolean {
 
 export function isMidtermFitNotifReadToday(): boolean {
     if (typeof window === 'undefined') return true;
-    const stored = localStorage.getItem('midterm_fit_notif_read_date');
-    return stored === new Date().toDateString();
+    return localStorage.getItem('midterm_fit_notif_read') === 'true';
 }
 
 export function markMidtermFitNotifRead(): void {
     if (typeof window === 'undefined') return;
-    localStorage.setItem('midterm_fit_notif_read_date', new Date().toDateString());
+    localStorage.setItem('midterm_fit_notif_read', 'true');
 }
 
 /** 任一活動進行中（用於共用判斷） */

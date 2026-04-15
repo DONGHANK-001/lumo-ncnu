@@ -30,7 +30,6 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
-import { shouldShowReadingEventNotification, isReadingEventNotifReadToday, markReadingEventNotifRead } from '@/lib/constants';
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
     GROUP_JOIN: { icon: <GroupAdd />, color: '#4CAF50' },
@@ -71,14 +70,6 @@ export default function NotificationsPage() {
         deleteReadNotifications,
     } = useNotifications();
     const [page, setPage] = useState(1);
-    const [eventNotifRead, setEventNotifRead] = useState(true);
-
-    // 檢查活動虛擬通知是否應顯示為未讀
-    useEffect(() => {
-        if (shouldShowReadingEventNotification()) {
-            setEventNotifRead(isReadingEventNotifReadToday());
-        }
-    }, []);
 
     useEffect(() => {
         fetchNotifications(1);
@@ -91,13 +82,6 @@ export default function NotificationsPage() {
     };
 
     const handleNotificationClick = (notification: any) => {
-        // 虛擬活動通知特殊處理
-        if (notification.id === 'reading-event-virtual') {
-            markReadingEventNotifRead();
-            setEventNotifRead(true);
-            router.push('/sports/STUDY');
-            return;
-        }
         if (!notification.isRead) {
             markAsRead(notification.id);
         }
@@ -174,7 +158,7 @@ export default function NotificationsPage() {
                         <Skeleton key={i} variant="rectangular" height={80} sx={{ borderRadius: 2 }} />
                     ))}
                 </Stack>
-            ) : notifications.length === 0 && !shouldShowReadingEventNotification() ? (
+            ) : notifications.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 8 }}>
                     <Typography variant="h6" color="text.secondary">
                         🔔 目前沒有通知
@@ -185,66 +169,6 @@ export default function NotificationsPage() {
                 </Box>
             ) : (
                 <Stack spacing={1}>
-                    {/* 📚 讀家回憶虛擬活動通知 (4/7-4/17 每天 9:00 後顯示) */}
-                    {shouldShowReadingEventNotification() && (
-                        <Paper
-                            elevation={0}
-                            onClick={() => handleNotificationClick({ id: 'reading-event-virtual', isRead: eventNotifRead })}
-                            sx={{
-                                p: 2,
-                                cursor: 'pointer',
-                                borderRadius: 3,
-                                bgcolor: eventNotifRead ? 'background.paper' : 'action.hover',
-                                border: '1px solid',
-                                borderColor: eventNotifRead ? 'divider' : 'primary.main',
-                                transition: 'all 0.2s',
-                                background: eventNotifRead
-                                    ? undefined
-                                    : 'linear-gradient(135deg, rgba(13,27,42,0.05) 0%, rgba(39,76,119,0.08) 100%)',
-                                '&:hover': {
-                                    bgcolor: 'action.hover',
-                                    transform: 'translateX(4px)',
-                                },
-                            }}
-                        >
-                            <Stack direction="row" spacing={2} alignItems="flex-start">
-                                <Box
-                                    sx={{
-                                        width: 40,
-                                        height: 40,
-                                        borderRadius: '50%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        bgcolor: 'rgba(255,215,0,0.15)',
-                                        color: '#FFD700',
-                                        flexShrink: 0,
-                                        mt: 0.5,
-                                        fontSize: 20,
-                                    }}
-                                >
-                                    🏆
-                                </Box>
-                                <Box sx={{ flex: 1, minWidth: 0 }}>
-                                    <Stack direction="row" alignItems="center" spacing={1}>
-                                        <Typography variant="subtitle2" fontWeight={eventNotifRead ? 'normal' : 'bold'} noWrap>
-                                            📚 讀家回憶｜系所對抗賽進行中！
-                                        </Typography>
-                                        {!eventNotifRead && (
-                                            <Circle sx={{ fontSize: 8, color: 'primary.main' }} />
-                                        )}
-                                    </Stack>
-                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                                        衝上個人排行榜前三名，最高可獲 300 元禮券！4/17 中午截止，立即參賽 🔥
-                                    </Typography>
-                                    <Typography variant="caption" color="text.disabled" sx={{ mt: 0.5, display: 'block' }}>
-                                        活動期間：4/7 – 4/17
-                                    </Typography>
-                                </Box>
-                            </Stack>
-                        </Paper>
-                    )}
-
                     {notifications.map((notification) => {
                         const config = TYPE_CONFIG[notification.type] || TYPE_CONFIG.SYSTEM;
                         return (
