@@ -184,11 +184,6 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                         <Chip
                             size="small"
                             variant="outlined"
-                            label={`系級 ${profile.gradeLabel || '未填寫'}`}
-                        />
-                        <Chip
-                            size="small"
-                            variant="outlined"
                             label={`系所 ${profile.department || '未填寫'}`}
                         />
                     </Stack>
