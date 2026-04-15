@@ -619,10 +619,9 @@ router.put(
             throw new ApiError(403, 'FORBIDDEN', '只有揪團發起人可以設定出缺席紀錄');
         }
 
-        // 檢查活動開始 30 分鐘後才能標記出缺席
-        const ATTENDANCE_WINDOW_MS = 30 * 60 * 1000;
-        if (Date.now() < new Date(group.time).getTime() + ATTENDANCE_WINDOW_MS && group.status !== 'COMPLETED') {
-            throw new ApiError(400, 'TOO_EARLY', '活動開始 30 分鐘後才能標記出缺席');
+        // 檢查活動開始後才能標記出缺席
+        if (Date.now() < new Date(group.time).getTime() && group.status !== 'COMPLETED') {
+            throw new ApiError(400, 'TOO_EARLY', '活動開始後才能標記出缺席');
         }
 
         await prisma.$transaction(async (tx) => {

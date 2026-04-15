@@ -564,7 +564,7 @@ export default function GroupDetailPage() {
                             </Typography>
                         </Stack>
 
-                        {isCreator && group && (Date.now() > new Date(group.time).getTime() + 30 * 60 * 1000 || group.status === 'COMPLETED') && (
+                        {isCreator && group && (Date.now() > new Date(group.time).getTime() || group.status === 'COMPLETED') && (
                             <Button
                                 variant="contained"
                                 color="primary"
@@ -616,7 +616,7 @@ export default function GroupDetailPage() {
                                 </Stack>
 
                                 <Stack direction="column" spacing={0.5} alignItems="flex-end">
-                                    {isCreator && group && (Date.now() > new Date(group.time).getTime() + 30 * 60 * 1000 || group.status === 'COMPLETED') && member.user.id !== user?.id && (
+                                    {isCreator && group && (Date.now() > new Date(group.time).getTime() || group.status === 'COMPLETED') && member.user.id !== user?.id && (
                                         <Stack direction="row" spacing={1}>
                                             <Button
                                                 size="small"
