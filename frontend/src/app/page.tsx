@@ -1124,15 +1124,11 @@ export default function LandingPage() {
                     ].map((feature, idx) => (
                         <Grid size={{ xs: 12, md: 4 }} key={idx}>
                             <Card
-                                {...(feature.href ? { component: Link, href: feature.href } : {})}
                                 sx={{
                                     height: '100%',
                                     bgcolor: 'background.paper',
                                     textDecoration: 'none',
                                     color: 'inherit',
-                                    cursor: feature.href ? 'pointer' : 'default',
-                                    transition: 'transform 0.3s',
-                                    '&:hover': feature.href ? { transform: 'translateY(-4px)', boxShadow: 3 } : {},
                                 }}
                             >
                                 <CardContent sx={{ textAlign: 'center', p: 4 }}>
