@@ -5,23 +5,63 @@ import { cleanupLogger, reminderLogger } from './logger.js';
 /**
  * 清理過期揪團
  * 將時間已過且狀態為 OPEN/FULL 的揪團標記為 COMPLETED
+ * 同時自動標記所有已加入成員為「出席」並更新 attendedCount
  */
 export async function cleanupExpiredGroups(): Promise<number> {
     const now = new Date();
 
-    const result = await prisma.group.updateMany({
+    // 先找出即將被標記為 COMPLETED 的揪團（含成員）
+    const expiredGroups = await prisma.group.findMany({
         where: {
             time: { lt: now },
             status: { in: ['OPEN', 'FULL'] },
         },
-        data: { status: 'COMPLETED' },
+        include: {
+            members: {
+                where: { status: 'JOINED', isAttended: null },
+                select: { id: true, userId: true },
+            },
+        },
     });
 
-    if (result.count > 0) {
-        cleanupLogger.info({ count: result.count }, 'Marked expired groups as completed');
-    }
+    if (expiredGroups.length === 0) return 0;
 
-    return result.count;
+    await prisma.$transaction(async (tx) => {
+        // 1. 標記揪團為 COMPLETED
+        await tx.group.updateMany({
+            where: {
+                id: { in: expiredGroups.map(g => g.id) },
+            },
+            data: { status: 'COMPLETED' },
+        });
+
+        // 2. 自動標記所有 JOINED 且尚未記錄的成員為出席
+        const allMemberIds = expiredGroups.flatMap(g => g.members.map(m => m.id));
+        if (allMemberIds.length > 0) {
+            await tx.groupMember.updateMany({
+                where: { id: { in: allMemberIds } },
+                data: { isAttended: true },
+            });
+
+            // 3. 每位使用者的 attendedCount +1（可能參與多個揪團）
+            const userIdCounts = new Map<string, number>();
+            for (const group of expiredGroups) {
+                for (const member of group.members) {
+                    userIdCounts.set(member.userId, (userIdCounts.get(member.userId) || 0) + 1);
+                }
+            }
+            for (const [userId, count] of userIdCounts) {
+                await tx.user.update({
+                    where: { id: userId },
+                    data: { attendedCount: { increment: count } },
+                });
+            }
+        }
+    });
+
+    cleanupLogger.info({ count: expiredGroups.length }, 'Marked expired groups as completed with auto-attendance');
+
+    return expiredGroups.length;
 }
 
 /**
