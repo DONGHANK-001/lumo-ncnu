@@ -11,6 +11,10 @@ export const metadata: Metadata = {
     title: 'LUMO - 暨大揪團平台',
     description: '國立暨南國際大學專屬運動揪團平台',
     manifest: '/manifest.json',
+    icons: {
+        icon: '/icons/icon-192.png',
+        apple: '/icons/icon-192.png',
+    },
 };
 
 export const viewport: Viewport = {
