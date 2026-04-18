@@ -595,7 +595,7 @@ export default function LandingPage() {
                                         <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center" sx={{ mb: 0.5 }}>
                                             <Explore sx={{ fontSize: '1.15rem', color: theme.palette.mode === 'dark' ? '#66BB6A' : '#2E7D32' }} />
                                             <Typography variant="h6" fontWeight="900" color="text.primary" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>
-                                                \uD83D\uDDFA\uFE0F Lumo 校園尋寶｜限時開啟！
+                                                Lumo 校園尋寶｜限時開啟！
                                             </Typography>
                                             <Explore sx={{ fontSize: '1.15rem', color: theme.palette.mode === 'dark' ? '#66BB6A' : '#2E7D32' }} />
                                         </Stack>
