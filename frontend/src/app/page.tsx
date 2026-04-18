@@ -56,7 +56,8 @@ import {
     Assignment,
     Gavel,
     CheckCircle,
-    SelfImprovement
+    SelfImprovement,
+    Explore
 } from '@mui/icons-material';
 import { BadmintonIcon, TableTennisIcon } from './components/SportIcons';
 import Link from 'next/link';
@@ -74,7 +75,7 @@ import DepartmentUpdateDialog, { DEPARTMENT_VERSION } from './components/Departm
 import IdentityUpdateDialog from './components/IdentityUpdateDialog';
 import PwaInstallDialog from './components/PwaInstallDialog';
 import { useNotifications } from '@/hooks/useNotifications';
-import { SPORT_NAMES, DEPARTMENTS, isReadingEventActive, isMidtermFitActive, isAnyEventActive } from '@/lib/constants';
+import { SPORT_NAMES, DEPARTMENTS, isReadingEventActive, isMidtermFitActive, isTreasureHuntActive, isAnyEventActive } from '@/lib/constants';
 
 const SPORTS = [
     { type: 'BASKETBALL', icon: <SportsBasketball fontSize="large" />, name: '籃球' },
@@ -567,6 +568,81 @@ export default function LandingPage() {
                                             <Button variant="outlined" component={Link} href="/leaderboard" size="small"
                                                 sx={{ borderColor: 'divider', color: 'text.secondary', borderRadius: 2, px: 2, '&:hover': { borderColor: 'warning.main', color: 'warning.main' } }}>
                                                 排行榜
+                                            </Button>
+                                        </Stack>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        )}
+
+                        {/* Lumo 校園尋寶 */}
+                        {isTreasureHuntActive() && (
+                            <Grid size={{ xs: 12 }}>
+                                <Card sx={{
+                                    borderRadius: 3,
+                                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(27,54,38,0.85)' : 'rgba(240,255,245,0.85)',
+                                    border: '1px solid',
+                                    borderColor: theme.palette.mode === 'dark' ? 'rgba(76,175,80,0.25)' : 'rgba(76,175,80,0.2)',
+                                    backdropFilter: 'blur(12px)',
+                                    boxShadow: theme.palette.mode === 'dark'
+                                        ? '0 4px 20px rgba(0,0,0,0.3)'
+                                        : '0 4px 20px rgba(76,175,80,0.1)',
+                                    overflow: 'hidden',
+                                    position: 'relative',
+                                    height: '100%',
+                                }}>
+                                    <CardContent sx={{ py: 2.5, px: { xs: 2, sm: 3 }, position: 'relative' }}>
+                                        <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center" sx={{ mb: 0.5 }}>
+                                            <Explore sx={{ fontSize: '1.15rem', color: theme.palette.mode === 'dark' ? '#66BB6A' : '#2E7D32' }} />
+                                            <Typography variant="h6" fontWeight="900" color="text.primary" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>
+                                                \uD83D\uDDFA\uFE0F Lumo 校園尋寶｜限時開啟！
+                                            </Typography>
+                                            <Explore sx={{ fontSize: '1.15rem', color: theme.palette.mode === 'dark' ? '#66BB6A' : '#2E7D32' }} />
+                                        </Stack>
+                                        <Typography variant="caption" textAlign="center" display="block" color="text.secondary" sx={{ mb: 1.5 }}>
+                                            4/22 – 4/29 揪新朋友打卡校園海報，完成任務抽現金！
+                                        </Typography>
+                                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="center" alignItems="center" sx={{ mb: 1.5 }}>
+                                            <Chip label="① 線上配對" size="small" sx={{ fontWeight: 'bold' }} />
+                                            <Chip label="② 校園打卡" size="small" sx={{ fontWeight: 'bold' }} />
+                                            <Chip label="③ IG 限動" size="small" sx={{ fontWeight: 'bold' }} />
+                                            <Chip label="④ 私訊 IG" size="small" sx={{ fontWeight: 'bold' }} />
+                                        </Stack>
+                                        <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 1.5 }}>
+                                            <Stack alignItems="center">
+                                                <EmojiEvents sx={{ fontSize: '1.3rem', color: '#FFD700' }} />
+                                                <Typography variant="caption" color="text.secondary">$200 ×2</Typography>
+                                                <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>7次任務</Typography>
+                                            </Stack>
+                                            <Stack alignItems="center">
+                                                <EmojiEvents sx={{ fontSize: '1.3rem', color: '#C0C0C0' }} />
+                                                <Typography variant="caption" color="text.secondary">$100 ×3</Typography>
+                                                <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>5次任務</Typography>
+                                            </Stack>
+                                            <Stack alignItems="center">
+                                                <EmojiEvents sx={{ fontSize: '1.3rem', color: '#CD7F32' }} />
+                                                <Typography variant="caption" color="text.secondary">$50 ×6</Typography>
+                                                <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>3次任務</Typography>
+                                            </Stack>
+                                        </Stack>
+                                        <Typography variant="caption" textAlign="center" display="block" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.6 }}>
+                                            在 App 揪新朋友 → 找校園海報合照 <CameraAlt sx={{ fontSize: '0.85rem', verticalAlign: 'middle', mx: 0.3 }} /> → 發 IG 限動 → 私訊 @lumo_dailyfit 抽獎！
+                                        </Typography>
+                                        <Stack direction="row" spacing={1} justifyContent="center">
+                                            <Button variant="contained" component={Link} href="/create" size="small"
+                                                sx={{
+                                                    bgcolor: theme.palette.mode === 'dark' ? '#66BB6A' : '#2E7D32',
+                                                    color: '#fff', fontWeight: 'bold', borderRadius: 2, px: 2,
+                                                    '&:hover': { bgcolor: theme.palette.mode === 'dark' ? '#81C784' : '#1B5E20' }
+                                                }}>
+                                                立即揪團尋寶 <Explore sx={{ fontSize: '1rem', ml: 0.3 }} />
+                                            </Button>
+                                            <Button variant="outlined" component={Link} href="/groups" size="small"
+                                                sx={{
+                                                    borderColor: 'divider', color: 'text.secondary', borderRadius: 2, px: 2,
+                                                    '&:hover': { borderColor: 'success.main', color: 'success.main' }
+                                                }}>
+                                                瀏覽揪團
                                             </Button>
                                         </Stack>
                                     </CardContent>
