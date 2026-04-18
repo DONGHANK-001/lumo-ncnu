@@ -28,6 +28,15 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
+        version: 'v1.20.1',
+        date: '2026-04-18',
+        category: '優化',
+        title: '🎨 App 圖示更新',
+        details: [
+            '更換 PWA 應用圖示為全新 LUMO 品牌 Logo',
+        ],
+    },
+    {
         version: 'v1.20.0',
         date: '2026-04-13',
         category: '優化',
