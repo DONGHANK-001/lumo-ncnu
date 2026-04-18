@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lumo-ncnu-v1';
+const CACHE_NAME = 'lumo-ncnu-v2';
 const STATIC_ASSETS = [
     '/',
     '/manifest.json',
