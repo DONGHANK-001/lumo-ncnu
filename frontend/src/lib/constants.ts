@@ -173,7 +173,7 @@ export function markMidtermFitNotifRead(): void {
 // ============================================
 // Lumo 校園尋寶｜配對打卡抽獎活動（4/22 - 4/29）
 // ============================================
-export const TREASURE_HUNT_START = new Date('2026-04-22T00:00:00+08:00');
+export const TREASURE_HUNT_START = new Date('2026-04-18T00:00:00+08:00');
 export const TREASURE_HUNT_END = new Date('2026-04-30T00:00:00+08:00');
 
 export function isTreasureHuntActive(): boolean {
