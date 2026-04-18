@@ -213,9 +213,10 @@ router.get('/me/stats', firebaseAuthMiddleware, async (req: Request, res: Respon
     const now = new Date();
 
     // 1. 處理簽到 (Check-in) 邏輯
-    // 先把今天的簽到記錄寫入 (upsert)
-    const today = new Date(now);
-    today.setHours(0, 0, 0, 0); // 取今天的凌晨 0點0分0秒 作為純日期
+    // 使用台灣時間 (UTC+8) 計算「今天」，避免 UTC 時區造成日期偏移
+    const taiwanNow = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+    const todayStr = taiwanNow.toISOString().split('T')[0]; // 台灣日期字串 e.g. "2026-04-18"
+    const today = new Date(todayStr + 'T00:00:00.000Z'); // 存入 DB 用 UTC midnight
 
     await prisma.userCheckIn.upsert({
         where: {
@@ -241,37 +242,47 @@ router.get('/me/stats', firebaseAuthMiddleware, async (req: Request, res: Respon
     const dates = checkIns.map(c => c.date.toISOString().split('T')[0]);
     let currentStreak = 0;
     let longestStreak = 0;
-    let tempStreak = 0;
 
     if (dates.length > 0) {
-        let prevDate = new Date(dates[0]);
-        const todayStr = today.toISOString().split('T')[0];
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        const yesterdayDate = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+        const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
 
         const isCurrentActive = dates[0] === todayStr || dates[0] === yesterdayStr;
 
-        tempStreak = 1;
+        // 計算從最近一筆開始的連續天數
+        let tempStreak = 1;
         for (let i = 1; i < dates.length; i++) {
-            const currDate = new Date(dates[i]);
-            const diffTime = Math.abs(prevDate.getTime() - currDate.getTime());
-            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+            const d1 = new Date(dates[i - 1] + 'T00:00:00Z');
+            const d2 = new Date(dates[i] + 'T00:00:00Z');
+            const diffDays = Math.round((d1.getTime() - d2.getTime()) / (1000 * 60 * 60 * 24));
 
             if (diffDays === 1) {
                 tempStreak++;
             } else {
-                if (tempStreak > longestStreak) longestStreak = tempStreak;
-                if (i === 1 && isCurrentActive) currentStreak = tempStreak;
-                tempStreak = 1;
+                break; // 連續中斷，停止計算 currentStreak
             }
-            prevDate = currDate;
         }
-        if (tempStreak > longestStreak) longestStreak = tempStreak;
-        // 如果迴圈跑完還是目前活躍
-        if (isCurrentActive && currentStreak === 0) currentStreak = tempStreak;
-        // 邊界：只有一天
-        if (dates.length === 1 && isCurrentActive) currentStreak = 1;
+
+        if (isCurrentActive) {
+            currentStreak = tempStreak;
+        }
+
+        // 計算歷史最長連續天數
+        let streak = 1;
+        for (let i = 1; i < dates.length; i++) {
+            const d1 = new Date(dates[i - 1] + 'T00:00:00Z');
+            const d2 = new Date(dates[i] + 'T00:00:00Z');
+            const diffDays = Math.round((d1.getTime() - d2.getTime()) / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 1) {
+                streak++;
+            } else {
+                if (streak > longestStreak) longestStreak = streak;
+                streak = 1;
+            }
+        }
+        if (streak > longestStreak) longestStreak = streak;
+        if (currentStreak > longestStreak) longestStreak = currentStreak;
     }
 
     // 2. 處理運動分布與熱量 (依然看有參加的揪團)

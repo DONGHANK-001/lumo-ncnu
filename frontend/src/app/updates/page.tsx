@@ -28,11 +28,13 @@ interface UpdateEntry {
 
 const UPDATES: UpdateEntry[] = [
     {
-        version: 'v1.20.1',
+        version: 'v1.20.2',
         date: '2026-04-18',
-        category: '優化',
-        title: '🎨 App 圖示更新',
+        category: '修復',
+        title: '🛠️ 連續登入天數修正 & App 圖示更新',
         details: [
+            '修復連續登入天數永遠顯示 1 天的問題（伺服器 UTC 時區與台灣 UTC+8 日期不一致）',
+            '簽到日期改用台灣時間計算，確保跨日判定正確',
             '更換 PWA 應用圖示為全新 LUMO 品牌 Logo',
         ],
     },
